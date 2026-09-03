@@ -193,13 +193,19 @@ and stickers, never animated. Marquees, entrances and loops sit inside a
 `prefers-reduced-motion: no-preference` query — declared there from the start, since the
 `0.001ms` override does not stop scroll-driven animation.
 
-### Deployment
+### Running it
 
-Coolify, building from a Dockerfile rather than Nixpacks, with `output: 'standalone'` set
-in `next.config`. Payload's official Dockerfile requires it and Coolify's own Next.js
-example ships without it, so neither can be copied unmodified. Build-time and runtime
-environment variables are flagged separately in Coolify: `NEXT_PUBLIC_*` must be
-build-enabled, secrets runtime-only.
+Local only. There is no Dockerfile, no CI and no deploy pipeline in this scope: Andy will
+take the finished project to Coolify himself, most likely on Nixpacks. The build must
+therefore avoid painting that route into a corner:
+
+- Do not force `output: 'standalone'`. It is a Dockerfile requirement, and committing to it
+  here would constrain a deployment decision that has not been made.
+- Database migrations get their own named script, separate from build and start, so it can
+  be hooked into whatever pipeline is chosen later.
+- `.env.example` stays current with every variable the app reads, since it is the only
+  thing that will tell Coolify what to provide. Note for later: Coolify flags build-time
+  and runtime variables separately, and `NEXT_PUBLIC_*` must be build-enabled.
 
 ## Testing Decisions
 
@@ -227,8 +233,9 @@ There is no prior art: this is the first code in the repo. These tests set the c
 
 Dark mode. French. A page per Song. A downloadable CV. Real waveforms. Auto-advance
 between Songs. A volume control. Persisting contact submissions. Commission checkout or
-payments. A blog, a newsletter, or an events calendar. Analytics. A custom domain for the
-site itself — it ships on whatever Coolify gives it, and the domain is a later change.
+payments. A blog, a newsletter, or an events calendar. Analytics. Deployment of any
+kind — no Dockerfile, no CI, no Coolify configuration; the project runs locally until Andy
+takes it to production himself. A custom domain for the site itself.
 
 ## Further Notes
 
