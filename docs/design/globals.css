@@ -1,0 +1,158 @@
+/* Anna Milazzo — theme layer.
+ *
+ * Derived from the tweakcn "neo-brutalism" theme, rewritten for this project:
+ *   - Anna's palette replaces the stock red / acid-yellow / electric-blue.
+ *   - The dark block is gone. This site is paper; paper has no night mode.
+ *   - The shadow scale is rebuilt as pure offsets. tweakcn derives a blurred
+ *     second layer it cannot switch off, which is not a neo-brutalist shadow.
+ *
+ * Note on intensity: Anna's colours sit at chroma ~0.12, roughly half the
+ * stock theme's ~0.23. The style's aggression therefore has to come from the
+ * black keylines and the hard shadows, not from the colour. That is deliberate.
+ *
+ * Copy this into src/app/(frontend)/globals.css at scaffold time.
+ */
+
+@import "tailwindcss";
+
+:root {
+  /* ---- ground ------------------------------------------------------ */
+  --background: oklch(0.9711 0.0125 92);    /* warm paper, never pure white */
+  --foreground: oklch(0 0 0);
+
+  --card: oklch(0.9900 0.0050 95);          /* a sheet laid on the paper */
+  --card-foreground: oklch(0 0 0);
+  --popover: oklch(0.9900 0.0050 95);
+  --popover-foreground: oklch(0 0 0);
+
+  /* ---- Anna's two colours ------------------------------------------ */
+  /* #3866A8 — the only fill that may carry light type (5.78:1 on white). */
+  --primary: oklch(0.5104 0.1169 257.59);
+  --primary-foreground: oklch(1 0 0);
+
+  /* #F79E76 Pantone 15-1239 Cantaloupe — BLACK TYPE ONLY (2.08:1 on white). */
+  --accent: oklch(0.7803 0.1196 44.76);
+  --accent-foreground: oklch(0 0 0);
+
+  /* ---- neutrals ----------------------------------------------------- */
+  --secondary: oklch(0.9310 0.0230 88);     /* deeper sand, a distinct block */
+  --secondary-foreground: oklch(0 0 0);
+  --muted: oklch(0.9200 0.0080 90);
+  --muted-foreground: oklch(0.4200 0.0150 90);
+
+  --destructive: oklch(0 0 0);
+  --destructive-foreground: oklch(1 0 0);
+
+  /* ---- structure ---------------------------------------------------- */
+  --border: oklch(0 0 0);                   /* every keyline is black */
+  --input: oklch(0 0 0);
+  --ring: oklch(0 0 0);                     /* focus = black outline + offset */
+  --radius: 0px;
+  --border-brutal: 3px;
+
+  /* ---- decoration --------------------------------------------------- */
+  /* Lime is ornament only: asterisks, arrows, underlines, blobs.
+   * Never a button fill, never behind type. Chroma is matched to Anna's
+   * colours rather than the usual screaming neo-brutalist lime. */
+  --decor-lime: oklch(0.8700 0.1400 128);
+
+  --chart-1: oklch(0.5104 0.1169 257.59);
+  --chart-2: oklch(0.7803 0.1196 44.76);
+  --chart-3: oklch(0.8700 0.1400 128);
+  --chart-4: oklch(0 0 0);
+  --chart-5: oklch(0.9310 0.0230 88);
+
+  /* ---- type --------------------------------------------------------- */
+  /* PROVISIONAL: display face pending the typography research.
+   * DM Sans is likely too tame for "ultra neo-brutalist". */
+  --font-display: DM Sans, sans-serif;
+  --font-sans: DM Sans, sans-serif;
+  --font-mono: Space Mono, monospace;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  /* ---- shadows: hard offsets, zero blur ----------------------------- */
+  --shadow-2xs: 1px 1px 0 0 var(--border);
+  --shadow-xs:  2px 2px 0 0 var(--border);
+  --shadow-sm:  3px 3px 0 0 var(--border);
+  --shadow:     4px 4px 0 0 var(--border);
+  --shadow-md:  6px 6px 0 0 var(--border);
+  --shadow-lg:  8px 8px 0 0 var(--border);
+  --shadow-xl:  12px 12px 0 0 var(--border);
+  --shadow-2xl: 16px 16px 0 0 var(--border);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-decor-lime: var(--decor-lime);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  /* Every corner is square. Stated flat rather than calc()'d off --radius,
+   * which would produce negative lengths for the small steps. */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+}
+
+/* Tailwind v4 has no --border-width-* namespace, so the house border width
+ * has to be a utility rather than a token. Use border-brutal on Folders,
+ * cards and buttons; border-2 on small controls. */
+@utility border-brutal {
+  border-width: var(--border-brutal);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    /* The paper grain goes here at build time — see the folder-ui research. */
+  }
+
+  /* Focus is an offset black outline, not a ring: a ring the same colour as
+   * the element's own keyline is invisible in this style. */
+  :focus-visible {
+    outline: var(--border-brutal) solid var(--ring);
+    outline-offset: 2px;
+  }
+}
