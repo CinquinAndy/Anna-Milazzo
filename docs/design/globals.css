@@ -63,11 +63,17 @@
   --chart-5: oklch(0.9310 0.0230 88);
 
   /* ---- type --------------------------------------------------------- */
-  /* PROVISIONAL: display face pending the typography research.
-   * DM Sans is likely too tame for "ultra neo-brutalist". */
-  --font-display: DM Sans, sans-serif;
-  --font-sans: DM Sans, sans-serif;
-  --font-mono: Space Mono, monospace;
+  /* Bricolage Grotesque carries a variable wdth axis (75-100), the only lever
+   * that buys back the length Italian costs without shrinking the type. Its
+   * opsz axis (12-96) means the hero and a 13px tab label are different cuts
+   * rather than one outline scaled. Load with:
+   *   subsets: ['latin', 'latin-ext']   // omit and Italian accents fall back
+   *   axes: ['opsz', 'wdth']            // omit and next/font ships weight-only
+   * Headings floor at line-height 0.9: Italian all-caps carries its accents
+   * above the cap height. Test with: ÈÀÙ PERCHÉ PIÙ CITTÀ PERÒ */
+  --font-display: Bricolage Grotesque, sans-serif;
+  --font-sans: Instrument Sans, sans-serif;
+  --font-mono: Azeret Mono, monospace;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --tracking-normal: 0em;
   --spacing: 0.25rem;

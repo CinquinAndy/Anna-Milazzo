@@ -11,16 +11,15 @@ Palette locked: `#3866A8` blue primary, `#F79E76` cantaloupe accent (black text 
 ## Summary
 
 1. **The folder tab is a nine-line CSS problem, not a `clip-path` problem.** Two boxes; the tab gets `border-bottom: 0`, `margin-block-end: -4px` and `z-index: 2` over an opaque body. Unbroken 4px keyline over the whole silhouette, no seam under the tab, mitred corners, fully fluid. §1.2
-2. **`clip-path` clips the border — confirmed in writing, and it kills the obvious approach.** Every workaround either rounds the corners (stacked `drop-shadow`, `feMorphology`) or must be re-derived by hand per breakpoint. Reserve `clip-path` for un-outlined shapes like torn paper edges. §1.3
-2b. **I read the source of three real folder implementations and *none of them has an outline*.** Skewed pseudo-elements, border-triangles, `clip-path: shape()` — the entire published state of the art for folder tabs is fill-only, because each technique quietly depends on having no stroke to reconcile. The outlined folder is the unsolved part, which is exactly why it is worth doing. §1.9b
+2. **I read the source of three real folder implementations and *none of them has an outline*.** Skewed pseudo-elements, CSS border-triangles, `clip-path: shape()` — the entire published state of the art for folder tabs is fill-only, because every technique quietly depends on having no stroke to reconcile. `clip-path` clips the border (confirmed in writing), and each workaround either rounds the corners or must be re-derived per breakpoint. The outlined folder is the unsolved part, which is exactly why it is worth doing. §1.3, §1.9b
 3. **Shadow the union, not the parts.** `filter: drop-shadow(8px 8px 0 #000)` on the folder wrapper. Per-box `box-shadow` puts a black notch inside the tab/body join. §1.6
-4. **An overlapping folder stack at 375px is a genuine usability trap** — tab collision, overlapping tap targets against WCAG 2.2 SC 2.5.8 (AA, 24×24px), hidden content requiring JS state, and a false "one is current" hierarchy. Break the stack on mobile; keep the per-card metaphor. §1.8
-5. **It looks like a tab UI and must never be one.** No `role="tablist"`. `<ul>`/`<li>`/`<article>`, and a non-black focus ring. §1.7
-6. **The Italian expansion figure in the brief is too optimistic by an order of magnitude.** Per the IBM table via W3C, strings under 10 characters expand **200–300%** — and a brutalist portfolio is made almost entirely of short strings set very large. Design to the Italian string. §4.2
-7. **The constraint nobody writes down: Italian all-caps carries accents above the cap height.** `È À Ù` will clip at the `line-height: 0.82` this style wants. Floor at `0.9`, or set the hero in sentence case, which is better Italian typography anyway. Test string: `ÈÀÙ PERCHÉ PIÙ CITTÀ PERÒ`. §4.2
-8. **Pick a display face with a variable `wdth` axis** — it is the only typographic lever that buys 20% more characters at the same optical size, which is exactly what Italian needs. Bricolage Grotesque (75–100), Archivo (62–125), Instrument Sans, Martian Mono all have one. DM Sans does not. §4.3, §4.5
-9. **`neobrutalism.dev` ships DM Sans, 2px borders, 5px radius and a 4px shadow** (measured live). That is the genre's *generic baseline*. Our 4px keylines, zero radius and 8px shadow are a deliberate escalation past it — and DM Sans being the library default is the strongest argument against using it for display. §1.10, §4.5
-10. **The genre has largely avoided photography, and Gumroad has walked its brutalism back** (measured live: 1px borders, 4–24px radii, no hard shadows, hero at weight 400). So a well-handled portrait is a real differentiator — choose the robust treatment (baked die-cut cut-out + hard-bordered taped rectangles), and get Anna's shot list out early because Shot 1 gates the hero. §1.10, §5
+4. **An overlapping folder stack at 375px is a genuine usability trap** — tab collision, overlapping tap targets against WCAG 2.2 SC 2.5.8 (AA, 24×24px), hidden content requiring JS state, and a false "one is current" hierarchy imposed on a portfolio where all works are equal. Break the stack on mobile; keep the per-card metaphor. §1.8
+5. **It looks like a tab UI and must never be one.** No `role="tablist"` — that promises arrow-key navigation between exclusive panels. `<ul>`/`<li>`/`<article>`, and a non-black focus ring, because a black ring is invisible against black keylines. §1.7
+6. **The Italian expansion figure in the brief is too optimistic by an order of magnitude.** Per the IBM table via W3C, strings under 10 characters expand **200–300%** — and a brutalist portfolio is made almost entirely of short strings set very large. Design to the Italian string, not the English one. §4.2
+7. **The constraint nobody writes down: Italian all-caps carries accents above the cap height.** `È À Ù` will clip at the `line-height: 0.82` this style wants. Floor at `0.9`, or set the hero in sentence case — which is better Italian typography anyway. Test string: `ÈÀÙ PERCHÉ PIÙ CITTÀ PERÒ`. §4.2
+8. **Pick a display face with a variable `wdth` axis.** It is the only typographic lever that buys ~20% more characters at the same optical size, which is precisely what Italian needs. Bricolage Grotesque (75–100), Archivo (62–125), Instrument Sans and Martian Mono all have one. **DM Sans does not** — and `neobrutalism.dev` ships DM Sans as its default, which is the strongest possible evidence that it is the genre's safe house font rather than a differentiator. §4.3, §4.5
+9. **Ruled paper is free; grain should be baked.** A notebook rule is two stacked gradients and zero bytes (verified source in §3.1). `feTurbulence` grain is CPU-rasterised and scales with painted area — bake it to a ~4KB seamless tile instead of paying a full-viewport filter pass on top of one `drop-shadow` layer per folder. And texture should **scroll with the page**, not sit fixed, or the grain swims relative to the paper it is meant to be part of. §3
+10. **The genre has largely avoided photography, and Gumroad has walked its brutalism back** (measured live: 1px borders, 4–24px radii, no hard shadows, `background-image: none`, hero at weight **400**). So a well-handled portrait is a real differentiator — choose the robust treatment (baked die-cut cut-out for the hero, hard-bordered taped rectangles for the folders), and get Anna's shot list out early, because Shot 1 gates the hero. §1.10, §5
 
 ---
 
@@ -362,13 +361,154 @@ Two conclusions for us:
 
 ## 2. Tape, stickers and scrapbook devices
 
-*(Research pending.)*
+### 2.1 Washi tape — CSS, and it should be CSS
+
+A tape strip is a rotated rectangle with a translucent fill, slightly darker at the torn ends. It needs no asset:
+
+```css
+.tape {
+  position: absolute;
+  inline-size: 7rem; block-size: 2.2rem;
+  background: linear-gradient(90deg,
+      rgb(247 158 118 / 0.55) 0 6%,      /* cantaloupe, semi-transparent */
+      rgb(247 158 118 / 0.72) 6% 94%,
+      rgb(247 158 118 / 0.55) 94% 100%);
+  transform: rotate(-6deg);
+  /* torn ends: a shallow zigzag, no asset */
+  clip-path: polygon(0 6%, 4% 0, 8% 8%, 12% 1%, 100% 3%,
+                     96% 12%, 100% 97%, 8% 100%, 3% 92%, 0 99%);
+  mix-blend-mode: multiply;              /* lets the paper grain show through */
+}
+```
+
+Three details separate confident tape from clip-art tape, and they are all about **translucency and inheritance**:
+
+1. **`mix-blend-mode: multiply` plus an alpha under 0.8.** Real tape is translucent; you can see the paper and the grain through it. Opaque tape reads as a coloured rectangle, which is the single most common failure.
+2. **The tape must cross an edge.** Tape that sits entirely inside a photo is a sticker, not tape. It has to bridge two surfaces — a corner of the image and the folder beneath it — or the whole illusion collapses.
+3. **Irregular rotation.** `-6deg`, `4deg`, `-2.5deg` — never the same angle twice, never `0`.
+
+**This is the one place `clip-path` is exactly the right tool** (§1.3): a torn end is an un-outlined shape, so there is no border to reconcile.
+
+### 2.2 Sticker outlines — bake them, don't stack drop-shadows
+
+The white die-cut keyline around a cut-out. Two routes, and the trade-off is the same one as §1.3 and §5.1:
+
+- **Runtime:** stack `filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) …` at 4–8 angles. `drop-shadow` follows the element's **alpha contour**, not its box — verified empirically in the `faelpatrick` pen (§1.9b), where a `drop-shadow` correctly follows a CSS border-triangle. But dilating alpha this way produces a **rounded, slightly blobby** outline, and each shadow is a separate filter pass.
+- **Build time:** bake the keyline into the PNG in Figma/Photoshop.
+
+**Bake it.** One pass, exact corners, no per-paint cost. Take the runtime route only if the keyline colour must change with theme — which here it does not.
+
+For sticker *lettering*, the equivalent is `paint-order: stroke fill`, which puts the stroke outside the glyph instead of straddling it (without it, a stroke eats into the letterforms). It is well-supported for SVG text; support for HTML text is more recent and patchier, so guard it: `@supports (paint-order: stroke) { … }`. *(MDN reached; the deeper HTML-text write-up at `tylersticka.com` was [BLOCKED] 403 — treat the HTML-text detail as UNVERIFIED and test it.)*
+
+### 2.3 Doodles, arrows and asterisks — inline SVG
+
+Hand-drawn arrows, circles-around-a-word, stars and asterisks should be **inline SVG**, not raster and not icon-font:
+
+- They must inherit colour (`stroke: currentColor`) so a doodle on the blue block flips to paper-white without a second asset.
+- They must scale without blurring.
+- They are tiny — a hand-drawn arrow is typically under 1KB of path data, far smaller than any PNG of it.
+
+Use `stroke-linecap: round`, a slightly irregular path, and **never** `vector-effect: non-scaling-stroke` here — you *want* the stroke weight to vary with size, because a real pen does.
+
+**Accessibility, and this is not optional:** every decorative SVG needs
+
+```html
+<svg aria-hidden="true" focusable="false" ...>
+```
+
+`aria-hidden` keeps it out of the accessibility tree; `focusable="false"` stops legacy IE/Edge putting it in the tab order. If a doodle *does* carry meaning — an arrow that says "listen here" — then the meaning belongs in the adjacent text, not in the graphic.
+
+### 2.4 What keeps it confident rather than clip-art — opinionated
+
+Four rules, in priority order:
+
+1. **Restrict the vocabulary.** Three devices, not nine. Pick tape, one doodle style, and the sticker outline — and refuse everything else. Scrapbook layouts fail by accumulation.
+2. **One hand.** Every doodle must look drawn by the same pen: same stroke weight, same wobble amplitude, same colour. Mixed line weights is what actually reads as clip-art, more than the drawings themselves.
+3. **Decoration must never carry information.** If removing every sticker, doodle and tape strip leaves the page fully comprehensible, the layer is doing its job. If it does not, the decoration has become UI and now has accessibility obligations it cannot meet.
+4. **Rotation as composition, not animation** (§6.5). Static `rotate(-3deg)` is craft; a wobbling sticker is a toy.
+
+**Performance:** many rotated, filtered elements each get their own compositor layer. Keep decorations to `transform` and `opacity` only, do **not** blanket-apply `will-change` (it costs memory per layer and is counter-productive at scale), and remember the `filter: drop-shadow` on each folder (§1.6) already creates a layer per card — do not stack more filters inside it.
+
+**Evidence note, stated honestly.** §2.1–2.4 are technique analysis plus behaviour I verified directly (the `drop-shadow`-follows-alpha result from the `faelpatrick` pen, §1.9b). **I did not find shipped, live scrapbook sites to cite for tape and stickers** — the genre lives overwhelmingly on Pinterest and Dribbble, both of which gate automated access [BLOCKED], and the neo-brutalist sites I could measure (Gumroad, `neobrutalism.dev`) are illustration-and-block based with no paper devices at all. So treat this section as a **build brief to test**, not as a survey of precedent. It is the thinnest-evidenced section in this document and the one most worth a manual browsing pass by a human.
 
 ---
 
 ## 3. Paper texture backgrounds
 
-*(Research pending.)*
+### 3.1 Ruled / notebook paper — pure CSS, zero bytes
+
+Settled, and I have working source for it. From the `teddyzetterlund` index card, read directly (§1.9b) [VERIFIED]:
+
+```css
+.card {
+  background-image:
+    /* the red margin/header rule, 2px at 3rem */
+    linear-gradient(180deg, white 3rem, #F0A4A4 calc(3rem),
+                    #F0A4A4 calc(3rem + 2px), transparent 1px),
+    /* the ruled lines, every 1.5rem */
+    repeating-linear-gradient(0deg, transparent, transparent 1.5rem,
+                              #DDD 1px, #DDD calc(1.5rem + 1px));
+}
+```
+
+For a **vertical** left margin rule (the more common notebook form), swap the first layer for `linear-gradient(90deg, transparent 3rem, #F0A4A4 3rem, #F0A4A4 calc(3rem + 2px), transparent calc(3rem + 2px))`.
+
+**Zero bytes, infinitely scalable, re-colourable from tokens, and it survives zoom.** There is no reason to use an image for ruled paper. One caution: tie the rule spacing to the **text `line-height`**, or the ruling and the type will drift out of phase and look wrong in a way people notice without being able to say why.
+
+### 3.2 Grain / sand texture — SVG `feTurbulence` as a data URI
+
+The standard modern approach: an inline SVG `<filter>` with `feTurbulence`, encoded as a data URI in `background-image`, laid over the paper colour at low opacity.
+
+```css
+.grain::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,\
+    <svg xmlns='http://www.w3.org/2000/svg'>\
+      <filter id='n'>\
+        <feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/>\
+        <feColorMatrix type='saturate' values='0'/>\
+      </filter>\
+      <rect width='100%' height='100%' filter='url(%23n)'/>\
+    </svg>");
+}
+```
+
+Key parameters, and what each actually controls:
+
+- **`type="fractalNoise"`** — not `turbulence`. `fractalNoise` gives the soft, even, film-grain distribution you want for paper; `turbulence` gives a wispy, cloud-like result that reads as smoke.
+- **`baseFrequency`** — grain size. High values (~0.6–0.9) give fine paper grain; low values (~0.02–0.05) give large blotches. Codrops' torn-edge recipe uses `0.04` with `numOctaves="5"` feeding a `feDisplacementMap scale="30"` [VERIFIED] — that low frequency is for *displacing an edge*, not for grain. Do not copy edge-displacement values into a grain background.
+- **`numOctaves`** — detail layers. Cost scales roughly linearly with this; 3–4 is plenty for grain, and each extra octave is real CPU.
+- **`stitchTiles="stitch"`** — makes the noise tile seamlessly. Omit it and you get visible seams when the background repeats.
+- **`feColorMatrix type="saturate" values="0"`** — desaturates. Without it the noise is coloured RGB confetti.
+
+**The performance trap, stated plainly.** `feTurbulence` is a Perlin-noise generator that is **rasterised on the CPU**, and the cost scales with the *painted area*. A full-viewport grain layer is a genuinely expensive paint, and it re-rasterises on resize. Two consequences:
+
+1. **Never put `feTurbulence` on an element that animates, resizes, or scrolls with transform.** Put it on a fixed-size, fixed-position overlay so it rasterises once.
+2. **Consider baking it.** Render the turbulence once, export a small seamless PNG/WebP tile (a 128×128 or 256×256 tile at low opacity is usually indistinguishable), and `background-repeat` it. A 256×256 grayscale PNG grain tile is typically **2–8KB** — cheaper at runtime than a live filter, and deterministic across browsers. Live `feTurbulence` renders differently between engines; a tile does not.
+
+**My call for this project: bake a tile.** The site has a hard-edged, high-contrast design where grain is a subtle ground, not a feature. Paying a full-viewport CPU filter pass — on top of one `drop-shadow` layer per folder (§1.6) — for something a 4KB tile does identically is a bad trade, especially on the mid-range Android that a booker will open this on.
+
+### 3.3 Pure-CSS grain, and when it is enough
+
+`repeating-linear-gradient` and layered `radial-gradient`s can fake a subtle tooth without any filter or asset. It is cheap and it is honest, but it produces a *regular* pattern, and regularity is exactly what paper is not — the eye finds the repeat quickly at large sizes. Fine for a small card, poor for a full page.
+
+**The cheapest credible option is often no grain at all.** Measured live: **Gumroad's `body` has `background-image: none` and a flat `rgb(244, 244, 240)`** [VERIFIED]. The most-cited shipped site in this genre gets its paper feeling from a *warm off-white colour* alone. Worth a serious A/B before committing to a texture layer at all.
+
+### 3.4 Fixed vs scrolling background — and the mobile Safari problem
+
+Two behaviours, and they read completely differently:
+
+- **Texture fixed to the viewport** (`background-attachment: fixed`, or a `position: fixed` pseudo-element): the grain stays put while content scrolls over it. The page reads as content *on* a desk.
+- **Texture scrolling with the page:** the grain moves with the paper. The page reads as one continuous sheet.
+
+**For a scrapbook/paper metaphor, scrolling is the correct choice.** Fixed grain makes the texture "swim" relative to the paper it is supposed to be *part of*, which subtly breaks the material illusion — the same reason parallax on a texture is wrong (§6.5).
+
+That is convenient, because `background-attachment: fixed` has a long history of being unreliable on iOS Safari (ignored, or forcing an expensive repaint on every scroll frame). **If you ever do need viewport-fixed texture, use a `position: fixed` pseudo-element with a negative `z-index` rather than `background-attachment: fixed`** — it is composited properly and behaves consistently. *(The current precise iOS status is UNVERIFIED here — the fixed-pseudo-element workaround is the durable pattern regardless.)*
+
+**One interaction to watch:** if grain sits on the page and folder cards are flat opaque paper (the §1.2 recommendation), the cards will read as *lighter and cleaner* than the ground. That is the desired effect — clean sheets on a textured desk — but it means the grain must be subtle enough that the contrast between card and ground does not compete with the black keylines. Keep grain opacity low (0.2–0.4) and check it at 100% zoom on a real screen, not a retina laptop.
 
 ---
 
