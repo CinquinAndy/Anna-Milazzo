@@ -46,9 +46,14 @@
   /* ---- structure ---------------------------------------------------- */
   --border: oklch(0 0 0);                   /* every keyline is black */
   --input: oklch(0 0 0);
-  --ring: oklch(0 0 0);                     /* focus = black outline + offset */
+  /* Focus is the blue, NOT black: an offset black outline around an element
+   * that already has a black keyline reads as a doubled border, not as focus.
+   * Blue clears 3:1 against the paper ground; cantaloupe does not. */
+  --ring: oklch(0.5104 0.1169 257.59);
   --radius: 0px;
-  --border-brutal: 3px;
+  /* 4px, not the genre-standard 2px. Technique A for the Folder tab pairs this
+   * with margin-block-end: -4px, so the two must stay equal. */
+  --border-brutal: 4px;
 
   /* ---- decoration --------------------------------------------------- */
   /* Lime is ornament only: asterisks, arrows, underlines, blobs.
@@ -78,7 +83,10 @@
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
-  /* ---- shadows: hard offsets, zero blur ----------------------------- */
+  /* ---- shadows: hard offsets, zero blur -----------------------------
+   * On a composite silhouette (the Folder: tab + body) do NOT use these as
+   * box-shadow per box — it puts a black notch at the tab/body join. Use one
+   * filter: drop-shadow(8px 8px 0 var(--border)) on the wrapper instead. */
   --shadow-2xs: 1px 1px 0 0 var(--border);
   --shadow-xs:  2px 2px 0 0 var(--border);
   --shadow-sm:  3px 3px 0 0 var(--border);
@@ -158,7 +166,7 @@
   /* Focus is an offset black outline, not a ring: a ring the same colour as
    * the element's own keyline is invisible in this style. */
   :focus-visible {
-    outline: var(--border-brutal) solid var(--ring);
+    outline: 3px solid var(--ring);
     outline-offset: 2px;
   }
 }
