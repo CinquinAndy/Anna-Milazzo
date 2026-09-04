@@ -690,6 +690,23 @@
 		}
 	}
 
+	/* The hairpin fills the hero rather than sitting at its foot: the mark's whole meaning
+	 * is that it grows across the full width, so cropping it would say nothing. */
+	.hairpin {
+		display: block;
+		inline-size: 100%;
+		block-size: 5rem;
+		pointer-events: none;
+	}
+	/* Ink on the blue reads at 3.63:1 — plenty for a mark, and held under full strength so
+	 * it stays a drawing on the ground rather than a second object competing with the name. */
+	.hairpin-mark {
+		opacity: 0.5;
+	}
+	.hairpin-words {
+		opacity: 0.42;
+	}
+
 	/* The ribbon. Anchored to the foot of the hero and 420px tall, which is the height its
 	 * viewBox is drawn against — one user unit to one CSS pixel, so the 4-unit keylines
 	 * inside it land at exactly 4px and match every border on the page.

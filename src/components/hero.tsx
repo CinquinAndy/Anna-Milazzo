@@ -40,59 +40,64 @@ export function Hero({
 			className="relative flex flex-col overflow-hidden border-b-brutal border-border bg-primary px-5 py-16 sm:px-8 md:min-h-[calc(100svh-var(--header-h))] md:justify-between md:py-14"
 		>
 			<Ribbon />
-
 			<Ornament kind="asterisk" tone="sheet" rotation={-13} className="top-6 left-4 h-10 w-10 sm:h-14 sm:w-14" />
 			<Ornament kind="cross" tone="magenta" rotation={22} className="bottom-8 left-8 h-7 w-7 sm:h-10 sm:w-10" />
 
-			<div className="shell grid items-center gap-12 md:my-auto md:grid-cols-[1.25fr_0.85fr] md:gap-10">
-				<div className="relative">
-					{/* Larger than the h1 token, which is sized for section headings. The hero
+			{/* The mark fills this box and nothing else. Scoping it to the composition area
+			    rather than to the section is what keeps it clear of the keyboard without
+			    hardcoding the keyboard's height — which differs between the mobile and desktop
+			    padding and would drift the moment either changed. */}
+			<div className="md:my-auto">
+				<div className="shell grid items-center gap-12 md:grid-cols-[1.25fr_0.85fr] md:gap-10">
+					<div className="relative">
+						{/* Larger than the h1 token, which is sized for section headings. The hero
 					    name is the one place on the site that should be as big as it can be and
 					    still hold the Italian on two lines at 375px. */}
-					<h1 className="font-display text-[clamp(3rem,11.5vw,11rem)] leading-display text-primary-foreground uppercase break-words [font-stretch:76%] [letter-spacing:-0.025em]">
-						{hero?.name}
-					</h1>
-					<p className="mt-7 max-w-[40ch] font-sans text-xl text-primary-foreground sm:text-2xl md:text-[1.75rem] md:leading-snug">
-						{hero?.tagline}
-					</p>
-					{/* Somewhere to go. Both labels are strings Anna already writes — the works
+						<h1 className="font-display text-[clamp(3rem,11.5vw,11rem)] leading-display text-primary-foreground uppercase break-words [font-stretch:76%] [letter-spacing:-0.025em]">
+							{hero?.name}
+						</h1>
+						<p className="mt-7 max-w-[40ch] font-sans text-xl text-primary-foreground sm:text-2xl md:text-[1.75rem] md:leading-snug">
+							{hero?.tagline}
+						</p>
+						{/* Somewhere to go. Both labels are strings Anna already writes — the works
 					    heading and the contact button — so the hero cannot promise a word the rest
 					    of the page does not use. */}
-					<div className="mt-9 flex flex-wrap items-center gap-4">
-						{listenLabel ? (
-							<a href="#ascolta" className="control control-accent text-lg" data-hero-listen>
-								{listenLabel}
-							</a>
-						) : null}
-						{contactLabel ? (
-							<Link href={contactHref} className="control control-paper text-lg" data-hero-contact>
-								{contactLabel}
-							</Link>
-						) : null}
+						<div className="mt-9 flex flex-wrap items-center gap-4">
+							{listenLabel ? (
+								<a href="#ascolta" className="control control-accent text-lg" data-hero-listen>
+									{listenLabel}
+								</a>
+							) : null}
+							{contactLabel ? (
+								<Link href={contactHref} className="control control-paper text-lg" data-hero-contact>
+									{contactLabel}
+								</Link>
+							) : null}
+						</div>
+
+						{/* The arrow leans toward the portrait: it is the one ornament here doing
+					    compositional work rather than filling a corner. */}
+						<Ornament kind="arrow" tone="sheet" rotation={-6} className="-bottom-12 left-2 hidden h-10 w-24 md:block" />
 					</div>
 
-					{/* The arrow leans toward the portrait: it is the one ornament here doing
-					    compositional work rather than filling a corner. */}
-					<Ornament kind="arrow" tone="sheet" rotation={-6} className="-bottom-12 left-2 hidden h-10 w-24 md:block" />
-				</div>
-
-				{/* The composition. Everything is positioned against this square so the record,
+					{/* The composition. Everything is positioned against this square so the record,
 				    the portrait and the badge keep their relationship at every width. */}
-				<div className="relative mx-auto aspect-square w-full max-w-[22rem] md:mx-0 md:ms-auto md:max-w-[26rem]">
-					{/* Behind and low, so a wide arc of the disc clears the photograph. Fully
+					<div className="relative mx-auto aspect-square w-full max-w-[22rem] md:mx-0 md:ms-auto md:max-w-[26rem]">
+						{/* Behind and low, so a wide arc of the disc clears the photograph. Fully
 					    hidden it is not composition, it is a wasted asset. */}
-					<Vinyl
-						className="absolute right-[-3%] bottom-[1%] block h-[66%] w-[66%]"
-						label="var(--accent)"
-						rotation={-6}
-					/>
-					<Portrait
-						image={hero?.portrait}
-						priority
-						sizes="(min-width: 768px) 20rem, 60vw"
-						className="absolute top-0 left-0 block w-[72%] -rotate-3 border-brutal border-border bg-sheet shadow-2xl"
-					/>
-					<Badge className="absolute top-[-5%] right-[8%] block h-[27%] w-[27%]" rotation={-10} />
+						<Vinyl
+							className="absolute right-[-3%] bottom-[1%] block h-[66%] w-[66%]"
+							label="var(--accent)"
+							rotation={-6}
+						/>
+						<Portrait
+							image={hero?.portrait}
+							priority
+							sizes="(min-width: 768px) 20rem, 60vw"
+							className="absolute top-0 left-0 block w-[72%] -rotate-3 border-brutal border-border bg-sheet shadow-2xl"
+						/>
+						<Badge className="absolute top-[-5%] right-[8%] block h-[27%] w-[27%]" rotation={-10} />
+					</div>
 				</div>
 			</div>
 
