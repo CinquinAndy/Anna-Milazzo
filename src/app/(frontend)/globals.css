@@ -711,10 +711,27 @@
 	 * `pixelated` is what makes the browser scale it with nearest-neighbour, so every cell
 	 * stays a hard square with no filtering — which is the whole look. `color` is what the
 	 * component reads to get the palette's blue resolved out of oklch. */
+	/* Bleeds through the hero's own horizontal padding so the spectrum reaches both edges of
+	 * the screen. The section clips, so the overshoot costs nothing; the two values match
+	 * px-5 and sm:px-8 exactly. `color` here is what the component reads for the hover
+	 * colour, as the canvas below carries the base one. */
 	.dither-field {
 		position: absolute;
-		inset: 0;
+		inset-block: 0;
+		inset-inline: -1.25rem;
+		/* Behind every sibling. Both the field and the corner ornaments are positioned, so
+		 * without this they are ordered by their place in the document — and the field, which
+		 * comes later, painted straight over the asterisk. Negative rather than a low positive
+		 * because the section sets no stacking context: -1 puts the canvas above the section's
+		 * own background and below everything else in it. */
+		z-index: -1;
+		color: var(--grape);
 		pointer-events: none;
+	}
+	@media (width >= 40rem) {
+		.dither-field {
+			inset-inline: -2rem;
+		}
 	}
 	.dither-canvas {
 		display: block;

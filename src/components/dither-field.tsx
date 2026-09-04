@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import { useAudioEngine } from '@/components/audio-engine'
 
 /**
- * A wave field, ordered-dithered to chunky square pixels, behind the hero.
+ * A spectrum of bars, ordered-dithered to chunky square pixels, behind the hero.
  *
  * The client asked for the look of a dithering shader with the behaviour of a music-reactive
  * canvas. Both source components were taken apart rather than adopted:
@@ -32,6 +32,12 @@ import { useAudioEngine } from '@/components/audio-engine'
  * the piano roll both did. The two colours are the hero's own blue and a darker version of
  * it: the field can only ever darken the ground, never lift it, so white copy over it keeps
  * at least the 5.78:1 it has over bare blue.
+ *
+ * The bar heights are authored rather than measured. Prior research on this project was
+ * explicit that a real FFT is a downgrade here — on a mastered track every band moves
+ * together, so the honest version reads as one lump rising and falling, where a few sines at
+ * different rates read as a spectrum. What the audio actually contributes is whether it is
+ * playing at all, which is the only thing a viewer can check.
  */
 
 /** The classic 8x8 Bayer matrix, normalised to 0..63. Ordered, not error-diffused: error
@@ -50,6 +56,13 @@ const BAYER = [
 
 /** CSS pixels per cell. Twice the 4px keyline, so the grid agrees with every border. */
 const CELL = 8
+/** Cells across one bar and its gap: 3 lit, 1 empty. At an 8px cell that is a 32px pitch —
+ *  eight keylines — so the bars land on the same rhythm as every border on the page. */
+const BAR_CELLS = 3
+const BAR_PITCH = 4
+/** How many cells the top of a bar takes to dissolve. This is the whole difference between
+ *  a dithered field and a bar chart: cut the bars off flat and it is a chart. */
+const BAR_SOFTNESS = 7
 /** Deliberately low. The page's motion is quantised, and a field stepping at 20fps reads as
  *  sequenced rather than as a smooth gradient sliding about. */
 const FPS = 20
@@ -137,17 +150,20 @@ export function DitherField() {
 			little ? (255 << 24) | (c.b << 16) | (c.g << 8) | c.r : (c.r << 24) | (c.g << 16) | (c.b << 8) | 255
 		const backWord = pack(back) >>> 0
 		const frontWord = pack(front) >>> 0
+		// The hover fill comes off the wrapper's `color`, as the base comes off the canvas's,
+		// so both track the palette. Grape rather than an accent: white body copy measures
+		// 5.49:1 on it, where cantaloupe would be 2.08 and magenta 3.48 — and a hovered bar
+		// can stand tall enough to sit behind the tagline.
+		const hoverWord = (canvas.parentElement === null ? frontWord : pack(readColour(canvas.parentElement))) >>> 0
 
 		let width = 0
 		let height = 0
 		let image: ImageData | null = null
 		let words: Uint32Array | null = null
 		// Per-column terms, rebuilt once a frame instead of once a cell.
-		let ax = new Float32Array(0)
-		let bSin = new Float32Array(0)
-		let bCos = new Float32Array(0)
-		let cSin = new Float32Array(0)
-		let cCos = new Float32Array(0)
+		/** One entry per bar: how many cells tall it stands this frame. */
+		let tops = new Float32Array(0)
+		let bars = 0
 
 		const measure = () => {
 			const rect = canvas.getBoundingClientRect()
@@ -157,71 +173,60 @@ export function DitherField() {
 			canvas.height = height
 			image = context.createImageData(width, height)
 			words = new Uint32Array(image.data.buffer)
-			ax = new Float32Array(width)
-			bSin = new Float32Array(width)
-			bCos = new Float32Array(width)
-			cSin = new Float32Array(width)
-			cCos = new Float32Array(width)
-		}
-
-		/** 0 at the top, 1 at the foot: the field thins out where the name and tagline sit. */
-		const falloff = (y: number) => {
-			const t = y / Math.max(1, height - 1)
-			return t * t
+			bars = Math.ceil(width / BAR_PITCH)
+			tops = new Float32Array(bars)
 		}
 
 		/**
-		 * Separable, and that is where the frame time goes.
-		 *
-		 * Every term here is sin(f(x) + g(y)), which expands to sinF*cosG + cosF*sinG. So the
-		 * x halves are built once per frame into typed arrays and the y halves once per row,
-		 * leaving the inner loop with multiplies and adds and no transcendental at all. The
-		 * first version called Math.sin three times per cell: 62,400 calls a frame at 200x104,
-		 * against 800 now. Measured elsewhere on this exact shape: the fill loop is 92% of the
-		 * frame and putImageData only 8%, so this is the half worth optimising.
-		 *
-		 * Output is bit-identical to the naive form.
+		 * Three sines per bar at unrelated rates, offset by the bar's own index so neighbours
+		 * never rise together. A single shared curve would give a wave travelling along the
+		 * row — which is what this replaced.
 		 */
-		const draw = (time: number, energy: number) => {
+		const heightOf = (bar: number, time: number, energy: number) => {
+			const swing =
+				Math.sin(time * 1.7 + bar * 0.53) * 0.5 +
+				Math.sin(time * 2.6 - bar * 0.31) * 0.31 +
+				Math.sin(time * 1.1 + bar * 0.87) * 0.19
+			// Capped at 0.44 of the hero even at full energy, so the spectrum stays under the
+			// copy rather than climbing through it.
+			const reach = 0.15 + energy * 0.17
+			return Math.max(0, (0.1 + reach * (0.5 + swing * 0.5)) * height)
+		}
+
+		/**
+		 * Cheap because a bar's height depends on its column and the clock, never on the row:
+		 * the sines run once per bar per frame — fifty of them at 200 cells wide — and the
+		 * inner loop is a subtraction and a compare. The wave field this replaced needed three
+		 * transcendentals per cell until it was rewritten separably; this needs none at all.
+		 */
+		const draw = (time: number, energy: number, hoverBar = -1) => {
 			if (image === null || words === null) {
 				return
 			}
-			// High enough that crests saturate and troughs empty. At a lower amplitude every
-			// cell sat in the middle of the threshold range and the field read as an even dot
-			// grid rather than as a wave — which is the failure mode that would make this look
-			// like the scattered rectangles already rejected.
-			const amplitude = 0.62 + energy * 0.5
-			const drift = time * (0.35 + energy * 0.85)
+			const drift = time * (0.55 + energy * 0.9)
 
-			// Three bands at different wavelengths and speeds, so the crests never line up
-			// into a single travelling stripe. The first sets the read: at 0.115 its period is
-			// about 55 cells, so four crests cross a 200-cell buffer. The first attempt used
-			// 0.055 — under two periods on screen, which is a gradient, not a wave.
-			for (let x = 0; x < width; x++) {
-				ax[x] = Math.sin(x * 0.115 + drift)
-				const pb = x * 0.067 - drift * 0.7
-				bSin[x] = Math.sin(pb)
-				bCos[x] = Math.cos(pb)
-				const pc = x * 0.045 + drift * 0.45
-				cSin[x] = Math.sin(pc)
-				cCos[x] = Math.cos(pc)
+			for (let bar = 0; bar < bars; bar++) {
+				tops[bar] = heightOf(bar, drift, energy)
 			}
 
 			for (let y = 0; y < height; y++) {
-				const rowFalloff = falloff(y)
 				const rowBayer = BAYER[y & 7] as unknown as number[]
-				const byS = Math.sin(y * 0.14)
-				const byC = Math.cos(y * 0.14)
-				const cyS = Math.sin(y * 0.045)
-				const cyC = Math.cos(y * 0.045)
+				const fromFoot = height - 1 - y
 				const row = y * width
 
 				for (let x = 0; x < width; x++) {
-					const b = (bSin[x] ?? 0) * byC + (bCos[x] ?? 0) * byS
-					const c = (cSin[x] ?? 0) * cyC + (cCos[x] ?? 0) * cyS
-					const wave = 0.5 + ((ax[x] ?? 0) * 0.5 + b * 0.32 + c * 0.18) * 0.5
+					// The gap column between bars. Leaving it empty is what makes them bars.
+					if (x % BAR_PITCH >= BAR_CELLS) {
+						words[row + x] = backWord
+						continue
+					}
+					// Solid deep inside the bar, dissolving over the last few cells of its
+					// crown. A hard cut here would be a chart; the dissolve is what keeps it
+					// reading as one dithered surface.
+					const bar = (x / BAR_PITCH) | 0
+					const level = ((tops[bar] ?? 0) - fromFoot) / BAR_SOFTNESS
 					const threshold = ((rowBayer[x & 7] ?? 0) + 0.5) / 64
-					words[row + x] = wave * amplitude * rowFalloff > threshold ? frontWord : backWord
+					words[row + x] = level > threshold ? (bar === hoverBar ? hoverWord : frontWord) : backWord
 				}
 			}
 			context.putImageData(image, 0, 0)
@@ -244,6 +249,8 @@ export function DitherField() {
 		let clock = 0
 		let energy = 0
 		let visible = true
+		// -1 is "no bar", which is also the state when the pointer leaves the box.
+		let hovered = -1
 		const interval = 1000 / FPS
 
 		const tick = (now: number) => {
@@ -261,9 +268,29 @@ export function DitherField() {
 			// field instead of jolting it.
 			energy += ((playingRef.current ? 1 : 0) - energy) * Math.min(1, step * 1.6)
 			clock += step
-			draw(clock, energy)
+			draw(clock, energy, hovered)
 		}
 		frame = requestAnimationFrame(tick)
+
+		// Listened for on the window rather than on the canvas: the field is pointer-events
+		// none — it has to be, or it would swallow clicks meant for the buttons over it — so
+		// it never receives a pointer event of its own. The rect test does the hit detection
+		// that pointer-events would otherwise have done.
+		const onPointer = (event: PointerEvent) => {
+			const rect = canvas.getBoundingClientRect()
+			const inside =
+				event.clientX >= rect.left &&
+				event.clientX <= rect.right &&
+				event.clientY >= rect.top &&
+				event.clientY <= rect.bottom
+			hovered =
+				inside && rect.width > 0 ? Math.floor((((event.clientX - rect.left) / rect.width) * width) / BAR_PITCH) : -1
+		}
+		const onPointerLeave = () => {
+			hovered = -1
+		}
+		window.addEventListener('pointermove', onPointer, { passive: true })
+		document.addEventListener('pointerleave', onPointerLeave)
 
 		const observer = new IntersectionObserver(entries => {
 			visible = entries[0]?.isIntersecting ?? true
@@ -275,7 +302,7 @@ export function DitherField() {
 		// locales — none of which fire a window resize.
 		const resizer = new ResizeObserver(() => {
 			measure()
-			draw(clock, energy)
+			draw(clock, energy, hovered)
 		})
 		resizer.observe(canvas)
 
@@ -283,6 +310,8 @@ export function DitherField() {
 			cancelAnimationFrame(frame)
 			observer.disconnect()
 			resizer.disconnect()
+			window.removeEventListener('pointermove', onPointer)
+			document.removeEventListener('pointerleave', onPointerLeave)
 		}
 	}, [])
 
