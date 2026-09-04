@@ -1,7 +1,6 @@
 import { Ornament } from '@/components/ornament'
 import { SectionTitle } from '@/components/section-title'
-import { Arcs } from '@/components/shapes'
-import { Terms } from '@/components/terms'
+import { Arcs, ShapeStack } from '@/components/shapes'
 import { Vinyl } from '@/components/vinyl'
 import type { Home } from '@/payload-types'
 
@@ -70,18 +69,10 @@ export function About({ about }: { about: Home['about'] }) {
 						</div>
 					) : null}
 
-					{/* The vocabulary of the job, scrolling: the words a composer writes on a score.
-					    Typographic rather than illustrated — two attempts at a drawn object in this
-					    slot both read as clip-art, and the fault was the kind of thing rather than
-					    the choice of thing. */}
+					{/* Shapes, not a thing. Three objects were rejected here in a row; the client
+					    asked for "formes" and kept being handed things to recognise. */}
 					<div className="relative mx-auto w-full max-w-sm lg:mx-0">
-						<div className="relative rotate-1">
-							<span
-								aria-hidden="true"
-								className="tape tape-on-colour -top-3 left-1/2 z-10 -ml-10 [--tape-tint:var(--magenta)] rotate-[6deg]"
-							/>
-							<Terms />
-						</div>
+						<ShapeStack className="block w-full" />
 						<Ornament
 							kind="sparkle"
 							tone="magenta"
