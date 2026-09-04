@@ -23,9 +23,10 @@ export function SongStack({ songs, labels }: { songs: Song[]; labels: Home['song
 			id="ascolta"
 			data-song-stack
 		>
-			{/* The work is what this page is for, so its heading is the loudest thing on it:
-			    hollow letters on a black band, edge to edge. */}
-			{labels?.heading ? <SectionTitle variant="outlined">{labels.heading}</SectionTitle> : null}
+			{/* The work is what this page is for, so its heading is the loudest thing on it.
+			    Solid rather than hollow: outlined letters read as lighter than filled ones at
+			    the same size, and this heading should not be the quiet one on the page. */}
+			{labels?.heading ? <SectionTitle>{labels.heading}</SectionTitle> : null}
 
 			<div className="relative px-5 py-14 sm:px-8 md:py-20">
 				<Ornament

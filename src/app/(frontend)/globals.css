@@ -561,20 +561,6 @@
 		}
 	}
 
-	/* Hollow letters: the stroke carries the word and the dark block shows through.
-	 * `-webkit-text-stroke` only — the unprefixed `text-stroke` is drafted but no engine
-	 * ships it, so declaring it would be decoration in the stylesheet rather than in the
-	 * page. Every current engine supports the prefixed form. */
-	.section-title-outlined {
-		color: transparent;
-		-webkit-text-stroke: 3px var(--sheet);
-	}
-	@media (width >= 40rem) {
-		.section-title-outlined {
-			-webkit-text-stroke-width: 4px;
-		}
-	}
-
 	/* A device panel: a meter that moves over a deck that does not. Every part is a
 	 * rectangle or a circle with a keyline, so it inherits the page's language rather than
 	 * importing an icon set. */
@@ -860,7 +846,11 @@
 		 * cover sits above it on z-10 instead. */
 		z-index: 0;
 		inset-block-start: 8%;
-		inset-inline-end: -18%;
+		/* Far enough out to be seen, not so far it reaches the story. At -18% the disc's
+		 * right edge landed 14px past the text's left edge at every width — black under black,
+		 * so the first character of every line lost its contrast. The gap between the cover and
+		 * the text is 2rem, and this leaves about half of it clear. */
+		inset-inline-end: -8%;
 		inline-size: 62%;
 		pointer-events: none;
 	}

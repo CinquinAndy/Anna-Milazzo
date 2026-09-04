@@ -30,13 +30,10 @@
 const EM_PER_CHARACTER = 0.32
 export function SectionTitle({
 	children,
-	/** `outlined` hollows the letters and keeps only their stroke — for the loudest of them. */
-	variant = 'solid',
 	tone = 'ink',
 	id,
 }: {
 	children: string
-	variant?: 'solid' | 'outlined'
 	tone?: 'ink' | 'grape' | 'blue'
 	id?: string | undefined
 }) {
@@ -52,9 +49,7 @@ export function SectionTitle({
 			<h2
 				id={id}
 				style={{ fontSize: size }}
-				className={`font-display leading-[0.86] uppercase [font-stretch:74%] [letter-spacing:-0.02em] ${
-					variant === 'outlined' ? 'section-title-outlined' : 'text-sheet'
-				}`}
+				className="font-display text-sheet leading-[0.86] uppercase [font-stretch:74%] [letter-spacing:-0.02em]"
 			>
 				{children}
 			</h2>
