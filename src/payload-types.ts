@@ -189,11 +189,7 @@ export interface Media {
 export interface Audio {
   id: number;
   peaks?: number[];
-  spectrum?: {
-    bands: number;
-    fps: number;
-    data: number[];
-  };
+  tone?: number[];
   prefix?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -353,7 +349,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface AudioSelect<T extends boolean = true> {
   peaks?: T;
-  spectrum?: T;
+  tone?: T;
   prefix?: T;
   updatedAt?: T;
   createdAt?: T;

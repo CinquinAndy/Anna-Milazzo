@@ -24,26 +24,14 @@ export const Audio: CollectionConfig = {
 			typescriptSchema: [() => ({ type: 'array', items: { type: 'number' } })],
 		},
 		{
-			name: 'spectrum',
+			name: 'tone',
 			type: 'json',
-			// The visualiser's data: frequency content over time, measured from the file.
-			// Deliberately NOT sent with the landing page — a three-minute track is around
-			// 40 KB gzipped, and five of those on every visit would cost more than the page.
-			// `getSongs` populates only `url` and `peaks`, and this is fetched on first play.
+			// Where the track's energy sits in the spectrum over time, one reading per peak.
+			// Small enough to travel with the page, which is the whole reason it is a
+			// centroid rather than the spectrum it was folded from.
 			admin: { hidden: true },
 			access: { create: () => false, update: () => false },
-			typescriptSchema: [
-				() => ({
-					type: 'object',
-					additionalProperties: false,
-					required: ['bands', 'fps', 'data'],
-					properties: {
-						bands: { type: 'number' },
-						fps: { type: 'number' },
-						data: { type: 'array', items: { type: 'number' } },
-					},
-				}),
-			],
+			typescriptSchema: [() => ({ type: 'array', items: { type: 'number' } })],
 		},
 	],
 	hooks: {
@@ -64,9 +52,9 @@ export const Audio: CollectionConfig = {
 				const measured = await readTrack(new Uint8Array(upload.data)).catch(() => null)
 				if (measured === null) {
 					req.payload.logger.warn(`Could not measure ${upload.name}; the fallback phrase is used.`)
-					return { ...data, peaks: null, spectrum: null }
+					return { ...data, peaks: null, tone: null }
 				}
-				return { ...data, peaks: measured.peaks, spectrum: measured.spectrum }
+				return { ...data, peaks: measured.peaks, tone: measured.tone }
 			},
 		],
 	},

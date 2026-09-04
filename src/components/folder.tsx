@@ -56,6 +56,9 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 	// Measured from the file on upload and stored on the audio record, so the waveform
 	// is right on the first frame and costs the visitor nothing to draw.
 	const trackPeaks = typeof song.track === 'object' ? (song.track.peaks ?? null) : null
+	// Measured beside the waveform on upload: where the track's energy sits in the spectrum
+	// over its length, which is what gives each bar its colour.
+	const trackTone = typeof song.track === 'object' ? (song.track.tone ?? null) : null
 	// `reference` is a seed handle and a test selector, hidden from the admin — so every
 	// Song Anna creates herself has none. Falling back to the record id keeps the player
 	// present for those: gating on `reference` meant her own Songs arrived silently
@@ -118,6 +121,7 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 						<SongTransport
 							song={playable}
 							peaks={trackPeaks}
+							tone={trackTone}
 							playLabel={labels?.listenLabel ?? 'Play'}
 							pauseLabel={labels?.pauseLabel ?? 'Pause'}
 							seekLabel={labels?.seekLabel ?? 'Seek'}

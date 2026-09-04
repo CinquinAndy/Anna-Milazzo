@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { analyseSpectrum, bandEdges, bandRanges, SPECTRUM_BANDS, sampleAt } from '@/lib/player/spectrum'
+import { analyseSpectrum, bandEdges, bandRanges, SPECTRUM_BANDS, sampleAt, toneOf } from '@/lib/player/spectrum'
 
 const RATE = 44100
 
@@ -165,5 +165,59 @@ describe('sampleAt', () => {
 
 	it('has nothing to say about an empty spectrum', () => {
 		expect(sampleAt({ bands: 4, fps: 12, data: [] }, 1)).toEqual([])
+	})
+})
+
+describe('toneOf', () => {
+	/** A spectrum whose energy sits entirely in one band. */
+	const only = (band: number, bands = 20, frames = 8) => ({
+		bands,
+		fps: 12,
+		data: Array.from({ length: frames * bands }, (_, i) => (i % bands === band ? 100 : 0)),
+	})
+
+	it('reads bass as low and treble as high', () => {
+		const [bass] = toneOf(only(1), 1)
+		const [treble] = toneOf(only(18), 1)
+		expect(bass).toBeLessThan(15)
+		expect(treble).toBeGreaterThan(85)
+	})
+
+	it('puts energy split across the spectrum in the middle', () => {
+		const bands = 20
+		const data = Array.from({ length: 8 * bands }, (_, i) => (i % bands === 0 || i % bands === bands - 1 ? 100 : 0))
+		const [centre] = toneOf({ bands, fps: 12, data }, 1)
+		expect(centre).toBeGreaterThan(40)
+		expect(centre).toBeLessThan(60)
+	})
+
+	it('follows the timbre as it moves through the track', () => {
+		const bands = 20
+		// Bass for the first half, treble for the second.
+		const data: number[] = []
+		for (let frame = 0; frame < 8; frame++) {
+			for (let band = 0; band < bands; band++) {
+				data.push(band === (frame < 4 ? 1 : 18) ? 100 : 0)
+			}
+		}
+		const tone = toneOf({ bands, fps: 12, data }, 2)
+		expect(tone[0]).toBeLessThan(15)
+		expect(tone[1]).toBeGreaterThan(85)
+	})
+
+	it('calls silence the middle rather than pure bass', () => {
+		const bands = 20
+		const [quiet] = toneOf({ bands, fps: 12, data: Array.from({ length: 4 * bands }, () => 0) }, 1)
+		expect(quiet).toBe(50)
+	})
+
+	it('returns one reading per bucket asked for', () => {
+		for (const buckets of [16, 32, 128]) {
+			expect(toneOf(only(5), buckets)).toHaveLength(buckets)
+		}
+	})
+
+	it('has nothing to say about an empty spectrum', () => {
+		expect(toneOf({ bands: 20, fps: 12, data: [] }, 32)).toEqual([])
 	})
 })

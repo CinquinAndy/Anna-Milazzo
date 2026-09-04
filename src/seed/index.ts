@@ -50,22 +50,44 @@ async function upsertUpload(
 			await payload.update({ collection, id: found.id, locale: 'it', data: { alt: alt.it } })
 			await payload.update({ collection, id: found.id, locale: 'en', data: { alt: alt.en } })
 		}
+		const stored = found as { peaks?: unknown; tone?: unknown; filesize?: number | null }
+		const local = await readFile(path.join(FIXTURES, filename))
+
+		// The fixture on disk may have been regenerated since it was uploaded. Size is a
+		// cheap and sufficient tell, and without this check the bucket keeps serving the old
+		// audio while the record carries an analysis of the new one — the visualiser would
+		// then be drawing a track nobody is hearing.
+		//
+		// `overwriteExistingFiles` is what keeps the name. Without it Payload sees the old
+		// object still in the bucket and sidesteps the collision by appending `-1`, after
+		// which this function can no longer find the record by filename and the next run
+		// creates a duplicate — which is exactly what happened before this flag was set.
+		// Deleting the record first is not an option either: `songs.track` is required, so
+		// Postgres refuses while a Song still points at it.
+		//
+		// Only ever fires for a name this seed owns. Anna's own uploads are named by Payload
+		// and never collide with `track-<reference>.mp3`.
+		if (stored.filesize !== local.byteLength) {
+			await payload.update({
+				collection,
+				id: found.id,
+				filePath: path.join(FIXTURES, filename),
+				overwriteExistingFiles: true,
+				data: {},
+			})
+			return found.id
+		}
+
 		// Tracks uploaded before waveforms and spectra existed carry neither. Measured from
 		// the fixture on disk rather than by re-uploading, so repairing one never touches the
 		// bucket and never risks the file Anna is actually serving.
-		const stored = found as { peaks?: unknown; spectrum?: unknown }
-		if (collection === 'audio' && (!Array.isArray(stored.peaks) || stored.spectrum == null)) {
-			const measured = await readTrack(await readFile(path.join(FIXTURES, filename))).catch(() => null)
+		if (collection === 'audio' && (!Array.isArray(stored.peaks) || !Array.isArray(stored.tone))) {
+			const measured = await readTrack(local).catch(() => null)
 			if (measured !== null) {
 				await payload.update({
 					collection,
 					id: found.id,
-					// Spread rather than passed as null: the generated field type is optional,
-					// not nullable, and a track too short to analyse simply has no spectrum.
-					data: {
-						peaks: [...measured.peaks],
-						...(measured.spectrum === null ? {} : { spectrum: measured.spectrum }),
-					},
+					data: { peaks: [...measured.peaks], tone: [...measured.tone] },
 				})
 			}
 		}

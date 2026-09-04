@@ -187,6 +187,49 @@ export function analyseSpectrum(
 }
 
 /**
+ * The track's TIMBRE over time: for each of `buckets` slices, where its energy sits in the
+ * spectrum, 0 (all bass) to 100 (all treble).
+ *
+ * This is what survives of the full analysis. Storing every frame of every band is around
+ * 40 KB gzipped for a three-minute track, which is more than the rest of the landing page
+ * and would have to be fetched separately; folding it to one number per slice costs the
+ * same as the waveform beside it — a few hundred bytes — and travels with the page.
+ *
+ * The number is the energy-weighted mean band index, the spectral centroid. It is what
+ * separates a bass passage from a bright one, so a waveform drawn with height for loudness
+ * can carry colour for timbre and say two true things at once rather than one twice.
+ *
+ * Loudness is deliberately not folded in here: a quiet passage still has a timbre, and the
+ * height of the bar already reports how loud it is.
+ */
+export function toneOf(spectrum: Spectrum, buckets: number) {
+	const { bands, data } = spectrum
+	const frameCount = Math.floor(data.length / bands)
+	if (frameCount === 0 || buckets <= 0 || bands < 2) {
+		return []
+	}
+
+	const out: number[] = []
+	for (let bucket = 0; bucket < buckets; bucket++) {
+		const from = Math.floor((bucket * frameCount) / buckets)
+		const to = Math.max(from + 1, Math.floor(((bucket + 1) * frameCount) / buckets))
+		let weighted = 0
+		let total = 0
+		for (let frame = from; frame < to && frame < frameCount; frame++) {
+			for (let band = 0; band < bands; band++) {
+				const reading = data[frame * bands + band] ?? 0
+				weighted += reading * band
+				total += reading
+			}
+		}
+		// Silence has no centroid. Reported as the middle rather than as zero, which would
+		// draw a silent passage as though it were pure bass.
+		out.push(total <= 0 ? 50 : Math.round((weighted / total / (bands - 1)) * 100))
+	}
+	return out
+}
+
+/**
  * The reading for every band at a moment in the track, interpolated between stored frames.
  *
  * Linear rather than nearest, because twelve frames a second shown at sixty would otherwise

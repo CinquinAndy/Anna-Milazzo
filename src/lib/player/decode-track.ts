@@ -1,5 +1,5 @@
 import { PEAK_RESOLUTION, summarise } from '@/lib/player/peaks'
-import { analyseSpectrum, type Spectrum } from '@/lib/player/spectrum'
+import { analyseSpectrum, toneOf } from '@/lib/player/spectrum'
 
 /**
  * Reads an MP3's amplitude, on the server, once.
@@ -20,10 +20,10 @@ import { analyseSpectrum, type Spectrum } from '@/lib/player/spectrum'
  * without a Dockerfile.
  */
 export type TrackAnalysis = {
-	/** The waveform drawn on the transport. */
+	/** How loud the track is, moment by moment. The height of every bar. */
 	peaks: readonly number[]
-	/** The frequency content the visualiser replays. Null when the track is too short. */
-	spectrum: Spectrum | null
+	/** Where its energy sits in the spectrum, moment by moment. The colour of every bar. */
+	tone: readonly number[]
 }
 
 /**
@@ -45,9 +45,14 @@ export async function readTrack(mp3: Uint8Array): Promise<TrackAnalysis | null> 
 		if (samplesDecoded <= 0 || sampleRate <= 0 || channelData.length === 0) {
 			return null
 		}
+		// The full spectrum is computed and then folded away. Keeping it would be around
+		// 40 KB gzipped for a three-minute track — more than the rest of the landing page,
+		// and needing its own request — where one centroid per bucket costs what the
+		// waveform costs and travels with the page.
+		const spectrum = analyseSpectrum(channelData, samplesDecoded, sampleRate)
 		return {
 			peaks: summarise(channelData, samplesDecoded, PEAK_RESOLUTION),
-			spectrum: analyseSpectrum(channelData, samplesDecoded, sampleRate),
+			tone: spectrum === null ? [] : toneOf(spectrum, PEAK_RESOLUTION),
 		}
 	} finally {
 		decoder.free()

@@ -1077,7 +1077,10 @@
 	 * Wraps at narrow widths so the times drop under the rail rather than squeezing it. */
 	.transport {
 		display: flex;
-		align-items: center;
+		/* On one floor, because the bars inside the rail stand on theirs. Centring a 5.5rem
+		 * rail against a shorter button leaves the histogram looking dropped into the row
+		 * rather than standing in it. */
+		align-items: end;
 		gap: calc(var(--spacing) * 4);
 		flex-wrap: wrap;
 	}
@@ -1087,8 +1090,11 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		inline-size: 3.5rem;
-		block-size: 3.5rem;
+		/* Square, and the same height as the rail beside it. It is the one thing on this
+		 * page a Recruiter is meant to press, and it should not be the smallest object in
+		 * its own row. */
+		inline-size: 5.5rem;
+		block-size: 5.5rem;
 		border: var(--border-brutal) solid var(--border);
 		background-color: var(--primary);
 		color: var(--primary-foreground);
@@ -1108,8 +1114,10 @@
 	}
 	.transport-icon {
 		display: block;
-		inline-size: 1.5rem;
-		block-size: 1.5rem;
+		/* Scaled with the button it sits in. A 1.5rem glyph inside a 5.5rem square reads as
+		 * a mistake rather than as restraint. */
+		inline-size: 2.25rem;
+		block-size: 2.25rem;
 		fill: currentColor;
 	}
 
@@ -1118,7 +1126,10 @@
 		position: relative;
 		flex: 1 1 12rem;
 		min-inline-size: 9rem;
-		block-size: 2.75rem;
+		/* Taller than a progress bar needs to be, because it is not one: it is a histogram of
+		 * the whole track, and the difference between a quiet passage and a loud one needs
+		 * room to be visible. */
+		block-size: 5.5rem;
 	}
 	/* The range itself is transparent, so the focus ring has to belong to the rail or a
 	 * keyboard user would tab to something with no visible state at all. */
@@ -1150,40 +1161,15 @@
 		/* The range on top owns every pointer event. */
 		pointer-events: none;
 	}
-	.playhead-bars {
-		display: flex;
-		align-items: center;
-		gap: 2px;
+	.playhead-canvas {
+		display: block;
+		inline-size: 100%;
 		block-size: 100%;
-		padding-inline: 3px;
-	}
-	.playhead-bar {
-		flex: 1 1 0;
-		min-inline-size: 0;
-		block-size: var(--bar, 50%);
-		/* Solid, not a keyline around a hollow box. A bar of a real waveform is around ten
-		 * pixels wide, and two 2px keylines on each side of that is a row of tiny empty
-		 * frames — a barcode, not a diagram. The rule that every edge is a black line still
-		 * holds here: the bar IS the black line, and the 2px gap does the separating. */
-		background-color: var(--ink);
-	}
-	/* The played copy, clipped to the playhead. clip-path: inset() is composited, so this
-	 * costs nothing per frame and the engine contract is unchanged — still one custom
-	 * property, still written from the animation frame, still no React re-render. */
-	.playhead-fill {
-		position: absolute;
-		inset: 0;
-		clip-path: inset(0 calc(100% - var(--playhead) * 100%) 0 0);
-	}
-	/* Cantaloupe rather than the blue of the play control, so the two halves of the
-	 * transport never read as the same object. It carries no text, so its 2.078:1 against
-	 * white does not apply. */
-	.playhead-fill .playhead-bar {
-		background-color: var(--accent);
+		/* One canvas pixel per 4px cell, blown up without smoothing. Interpolating would
+		 * average the ordered dithering away, and the dithering is the image. */
+		image-rendering: pixelated;
 	}
 
-	/* Invisible, full-bleed over the rail, and still a real range: arrow keys, Home/End,
-	 * drag and a reported value all come free. */
 	.playhead-seek {
 		position: absolute;
 		inset: 0;

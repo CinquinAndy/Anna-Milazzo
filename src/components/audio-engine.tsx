@@ -10,6 +10,17 @@ import {
 	reducePlayer,
 } from '@/lib/player/controller'
 
+/**
+ * Called on every animation frame while a Song runs, and once more on each transition away
+ * from playing — so a subscriber's last value is always the true resting one and no separate
+ * "it stopped" callback is needed.
+ *
+ * `running` is passed rather than read from `state`. The final call is made inside `send`,
+ * one line after `setState` and before React has re-rendered, so a subscriber mirroring
+ * `state.status` into a ref would still read `playing` on the very call that says it stopped.
+ */
+export type PlayheadSubscriber = (songId: string | null, fraction: number, seconds: number, running: boolean) => void
+
 type Engine = {
 	state: PlayerState
 	send: (event: PlayerEvent) => void
@@ -19,6 +30,8 @@ type Engine = {
 	trackSeek: (songId: string, node: HTMLInputElement | null) => void
 	/** Registers the element whose text reads the running Song's elapsed time. */
 	trackElapsed: (songId: string, node: HTMLElement | null) => void
+	/** Registers a function that wants the playhead every frame. Returns its own removal. */
+	trackPlayhead: (subscriber: PlayheadSubscriber) => () => void
 }
 
 const AudioEngineContext = createContext<Engine | null>(null)
@@ -50,12 +63,16 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 	const progressNodesRef = useRef(new Map<string, HTMLElement>())
 	const seekNodesRef = useRef(new Map<string, HTMLInputElement>())
 	const elapsedNodesRef = useRef(new Map<string, HTMLElement>())
+	// A Set of functions rather than a Map keyed by songId: a visualiser is not per Song the
+	// way a rail is. It wants every frame whichever Song is running, and two of them must be
+	// able to coexist instead of evicting each other the way the maps above would.
+	const playheadSubscribersRef = useRef(new Set<PlayheadSubscriber>())
 	const frameRef = useRef<number | null>(null)
 	// `apply` needs to report a rejected play() back into the reducer, and it is defined
 	// before `send` is. The ref breaks the cycle without making either depend on the other.
 	const sendRef = useRef<(event: PlayerEvent) => void>(() => {})
 
-	const writePlayhead = useCallback((songId: string | null, fraction: number, seconds: number) => {
+	const writePlayhead = useCallback((songId: string | null, fraction: number, seconds: number, running: boolean) => {
 		for (const [id, node] of progressNodesRef.current) {
 			// Written to a custom property, never to React state: `timeupdate` has no
 			// specified frequency and a state write per frame would re-render the whole
@@ -75,6 +92,12 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 			// textContent, not React state, for the same reason as the playhead: this is
 			// rewritten every animation frame.
 			node.textContent = formatRunningTime(id === songId ? seconds : 0)
+		}
+		// Last, and deliberately after every DOM write above: there is no try here, so a
+		// subscriber that throws must not be able to leave the transport's own nodes
+		// half-written for the rest of a track.
+		for (const subscriber of playheadSubscribersRef.current) {
+			subscriber(songId, fraction, seconds, running)
 		}
 	}, [])
 
@@ -146,7 +169,14 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 
 			if (next.status !== 'playing') {
 				const duration = next.song?.durationSeconds ?? 0
-				writePlayhead(next.song?.id ?? null, duration > 0 ? next.positionSeconds / duration : 0, next.positionSeconds)
+				// This branch is guarded on `next.status !== 'playing'`, so the flag is false by
+				// construction rather than by reading state that has not re-rendered yet.
+				writePlayhead(
+					next.song?.id ?? null,
+					duration > 0 ? next.positionSeconds / duration : 0,
+					next.positionSeconds,
+					false
+				)
 			}
 		},
 		[apply, writePlayhead]
@@ -169,7 +199,7 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 			const element = audioRef.current
 			const song = stateRef.current.song
 			if (element !== null && song !== null) {
-				writePlayhead(song.id, Math.min(1, element.currentTime / song.durationSeconds), element.currentTime)
+				writePlayhead(song.id, Math.min(1, element.currentTime / song.durationSeconds), element.currentTime, true)
 			}
 			frameRef.current = requestAnimationFrame(tick)
 		}
@@ -207,8 +237,15 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 		}
 	}, [])
 
+	const trackPlayhead = useCallback((subscriber: PlayheadSubscriber) => {
+		playheadSubscribersRef.current.add(subscriber)
+		return () => {
+			playheadSubscribersRef.current.delete(subscriber)
+		}
+	}, [])
+
 	return (
-		<AudioEngineContext.Provider value={{ state, send, trackProgress, trackSeek, trackElapsed }}>
+		<AudioEngineContext.Provider value={{ state, send, trackProgress, trackSeek, trackElapsed, trackPlayhead }}>
 			{children}
 			{/* preload="none": nothing is fetched until a Recruiter asks for it, so the page
 			    is readable on a slow connection without waiting on media nobody requested. */}
