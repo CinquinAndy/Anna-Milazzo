@@ -3,6 +3,7 @@ import * as migration_20260904_004937_content_model from './20260904_004937_cont
 import * as migration_20260904_005732_r2_storage from './20260904_005732_r2_storage';
 import * as migration_20260904_011542_audio_labels from './20260904_011542_audio_labels';
 import * as migration_20260904_012130_timeline_label from './20260904_012130_timeline_label';
+import * as migration_20260904_215954_peaks from './20260904_215954_peaks';
 
 export const migrations = [
   {
@@ -28,6 +29,11 @@ export const migrations = [
   {
     up: migration_20260904_012130_timeline_label.up,
     down: migration_20260904_012130_timeline_label.down,
-    name: '20260904_012130_timeline_label'
+    name: '20260904_012130_timeline_label',
+  },
+  {
+    up: migration_20260904_215954_peaks.up,
+    down: migration_20260904_215954_peaks.down,
+    name: '20260904_215954_peaks'
   },
 ];

@@ -53,6 +53,9 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 	// The audio URL comes from the record, already pointing at the bucket's public
 	// domain. A Song without one has nothing to play.
 	const trackUrl = typeof song.track === 'object' ? song.track.url : null
+	// Measured from the file on upload and stored on the audio record, so the waveform
+	// is right on the first frame and costs the visitor nothing to draw.
+	const trackPeaks = typeof song.track === 'object' ? (song.track.peaks ?? null) : null
 	// `reference` is a seed handle and a test selector, hidden from the admin — so every
 	// Song Anna creates herself has none. Falling back to the record id keeps the player
 	// present for those: gating on `reference` meant her own Songs arrived silently
@@ -114,6 +117,7 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 					{playable === null ? null : (
 						<SongTransport
 							song={playable}
+							peaks={trackPeaks}
 							playLabel={labels?.listenLabel ?? 'Play'}
 							pauseLabel={labels?.pauseLabel ?? 'Pause'}
 							seekLabel={labels?.seekLabel ?? 'Seek'}

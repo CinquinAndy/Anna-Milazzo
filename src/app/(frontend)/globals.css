@@ -477,12 +477,6 @@
 		background: var(--card);
 	}
 
-	/* A single focus ring on the whole Folder, not one per child. */
-	.folder:focus-within {
-		outline: 3px solid var(--ring);
-		outline-offset: 4px;
-	}
-
 	/* ---- tape ---------------------------------------------------------
 	 * Top two corners only, mirrored, rotated 40-50 degrees, straddling the
 	 * boundary between the cover and the paper behind it — a strip contained
@@ -1149,10 +1143,9 @@
 		inset: 0;
 		border: var(--border-brutal) solid var(--border);
 		background-color: var(--card);
-		/* Each bar has two 2px keylines, so none can shrink below 4px: at 375px the phrase is
-		 * wider than the rail and used to spill out of the page. Clipped rather than made
-		 * responsive — the fill's clip-path is relative to this box, so the mapping from time
-		 * to filled width stays correct however many bars are visible. */
+		/* The bar count now follows the measured width, so nothing should reach this. Kept as
+		 * a backstop: the fill's clip-path is relative to this box, so the mapping from time
+		 * to filled width stays correct however many bars are drawn. */
 		overflow: hidden;
 		/* The range on top owns every pointer event. */
 		pointer-events: none;
@@ -1168,7 +1161,11 @@
 		flex: 1 1 0;
 		min-inline-size: 0;
 		block-size: var(--bar, 50%);
-		border: 2px solid var(--border);
+		/* Solid, not a keyline around a hollow box. A bar of a real waveform is around ten
+		 * pixels wide, and two 2px keylines on each side of that is a row of tiny empty
+		 * frames — a barcode, not a diagram. The rule that every edge is a black line still
+		 * holds here: the bar IS the black line, and the 2px gap does the separating. */
+		background-color: var(--ink);
 	}
 	/* The played copy, clipped to the playhead. clip-path: inset() is composited, so this
 	 * costs nothing per frame and the engine contract is unchanged — still one custom

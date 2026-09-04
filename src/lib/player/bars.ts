@@ -17,9 +17,10 @@ function withIds(heights: readonly number[]): readonly Bar[] {
  * couple of transients, a decay — before it accepts a row of bars as sound. These values
  * were shaped by hand for that reading, so do not sort them or smooth them.
  *
- * The same phrase is reused for every Song deliberately. It is not a picture of the track;
- * drawing a real waveform would mean downloading and decoding every file to render the
- * page (ADR-0007). It is a control surface that looks like what it controls.
+ * This is now the fallback rather than the default. Every track carries its own waveform,
+ * measured from the file when it was uploaded and stored on the audio record, and the
+ * transport draws that. The phrase stands in only for a track the decoder could not read,
+ * where the choice is between a shape that reads as audio and a rail of dead equal blocks.
  */
 export const BAR_PHRASE = withIds([
 	22, 34, 28, 46, 38, 62, 54, 78, 66, 92, 74, 58, 44, 52, 36, 48, 30, 42, 56, 70, 88, 96, 82, 68, 54, 62, 46, 58, 40,

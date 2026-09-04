@@ -1,9 +1,10 @@
 'use client'
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAudioEngine } from '@/components/audio-engine'
 import { BAR_PHRASE } from '@/lib/player/bars'
 import { formatRunningTime, isPlaying, type PlayableSong } from '@/lib/player/controller'
+import { barCountFor, DEFAULT_BAR_COUNT, resample, toBars } from '@/lib/player/peaks'
 
 /**
  * The transport for one Song: a square play control, one progress rail, and the elapsed
@@ -23,18 +24,56 @@ import { formatRunningTime, isPlaying, type PlayableSong } from '@/lib/player/co
  */
 export function SongTransport({
 	song,
+	peaks,
 	playLabel,
 	pauseLabel,
 	seekLabel,
 }: {
 	song: PlayableSong
+	/** This track's own loudness, measured on upload. Null when the decode failed. */
+	peaks: readonly number[] | null
 	playLabel: string
 	pauseLabel: string
 	seekLabel: string
 }) {
 	const { state, send, trackProgress, trackSeek, trackElapsed } = useAudioEngine()
 	const seekRef = useRef<HTMLInputElement | null>(null)
+	const barsRef = useRef<HTMLDivElement | null>(null)
 	const running = isPlaying(state, song.id)
+
+	// How many bars the rail can hold. The server has measured nothing, so it renders the
+	// default and the first frame on the client corrects it — a state update after mount,
+	// not a hydration mismatch.
+	const [barCount, setBarCount] = useState(DEFAULT_BAR_COUNT)
+	useEffect(() => {
+		const row = barsRef.current
+		if (row === null) {
+			return
+		}
+		const observer = new ResizeObserver(entries => {
+			// The row's own content box, so the keyline and padding come from the stylesheet
+			// rather than from constants here that would drift the moment the CSS changed.
+			const width = entries[0]?.contentRect.width ?? 0
+			setBarCount(current => {
+				const next = barCountFor(width)
+				return next === current ? current : next
+			})
+		})
+		observer.observe(row)
+		return () => observer.disconnect()
+	}, [])
+
+	const bars = useMemo(() => {
+		if (peaks !== null && peaks.length > 0) {
+			return toBars(peaks, barCount)
+		}
+		// No measurement for this track. The authored phrase still reads as audio, and is
+		// resampled to the same count so a narrow rail is never a truncated one.
+		return resample(
+			BAR_PHRASE.map(bar => bar.height),
+			barCount
+		).map((height, index) => ({ id: `f${index}`, height }))
+	}, [peaks, barCount])
 
 	// The seek input commits on the native `change` event, not on `input`. React's
 	// `onChange` for a range IS `input`, so binding there would fire a seek on every
@@ -97,11 +136,11 @@ export function SongTransport({
 			</button>
 
 			<div className="transport-rail">
-				{/* An amplitude phrase, not a waveform: a real waveform would mean downloading
-				    and decoding every track to draw it (ADR-0007). Two identical rows of bars,
-				    the upper one clipped to the playhead — so the thing that fills is the same
-				    shape as the thing behind it, and the fill costs one composited clip-path
-				    per frame rather than a re-layout. */}
+				{/* This track's own loudness, measured from the file when it was uploaded and
+				    stored on the record — so drawing it costs no download and no decode here.
+				    Two identical rows of bars, the upper one clipped to the playhead: the thing
+				    that fills is the same shape as the thing behind it, and the fill costs one
+				    composited clip-path per frame rather than a re-layout. */}
 				<div
 					ref={registerProgress}
 					className="playhead-blocks"
@@ -109,22 +148,22 @@ export function SongTransport({
 					aria-hidden="true"
 					style={{ '--playhead': 0 } as React.CSSProperties}
 				>
-					<div className="playhead-bars">
-						{BAR_PHRASE.map(bar => (
+					<div ref={barsRef} className="playhead-bars">
+						{bars.map(bar => (
 							<span
 								key={`${song.id}-bar-${bar.id}`}
 								className="playhead-bar"
-								style={{ '--bar': `${bar.height}%` } as React.CSSProperties}
+								style={{ '--bar': `${bar.height.toFixed(1)}%` } as React.CSSProperties}
 							/>
 						))}
 					</div>
 					<div className="playhead-fill">
 						<div className="playhead-bars">
-							{BAR_PHRASE.map(bar => (
+							{bars.map(bar => (
 								<span
 									key={`${song.id}-fill-${bar.id}`}
 									className="playhead-bar"
-									style={{ '--bar': `${bar.height}%` } as React.CSSProperties}
+									style={{ '--bar': `${bar.height.toFixed(1)}%` } as React.CSSProperties}
 								/>
 							))}
 						</div>

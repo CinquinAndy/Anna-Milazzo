@@ -6,6 +6,11 @@ import type { NextConfig } from 'next'
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const nextConfig: NextConfig = {
+	// The MP3 decoder that measures a waveform on upload. It reaches Node's worker threads
+	// through a dynamic `import()` the bundler cannot resolve, which fails the whole route
+	// rather than just the decode — so it is required natively at runtime instead. Server
+	// only: it is never imported from a client component.
+	serverExternalPackages: ['mpg123-decoder'],
 	experimental: {
 		// The default is 10MB, and on overflow Next truncates the body silently, logs a
 		// warning and lets the request succeed — which would let Anna upload a corrupt
