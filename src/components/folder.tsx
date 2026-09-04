@@ -55,7 +55,7 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 					<Portrait
 						image={song.cover}
 						sizes="(min-width: 768px) 16rem, 70vw"
-						className="block w-full border-brutal border-border bg-background"
+						className="block w-full border-brutal border-border bg-sheet"
 					/>
 					{/* Siblings that overflow the cover, not children clipped by it: the strip
 					    has to bridge the image and the paper behind it or the illusion dies. */}

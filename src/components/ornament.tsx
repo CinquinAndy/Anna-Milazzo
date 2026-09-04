@@ -8,7 +8,8 @@ import type { CSSProperties } from 'react'
  * page reads correctly with all of them deleted — which is the test that keeps this layer
  * additive rather than load-bearing.
  *
- * Lime lives here and nowhere else: never as a fill behind type, never on a control.
+ * Ornament colour is ink by default — the only value that clears 3:1 against all six
+ * section grounds. The other tones exist for the two grounds where ink would be dull.
  *
  * Rotation is composition, not animation. Each placement passes its own angle, and no two
  * are the same — a shared value reads as a repeated component, which is the tell this
@@ -64,16 +65,17 @@ export function Ornament({
 	kind,
 	rotation,
 	className,
-	tone = 'lime',
+	tone = 'ink',
 }: {
 	kind: OrnamentKind
 	/** Degrees. Unique across the page, and never zero. */
 	rotation: number
 	className?: string
-	tone?: 'lime' | 'ink' | 'blue'
+	tone?: 'ink' | 'blue' | 'magenta' | 'sheet'
 }) {
 	const shape = SHAPES[kind]
-	const colour = tone === 'lime' ? 'var(--decor-lime)' : tone === 'blue' ? 'var(--primary)' : 'var(--border)'
+	const TONES = { ink: 'var(--ink)', blue: 'var(--blue)', magenta: 'var(--magenta)', sheet: 'var(--sheet)' }
+	const colour = TONES[tone]
 
 	return (
 		<span

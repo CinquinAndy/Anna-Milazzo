@@ -10,7 +10,7 @@ export function SiteFooter({ settings, locale }: { settings: Setting; locale: Lo
 	const links = settings.socialLinks ?? []
 
 	return (
-		<footer className="border-t-brutal border-border bg-secondary px-5 py-10 sm:px-8" data-site-footer>
+		<footer className="border-t-brutal border-border bg-ink px-5 py-10 text-sheet sm:px-8" data-site-footer>
 			<div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-6">
 				<ul className="flex flex-wrap gap-4">
 					{links.map(link => (
