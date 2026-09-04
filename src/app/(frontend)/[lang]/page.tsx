@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { About } from '@/components/about'
 import { Hero } from '@/components/hero'
-import { LanguageSwitch } from '@/components/language-switch'
+import { SiteFooter } from '@/components/site-footer'
+import { SiteHeader } from '@/components/site-header'
 import { Skills } from '@/components/skills'
 import { SongStack } from '@/components/song-stack'
 import { Timeline } from '@/components/timeline'
 import { isLocale, type Locale, localeHref } from '@/lib/locale'
 import { getHome } from '@/lib/payload/get-home'
+import { getSettings } from '@/lib/payload/get-settings'
 import { getSongs } from '@/lib/payload/get-songs'
 
 function localeOf(lang: string): Locale {
@@ -35,15 +38,11 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export default async function LandingPage({ params }: { params: Promise<{ lang: string }> }) {
 	const { lang } = await params
 	const locale = localeOf(lang)
-	const [home, songs] = await Promise.all([getHome(locale), getSongs(locale)])
+	const [home, songs, settings] = await Promise.all([getHome(locale), getSongs(locale), getSettings(locale)])
 
 	return (
 		<>
-			<header className="border-b-brutal border-border px-5 py-4 sm:px-8">
-				<div className="mx-auto flex max-w-6xl justify-end">
-					<LanguageSwitch path="/" locale={locale} />
-				</div>
-			</header>
+			<SiteHeader path="/" locale={locale} />
 
 			<main>
 				<Hero hero={home.hero} />
@@ -51,7 +50,19 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 				<Skills skills={home.skills} />
 				<SongStack songs={songs} labels={home.songs} />
 				<Timeline timeline={home.timeline} scrollLabel={home.timeline?.scrollLabel ?? ''} />
+
+				{/* The route to contact. The destination exists now, so the button can. */}
+				<section className="px-5 py-14 sm:px-8 md:py-20">
+					<div className="mx-auto flex max-w-6xl flex-col items-start gap-6">
+						<h2 className="font-display uppercase [font-stretch:88%]">{home.contactCta?.heading}</h2>
+						{home.contactCta?.body ? <p className="max-w-prose font-sans text-lg">{home.contactCta.body}</p> : null}
+						<Link href={localeHref('/contact', locale)} className="control control-accent" data-contact-cta>
+							{home.contactCta?.buttonLabel}
+						</Link>
+					</div>
+				</section>
 			</main>
+			<SiteFooter settings={settings} locale={locale} />
 		</>
 	)
 }

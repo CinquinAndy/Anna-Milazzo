@@ -448,6 +448,29 @@
 		border: 2px solid var(--border);
 	}
 
+	/* The legals page is the one place richText renders, so it is the one place that
+	 * needs paragraph rhythm and list markers back after Preflight removed them. */
+	.legal-prose p {
+		margin-block-end: 1.25rem;
+		line-height: 1.6;
+	}
+
+	.legal-prose h2,
+	.legal-prose h3 {
+		margin-block: 2rem 0.75rem;
+	}
+
+	.legal-prose ul,
+	.legal-prose ol {
+		margin-block-end: 1.25rem;
+		padding-inline-start: 1.5rem;
+		list-style: disc;
+	}
+
+	.legal-prose a {
+		text-decoration: underline;
+	}
+
 	.playhead-seek::-moz-range-thumb {
 		inline-size: 1rem;
 		block-size: 1.25rem;
