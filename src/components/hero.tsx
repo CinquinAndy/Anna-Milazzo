@@ -14,9 +14,16 @@ import type { Home } from '@/payload-types'
  * tilted so it reads as an object placed on the page rather than a slot filled with an
  * image. The record is the only thing on the page that says "music" before a word is read.
  *
+ * Full viewport on desktop, minus the sticky header's own height. The composition is
+ * centred in whatever is left and the keyboard sits at the foot, so the first screenful is
+ * the whole introduction rather than the top of it.
+ *
  * Laid out to the Italian string: the tagline runs 74 characters in Italian against 62 in
  * English, and short strings expand 200-300%, so the column widths are set by the Italian.
  */
+
+/** Four rings, evenly out of phase, so one is always mid-flight. */
+const RIPPLE_DELAYS = ['0s', '-1.8s', '-3.6s', '-5.4s'] as const
 export function Hero({
 	hero,
 	listenLabel,
@@ -31,12 +38,18 @@ export function Hero({
 	return (
 		<section
 			data-enter
-			className="relative overflow-hidden border-b-brutal border-border bg-primary px-5 py-16 sm:px-8 md:py-24"
+			className="relative flex flex-col overflow-hidden border-b-brutal border-border bg-primary px-5 py-16 sm:px-8 md:min-h-[calc(100svh-var(--header-h))] md:justify-between md:py-14"
 		>
+			<div className="hero-waves" aria-hidden="true">
+				{RIPPLE_DELAYS.map(delay => (
+					<span key={delay} className="hero-wave" style={{ animationDelay: delay }} />
+				))}
+			</div>
+
 			<Ornament kind="asterisk" tone="sheet" rotation={-13} className="top-6 left-4 h-10 w-10 sm:h-14 sm:w-14" />
 			<Ornament kind="cross" tone="magenta" rotation={22} className="bottom-8 left-8 h-7 w-7 sm:h-10 sm:w-10" />
 
-			<div className="shell grid items-center gap-12 md:grid-cols-[1.25fr_0.85fr] md:gap-10">
+			<div className="shell grid items-center gap-12 md:my-auto md:grid-cols-[1.25fr_0.85fr] md:gap-10">
 				<div className="relative">
 					{/* Larger than the h1 token, which is sized for section headings. The hero
 					    name is the one place on the site that should be as big as it can be and

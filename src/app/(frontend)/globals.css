@@ -88,6 +88,11 @@
 	 * token because it has to change in one place — a per-component max-width is how the
 	 * header ends up a different width from the section under it. */
 	--measure: 100rem;
+	/* The sticky header occupies the flow, so a full-viewport hero has to subtract it or the
+	 * keyboard at its foot lands below the fold. Measured, not estimated: 67px at 1440, 1600
+	 * and 1920, since the bar's height comes from its padding and a fixed control size
+	 * rather than from anything that reflows. */
+	--header-h: 67px;
 
 	/* Paired foregrounds, so a surface is never used without its type colour. There is
 	 * deliberately no white --magenta-foreground: white on magenta is 3.478:1, large
@@ -679,6 +684,58 @@
 		}
 		to {
 			transform: scaleY(0.8);
+		}
+	}
+
+	/* Ripples spreading from behind the record. Periodic and continuous, which is what
+	 * makes a graphic read as sound rather than as an interface — the same principle as the
+	 * keyboard below it, at a different speed so the two never lock into step.
+	 *
+	 * Scale and opacity only, both composited, so four rings looping forever cost nothing.
+	 * Sized in one place: the ring is 22rem across and the keyframes scale it, so changing
+	 * the reach is one number. */
+	.hero-waves {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+		pointer-events: none;
+	}
+	.hero-wave {
+		position: absolute;
+		inset-block-start: 46%;
+		inset-inline-start: 74%;
+		inline-size: 22rem;
+		aspect-ratio: 1;
+		margin-block-start: -11rem;
+		margin-inline-start: -11rem;
+		border: 3px solid color-mix(in oklch, var(--sheet) 42%, transparent);
+		border-radius: 50%;
+		opacity: 0;
+		scale: 0.15;
+	}
+	@media (width <= 48rem) {
+		.hero-wave {
+			inset-inline-start: 60%;
+		}
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.hero-wave {
+			animation: hero-ripple 7.2s linear infinite;
+		}
+	}
+
+	@keyframes hero-ripple {
+		0% {
+			scale: 0.15;
+			opacity: 0;
+		}
+		12% {
+			opacity: 0.85;
+		}
+		100% {
+			scale: 3.1;
+			opacity: 0;
 		}
 	}
 
