@@ -15,7 +15,7 @@ import type { Home } from '@/payload-types'
 export function ContactCta({ cta, locale }: { cta: Home['contactCta']; locale: Locale }) {
 	return (
 		<section data-enter className="relative px-5 py-14 sm:px-8 md:py-20">
-			<div className="mx-auto w-full max-w-6xl">
+			<div className="shell">
 				<div className="relative border-brutal border-border bg-magenta px-6 py-12 text-magenta-foreground shadow-2xl sm:px-12 sm:py-16">
 					<Ornament kind="asterisk" tone="sheet" rotation={11} className="top-5 right-5 h-10 w-10 sm:h-14 sm:w-14" />
 					<Ornament kind="cross" tone="ink" rotation={-16} className="bottom-8 left-8 h-6 w-6 sm:h-8 sm:w-8" />

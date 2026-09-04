@@ -38,7 +38,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
 		<>
 			<SiteHeader path={PATH} locale={locale} />
 			<main className="min-h-[60vh] bg-spring px-5 py-14 text-spring-foreground sm:px-8 md:py-20">
-				<div className="mx-auto max-w-6xl">
+				<div className="shell">
 					<h1 className="font-display uppercase [font-stretch:88%]">{copy.heading}</h1>
 					{copy.intro ? <p className="mt-4 max-w-prose font-sans text-lg">{copy.intro}</p> : null}
 					<ContactForm copy={copy} locale={locale} />

@@ -58,7 +58,12 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 			/>
 
 			<main>
-				<Hero hero={home.hero} />
+				<Hero
+					hero={home.hero}
+					listenLabel={home.songs?.heading ?? undefined}
+					contactLabel={home.contactCta?.buttonLabel ?? undefined}
+					contactHref={localeHref('/contact', locale)}
+				/>
 				<About about={home.about} />
 				<Skills skills={home.skills} />
 				<Marquee skills={home.skills} />

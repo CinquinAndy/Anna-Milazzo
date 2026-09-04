@@ -34,7 +34,7 @@ export function SongStack({ songs, labels }: { songs: Song[]; labels: Home['song
 					rotation={19}
 					className="top-10 right-4 h-8 w-8 sm:right-8 sm:h-11 sm:w-11"
 				/>
-				<div className="mx-auto max-w-6xl">
+				<div className="shell">
 					{labels?.intro ? <p className="max-w-prose font-sans text-lg">{labels.intro}</p> : null}
 
 					<ul className="mt-10 flex list-none flex-col gap-[clamp(2.5rem,8vw,4rem)] p-0">

@@ -30,9 +30,13 @@ export function Marquee({ skills }: { skills: Home['skills'] }) {
 	// seam never arrives — with a single pass the strip would empty and snap back.
 	const passes = [0, 1]
 
+	// Roughly 0.4s per character, which is a constant number of pixels per second whatever
+	// the language. A fixed duration would make the longer Italian strip scroll faster.
+	const seconds = Math.max(18, Math.round(entries.join('').length * 0.4))
+
 	return (
 		<div className="marquee border-b-brutal border-border bg-ink text-sheet" data-marquee aria-hidden="true">
-			<div className="marquee-track">
+			<div className="marquee-track" style={{ '--marquee-duration': `${seconds}s` } as React.CSSProperties}>
 				{passes.map(pass => (
 					<ul key={pass} className="marquee-pass">
 						{entries.map(entry => (

@@ -31,7 +31,7 @@ export function SiteHeader({
 
 	return (
 		<header className="sticky top-0 z-50 border-b-brutal border-border bg-paper px-4 py-3 sm:px-6" data-site-header>
-			<div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2">
+			<div className="shell flex flex-wrap items-center gap-x-3 gap-y-2">
 				{/* The wordmark is a filled pill, so the bar has one anchor point that does not
 				    move between pages. It is a link even on the landing page: pressing it
 				    returns to the top, which is what a wordmark is for. */}

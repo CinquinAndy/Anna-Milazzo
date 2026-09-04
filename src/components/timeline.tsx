@@ -45,7 +45,7 @@ export function Timeline({ timeline, scrollLabel }: { timeline: Home['timeline']
 			{timeline?.heading ? <SectionTitle>{timeline.heading}</SectionTitle> : null}
 
 			<div className="relative px-5 py-14 sm:px-8 md:py-20">
-				<div className="mx-auto max-w-6xl">
+				<div className="shell">
 					{/* The arrangement scrolls inside its own container, never the page.
 					    `tabIndex` is what makes a scrollable region reachable without a pointer. */}
 					{/* biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region has to be

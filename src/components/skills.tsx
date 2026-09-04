@@ -37,7 +37,7 @@ export function Skills({ skills }: { skills: Home['skills'] }) {
 			<div className="relative px-5 py-16 sm:px-8 md:py-24">
 				{/* No column for a heading any more — it lives in the band above — so the tags
 				    take the whole measure rather than sitting in a well beside an empty gutter. */}
-				<div className="relative mx-auto max-w-6xl">
+				<div className="shell relative">
 					<Ornament kind="underline" tone="magenta" rotation={-2} className="-top-7 left-1 h-4 w-40" />
 
 					<div className="grid items-center gap-12 lg:grid-cols-[1fr_auto] lg:gap-16">

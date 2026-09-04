@@ -11,7 +11,7 @@ export function SiteFooter({ settings, locale }: { settings: Setting; locale: Lo
 
 	return (
 		<footer className="border-t-brutal border-border bg-ink px-5 py-10 text-sheet sm:px-8" data-site-footer>
-			<div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-6">
+			<div className="shell flex flex-wrap items-center justify-between gap-6">
 				<ul className="flex flex-wrap gap-4">
 					{links.map(link => (
 						<li key={link.id ?? link.url}>

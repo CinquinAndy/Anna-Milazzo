@@ -1,5 +1,6 @@
 import { Portrait } from '@/components/portrait'
 import { SongTransport } from '@/components/song-transport'
+import { Vinyl } from '@/components/vinyl'
 import type { PlayableSong } from '@/lib/player/controller'
 import type { Home, Song } from '@/payload-types'
 
@@ -69,10 +70,15 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 
 			<div className="folder-body grid gap-6 p-5 sm:p-7 md:grid-cols-[minmax(0,16rem)_1fr] md:gap-8">
 				<div className="relative w-full max-w-[16rem] justify-self-center md:justify-self-start">
+					{/* Turning only while this Song plays. A disc that spins regardless is
+					    wallpaper; one that spins exactly when there is sound is the clearest
+					    "this is playing" signal there is, and it answers the complaint that you
+					    could not tell the control was a play control. */}
+					<Vinyl className="folder-disc" label="var(--lemon)" />
 					<Portrait
 						image={song.cover}
 						sizes="(min-width: 768px) 16rem, 70vw"
-						className="block w-full border-brutal border-border bg-sheet"
+						className="relative z-10 block w-full border-brutal border-border bg-sheet"
 					/>
 					{/* Siblings that overflow the cover, not children clipped by it: the strip
 					    has to bridge the image and the paper behind it or the illusion dies. */}

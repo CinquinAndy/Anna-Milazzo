@@ -38,7 +38,7 @@ export default async function LegalPage({ params }: { params: Promise<{ lang: st
 		<>
 			<SiteHeader path={PATH} locale={locale} />
 			<main className="px-5 py-14 sm:px-8 md:py-20">
-				<div className="mx-auto max-w-6xl">
+				<div className="shell">
 					<h1 className="font-display uppercase [font-stretch:88%]">{copy.heading}</h1>
 					{/* richText, unlike text and textarea, does not fall back on an empty value —
 					    only on a missing one. Both languages are seeded, and this guards the case

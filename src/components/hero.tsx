@@ -1,4 +1,6 @@
+import Link from 'next/link'
 import { Ornament } from '@/components/ornament'
+import { Piano } from '@/components/piano'
 import { Portrait } from '@/components/portrait'
 import { Badge, Vinyl } from '@/components/vinyl'
 import type { Home } from '@/payload-types'
@@ -15,7 +17,17 @@ import type { Home } from '@/payload-types'
  * Laid out to the Italian string: the tagline runs 74 characters in Italian against 62 in
  * English, and short strings expand 200-300%, so the column widths are set by the Italian.
  */
-export function Hero({ hero }: { hero: Home['hero'] }) {
+export function Hero({
+	hero,
+	listenLabel,
+	contactLabel,
+	contactHref,
+}: {
+	hero: Home['hero']
+	listenLabel?: string | undefined
+	contactLabel?: string | undefined
+	contactHref: string
+}) {
 	return (
 		<section
 			data-enter
@@ -24,20 +36,36 @@ export function Hero({ hero }: { hero: Home['hero'] }) {
 			<Ornament kind="asterisk" tone="sheet" rotation={-13} className="top-6 left-4 h-10 w-10 sm:h-14 sm:w-14" />
 			<Ornament kind="cross" tone="magenta" rotation={22} className="bottom-8 left-8 h-7 w-7 sm:h-10 sm:w-10" />
 
-			<div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-[1.05fr_1fr] md:gap-10">
+			<div className="shell grid items-center gap-12 md:grid-cols-[1.25fr_0.85fr] md:gap-10">
 				<div className="relative">
 					{/* Larger than the h1 token, which is sized for section headings. The hero
 					    name is the one place on the site that should be as big as it can be and
 					    still hold the Italian on two lines at 375px. */}
-					<h1 className="font-display text-[clamp(3rem,10vw,7.5rem)] leading-display text-primary-foreground uppercase break-words [font-stretch:76%] [letter-spacing:-0.025em]">
+					<h1 className="font-display text-[clamp(3rem,11.5vw,11rem)] leading-display text-primary-foreground uppercase break-words [font-stretch:76%] [letter-spacing:-0.025em]">
 						{hero?.name}
 					</h1>
-					<p className="mt-6 max-w-prose font-sans text-lg text-primary-foreground sm:text-xl md:text-2xl">
+					<p className="mt-7 max-w-[40ch] font-sans text-xl text-primary-foreground sm:text-2xl md:text-[1.75rem] md:leading-snug">
 						{hero?.tagline}
 					</p>
+					{/* Somewhere to go. Both labels are strings Anna already writes — the works
+					    heading and the contact button — so the hero cannot promise a word the rest
+					    of the page does not use. */}
+					<div className="mt-9 flex flex-wrap items-center gap-4">
+						{listenLabel ? (
+							<a href="#ascolta" className="control control-accent text-lg" data-hero-listen>
+								{listenLabel}
+							</a>
+						) : null}
+						{contactLabel ? (
+							<Link href={contactHref} className="control control-paper text-lg" data-hero-contact>
+								{contactLabel}
+							</Link>
+						) : null}
+					</div>
+
 					{/* The arrow leans toward the portrait: it is the one ornament here doing
 					    compositional work rather than filling a corner. */}
-					<Ornament kind="arrow" tone="sheet" rotation={-6} className="-bottom-10 left-2 hidden h-10 w-24 md:block" />
+					<Ornament kind="arrow" tone="sheet" rotation={-6} className="-bottom-12 left-2 hidden h-10 w-24 md:block" />
 				</div>
 
 				{/* The composition. Everything is positioned against this square so the record,
@@ -58,6 +86,13 @@ export function Hero({ hero }: { hero: Home['hero'] }) {
 					/>
 					<Badge className="absolute top-[-5%] right-[8%] block h-[27%] w-[27%]" rotation={-10} />
 				</div>
+			</div>
+
+			{/* Piano is her first instrument, so the keyboard is about her rather than about
+			    music in general. It plays a phrase to itself: a loop, because audio is periodic
+			    and periodic graphics read as sound, where a one-shot ease reads as interface. */}
+			<div className="shell mt-14 md:mt-16">
+				<Piano />
 			</div>
 		</section>
 	)

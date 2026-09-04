@@ -82,6 +82,12 @@
 	--input: var(--ink);
 	--ring: var(--blue);
 	--border-brutal: 4px;
+	/* The measure every section's content is laid against. Was 72rem, which left a third of
+	 * a 1920px screen as empty gutter on both sides; the sections are colour fields, so the
+	 * emptiness read as the design not filling the page rather than as white space. One
+	 * token because it has to change in one place — a per-component max-width is how the
+	 * header ends up a different width from the section under it. */
+	--measure: 100rem;
 
 	/* Paired foregrounds, so a surface is never used without its type colour. There is
 	 * deliberately no white --magenta-foreground: white on magenta is 3.478:1, large
@@ -231,6 +237,13 @@
 
 @utility border-b-brutal {
 	border-bottom-width: var(--border-brutal);
+}
+
+/* Every section's content sits in one of these. */
+@utility shell {
+	inline-size: 100%;
+	max-inline-size: var(--measure);
+	margin-inline: auto;
 }
 
 @layer base {
@@ -535,7 +548,11 @@
 	 * does not reach it. */
 	@media (prefers-reduced-motion: no-preference) {
 		.marquee-track {
-			animation: marquee-travel 38s linear infinite;
+			/* Duration comes from the content, not a constant. The track travels exactly one
+			 * pass, and a pass is as wide as the words in it — so a fixed duration would scroll
+			 * the Italian strip visibly faster than the English one, given Italian runs 200-300%
+			 * longer (ADR-0008). Deriving it keeps the linear speed the same in both. */
+			animation: marquee-travel var(--marquee-duration, 38s) linear infinite;
 		}
 	}
 
@@ -665,6 +682,107 @@
 		}
 	}
 
+	/* The keyboard. White keys flex to fill the width; black keys are absolutely placed on
+	 * the seam after their white key, at the standard offset, so the octave pattern is right
+	 * rather than decorative. */
+	.piano {
+		position: relative;
+		display: flex;
+		inline-size: 100%;
+		block-size: 5.5rem;
+		border: var(--border-brutal) solid var(--border);
+		background-color: var(--sheet);
+		box-shadow: var(--shadow-lg);
+	}
+	.piano-white {
+		position: relative;
+		flex: 1 1 0;
+		min-inline-size: 0;
+		border-inline-end: 2px solid var(--border);
+		background-color: var(--sheet);
+	}
+	.piano-white:last-child {
+		border-inline-end: 0;
+	}
+	.piano-black {
+		position: absolute;
+		z-index: 2;
+		inset-block-start: 0;
+		inset-inline-end: 0;
+		inline-size: 62%;
+		block-size: 62%;
+		translate: 50% 0;
+		border: 2px solid var(--border);
+		background-color: var(--ink);
+	}
+	/* The struck key. A separate layer rather than animating the key itself, so the black
+	 * keys stacked above it are never dimmed by their neighbour lighting up. */
+	.piano-hit {
+		position: absolute;
+		inset: 0;
+		background-color: var(--accent);
+		opacity: 0;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.piano-hit {
+			animation-name: key-strike;
+			animation-timing-function: cubic-bezier(0, 0, 0.58, 1);
+			animation-iteration-count: infinite;
+		}
+	}
+
+	/* A hard attack and a short decay — struck, not faded in. The key is lit for a twelfth
+	 * of the bar, which is what keeps the phrase reading as separate notes. */
+	@keyframes key-strike {
+		0% {
+			opacity: 0;
+		}
+		1% {
+			opacity: 1;
+		}
+		8% {
+			opacity: 0.55;
+		}
+		14% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 0;
+		}
+	}
+
+	/* The record behind a Folder's cover, turning only while that Song plays. A disc that
+	 * spins regardless is wallpaper; one that spins exactly when there is sound is the
+	 * clearest "this is playing" signal available, and it costs two rules.
+	 *
+	 * 1.8s is not arbitrary: 33 1/3 rpm is 60 / 33.333 = 1.8 seconds per revolution. */
+	.folder-disc {
+		position: absolute;
+		/* Zero, not -1: the cover's parent creates no stacking context, so a negative index
+		 * would put the disc behind the Folder body's own background and out of sight. The
+		 * cover sits above it on z-10 instead. */
+		z-index: 0;
+		inset-block-start: 8%;
+		inset-inline-end: -18%;
+		inline-size: 62%;
+		pointer-events: none;
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		.folder-disc {
+			animation: disc-spin 1.8s linear infinite;
+			animation-play-state: paused;
+		}
+		.folder:has([data-playing="true"]) .folder-disc {
+			animation-play-state: running;
+		}
+	}
+	@keyframes disc-spin {
+		to {
+			rotate: 360deg;
+		}
+	}
+
 	/* The arrangement. `--bar` is one year, and it is the unit everything here is measured
 	 * in: clip offsets, clip widths, ruler ticks and the playhead all multiply it, so the
 	 * whole timeline rescales from this one value. */
@@ -673,7 +791,7 @@
 		 * without scrolling on a desktop — at 13rem the last three lanes started off-screen
 		 * and read as empty rows, which is authentic for a sequencer and useless for a
 		 * portfolio. */
-		--bar: 8rem;
+		--bar: 11rem;
 		--gutter: 9.5rem;
 		overflow-x: auto;
 		border: var(--border-brutal) solid var(--border);
