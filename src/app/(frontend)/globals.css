@@ -1,0 +1,294 @@
+/* Anna Milazzo — theme layer.
+ *
+ * Copied from docs/design/globals.css, which stays as the reference. Derived from the
+ * tweakcn "neo-brutalism" theme: Anna's palette replaces the stock red / acid-yellow /
+ * electric-blue, the dark block is gone (ADR-0004), and the shadow scale is rebuilt as
+ * pure offsets — tweakcn derives a blurred second layer it cannot switch off, which is
+ * not a neo-brutalist shadow.
+ *
+ * Anna's colours sit at chroma ~0.12, roughly half the stock theme's ~0.23. The style's
+ * aggression therefore comes from the black keylines and the hard shadows, not from the
+ * colour. That is deliberate.
+ */
+
+@import "tailwindcss";
+
+/* Tailwind's source scan is rooted at the project, not at this file, and docs/ and
+ * .scratch/ are tracked — full of prose like `border-2` and `bg-background` that would
+ * otherwise be read as class usage. Both directories exist, so neither rule is silently
+ * dropped the way a glob at a missing path would be. */
+@source not "../../../docs";
+@source not "../../../.scratch";
+
+:root {
+	/* ---- ground ------------------------------------------------------ */
+	--background: oklch(0.9711 0.0125 92); /* warm paper, never pure white */
+	--foreground: oklch(0 0 0);
+
+	--card: oklch(0.99 0.005 95); /* a sheet laid on the paper */
+	--card-foreground: oklch(0 0 0);
+	--popover: oklch(0.99 0.005 95);
+	--popover-foreground: oklch(0 0 0);
+
+	/* ---- Anna's two colours ------------------------------------------ */
+	/* #3866A8 — the only fill that may carry light type (5.78:1 on white). */
+	--primary: oklch(0.5104 0.1169 257.59);
+	--primary-foreground: oklch(1 0 0);
+
+	/* #F79E76 Pantone 15-1239 Cantaloupe — BLACK TYPE ONLY (2.08:1 on white). */
+	--accent: oklch(0.7803 0.1196 44.76);
+	--accent-foreground: oklch(0 0 0);
+
+	/* ---- neutrals ----------------------------------------------------- */
+	--secondary: oklch(0.931 0.023 88); /* deeper sand, a distinct block */
+	--secondary-foreground: oklch(0 0 0);
+	--muted: oklch(0.92 0.008 90);
+	--muted-foreground: oklch(0.42 0.015 90);
+
+	--destructive: oklch(0 0 0);
+	--destructive-foreground: oklch(1 0 0);
+
+	/* ---- structure ---------------------------------------------------- */
+	--border: oklch(0 0 0); /* every keyline is black */
+	--input: oklch(0 0 0);
+	/* Focus is the blue, NOT black: an offset black outline around an element that
+	 * already has a black keyline reads as a doubled border, not as focus. Blue clears
+	 * 3:1 against the paper ground; cantaloupe does not. */
+	--ring: oklch(0.5104 0.1169 257.59);
+	/* 4px, not the genre-standard 2px. Technique A for the Folder tab pairs this with
+	 * margin-block-end: -4px, so the two must stay equal. */
+	--border-brutal: 4px;
+
+	/* ---- decoration --------------------------------------------------- */
+	/* Lime is ornament only: asterisks, arrows, underlines, blobs. Never a button fill,
+	 * never behind type. Chroma is matched to Anna's colours rather than the usual
+	 * screaming neo-brutalist lime. */
+	--decor-lime: oklch(0.87 0.14 128);
+
+	--chart-1: oklch(0.5104 0.1169 257.59);
+	--chart-2: oklch(0.7803 0.1196 44.76);
+	--chart-3: oklch(0.87 0.14 128);
+	--chart-4: oklch(0 0 0);
+	--chart-5: oklch(0.931 0.023 88);
+
+	/* ---- type ---------------------------------------------------------
+	 * The families come from next/font, which self-hosts them and exposes each as a
+	 * custom property (src/app/(frontend)/fonts.ts). The fallback after the comma is
+	 * what renders if a root layout forgot the font variables — a literal family name
+	 * here would never match the self-hosted face and would silently take the whole
+	 * document off-brand, because Tailwind's --default-font-family resolves from
+	 * --font-sans. */
+	--font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+	--font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+	--font-mono: var(--font-azeret), ui-monospace, SFMono-Regular, monospace;
+	--font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+	--tracking-normal: 0em;
+	--spacing: 0.25rem;
+
+	/* ---- shadows: hard offsets, zero blur -----------------------------
+	 * On a composite silhouette (the Folder: tab + body) do NOT use these as box-shadow
+	 * per box — it puts a black notch at the tab/body join. Use one
+	 * filter: drop-shadow(8px 8px 0 var(--border)) on the wrapper instead. */
+	--shadow-2xs: 1px 1px 0 0 var(--border);
+	--shadow-xs: 2px 2px 0 0 var(--border);
+	--shadow-sm: 3px 3px 0 0 var(--border);
+	--shadow: 4px 4px 0 0 var(--border);
+	--shadow-md: 6px 6px 0 0 var(--border);
+	--shadow-lg: 8px 8px 0 0 var(--border);
+	--shadow-xl: 12px 12px 0 0 var(--border);
+	--shadow-2xl: 16px 16px 0 0 var(--border);
+}
+
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-decor-lime: var(--decor-lime);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+
+	--font-display: var(--font-display);
+	--font-sans: var(--font-sans);
+	--font-mono: var(--font-mono);
+	--font-serif: var(--font-serif);
+
+	/* Every corner is square. `initial` clears the whole namespace first — Tailwind
+	 * ships --radius-xs/2xl/3xl/4xl and a bare --radius on top of the four steps named
+	 * below, and overriding only those four leaves `rounded`, `rounded-xs`,
+	 * `rounded-2xl`, `rounded-3xl` and `rounded-4xl` still rounding. */
+	--radius-*: initial;
+	--radius: 0px;
+	--radius-sm: 0px;
+	--radius-md: 0px;
+	--radius-lg: 0px;
+	--radius-xl: 0px;
+
+	--shadow-2xs: var(--shadow-2xs);
+	--shadow-xs: var(--shadow-xs);
+	--shadow-sm: var(--shadow-sm);
+	--shadow: var(--shadow);
+	--shadow-md: var(--shadow-md);
+	--shadow-lg: var(--shadow-lg);
+	--shadow-xl: var(--shadow-xl);
+	--shadow-2xl: var(--shadow-2xl);
+
+	/* Same reasoning as the radius namespace: Tailwind's defaults for these three are
+	 * blurred, which this style does not have. Cleared rather than redefined, so
+	 * `shadow-inner`, `drop-shadow` and `blur` simply do not exist here. */
+	--shadow-inner: initial;
+	--drop-shadow-*: initial;
+	--blur-*: initial;
+
+	/* ---- heading scale ------------------------------------------------
+	 * Sized against the Italian string, not the English one: short strings expand
+	 * 200-300% from English, and this design sets short strings very large. The clamps
+	 * are what keep `PERCHÉ PIÙ CITTÀ` on one line at 375px. */
+	--text-h1: clamp(2.75rem, 9vw, 6rem);
+	--text-h2: clamp(2rem, 5.5vw, 3.5rem);
+	--text-h3: clamp(1.5rem, 3.5vw, 2.25rem);
+	--text-h4: 1.5rem;
+	--text-h5: 1.25rem;
+	--text-h6: 1rem;
+
+	/* The floor, and it is a floor. Italian all-caps carries its diacritics above the
+	 * cap height; the 0.82 this style invites collides È À Ù with the line above. */
+	--leading-display: 0.9;
+}
+
+/* Tailwind v4 has no --border-width-* namespace, so the house border width has to be a
+ * utility rather than a token. Use border-brutal on Folders, cards and buttons;
+ * border-2 on small controls. */
+@utility border-brutal {
+	border-width: var(--border-brutal);
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+
+	body {
+		@apply bg-background text-foreground;
+		/* The paper grain goes here at build time — see the folder-ui research. */
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: var(--font-display);
+		/* opsz follows the used font-size, so the hero and a 13px label are different
+		 * cuts rather than one outline scaled. */
+		font-optical-sizing: auto;
+		line-height: var(--leading-display);
+		/* A line-height below 1 makes the inline content area taller than the line box,
+		 * so the glyphs — and with them the heading's hit area — spill above and below
+		 * its block box. Left alone, a hero silently swallows clicks on whatever sits
+		 * next to it. This reserves the shortfall, which is also §4.2(c)'s mitigation
+		 * for Italian capitals carrying their accents above the cap height. */
+		padding-block: 0.16em;
+	}
+
+	h1 {
+		font-size: var(--text-h1);
+	}
+	h2 {
+		font-size: var(--text-h2);
+	}
+	h3 {
+		font-size: var(--text-h3);
+	}
+	h4 {
+		font-size: var(--text-h4);
+	}
+	h5 {
+		font-size: var(--text-h5);
+	}
+	h6 {
+		font-size: var(--text-h6);
+	}
+
+	/* Focus is an offset blue outline, not a ring: a ring the same colour as the
+	 * element's own keyline is invisible in this style. */
+	:focus-visible {
+		outline: 3px solid var(--ring);
+		outline-offset: 2px;
+	}
+}
+
+@layer components {
+	/* The signature move, and the only one. Hover lifts and grows the shadow; press
+	 * translates into the shadow and collapses it. ~90ms ease-out: a symmetric
+	 * ease-in-out accelerates the object away from the press, which is backwards for a
+	 * physical button. The `is-hover` / `is-press` classes carry the identical
+	 * declarations so the specimen can show all three states at once.
+	 *
+	 * Under 100ms and triggered only by direct input, so this is not gated behind
+	 * prefers-reduced-motion — entrances and loops in ticket 12 are. */
+	.control {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: calc(var(--spacing) * 2);
+		padding: calc(var(--spacing) * 3) calc(var(--spacing) * 5);
+		border: var(--border-brutal) solid var(--border);
+		box-shadow: var(--shadow-md);
+		font-family: var(--font-sans);
+		font-weight: 600;
+		line-height: 1.1;
+		text-decoration: none;
+		cursor: pointer;
+		transition:
+			transform 90ms cubic-bezier(0, 0, 0.58, 1),
+			box-shadow 90ms cubic-bezier(0, 0, 0.58, 1);
+	}
+
+	.control:hover,
+	.control.is-hover {
+		transform: translate(-2px, -2px);
+		box-shadow: var(--shadow-lg);
+	}
+
+	.control:active,
+	.control.is-press {
+		transform: translate(6px, 6px);
+		box-shadow: 0 0 0 0 var(--border);
+	}
+
+	.control-primary {
+		background-color: var(--primary);
+		color: var(--primary-foreground);
+	}
+
+	.control-accent {
+		background-color: var(--accent);
+		/* Cantaloupe carries black type only — 2.08:1 against white. */
+		color: var(--accent-foreground);
+	}
+
+	.control-paper {
+		background-color: var(--card);
+		color: var(--foreground);
+	}
+}

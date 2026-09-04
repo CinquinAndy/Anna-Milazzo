@@ -576,7 +576,16 @@ Since Italian is the **default** here, design to the Italian string and let Engl
 
 Nav labels and buttons are where this bites, not paragraphs. Since Italian is the **default** here, design to the Italian string and let English be the one that has slack — the opposite of the usual habit.
 
-**(b) Latin Extended is mandatory.** Italian needs à è é ì í î ò ó ù ú. Every family recommended below is `[VERIFIED]` to carry a `latin-ext` subset. In `next/font/google` you must write `subsets: ['latin', 'latin-ext']` — with `['latin']` alone the accented glyphs fall back to a system font *mid-word*, producing a visible letterform mismatch inside words like "città". **This is the single most common Italian-site typography bug.**
+**(b) Latin Extended is mandatory.** Italian needs à è é ì í î ò ó ù ú.
+
+> **Correction, 2026-09-04 (ticket 02).** The claim below that omitting `latin-ext` makes
+> Italian accents fall back mid-word is **wrong**, and it is repeated in §4.6. Checked
+> against Google's own published `unicode-range` descriptors for Bricolage Grotesque:
+> `latin` covers `U+0000-00FF`, which contains every accented character Italian uses —
+> à U+00E0, è U+00E8, é U+00E9, ì U+00EC, ò U+00F2, ù U+00F9 and their capitals.
+> `latin-ext` begins at `U+0100`. Requesting `latin-ext` is still worth doing for breadth,
+> but it is not what carries Italian, and a test written to "prove latin-ext" with Italian
+> accents proves nothing. Every family recommended below is `[VERIFIED]` to carry a `latin-ext` subset. In `next/font/google` you must write `subsets: ['latin', 'latin-ext']` — with `['latin']` alone the accented glyphs fall back to a system font *mid-word*, producing a visible letterform mismatch inside words like "città". **This is the single most common Italian-site typography bug.**
 
 **(c) The one nobody mentions: accents above cap height.** All-caps display type is the neo-brutalist default, and Italian all-caps carries diacritics **above the cap height**: `È À Ù Ò É Ì`. Real strings that will appear on this site: `PERCHÉ`, `PIÙ`, `È`, `PERÒ`, `CITTÀ`, `UNIVERSITÀ`. A hero set at `line-height: 0.82` — normal for this style — will **clip or collide** those accents against the line above.
 
@@ -684,7 +693,8 @@ export const display = Bricolage_Grotesque({
 })
 ```
 
-- `subsets: ['latin', 'latin-ext']` — omit `latin-ext` and accented Italian glyphs fall back mid-word.
+- `subsets: ['latin', 'latin-ext']` — see the correction at §4.2(b): `latin` alone already carries every Italian accent. Request `latin-ext` for breadth, not for Italian.
+- Instrument Sans carries a `wdth` axis too (75–100), so it needs `axes: ['wdth']` for the same reason Bricolage does. Azeret Mono publishes no axis but `wght`, and passing `axes` to it is a build error.
 - Non-`wght` variable axes must be listed in `axes` or they are dropped from the build.
 - `next/font/google` downloads and self-hosts at build time, so **there is no runtime request to Google** — worth stating on the legals page, because it means fonts create no third-party data transfer and no consent obligation.
 - Keep `adjustFontFallback` on (default) and preload only the display face. With a hero this large, a mismatched fallback metric is a very visible CLS hit.

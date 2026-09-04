@@ -37,7 +37,8 @@ export const config = {
 	// Cannot be built from a variable: Next reads this statically at build time.
 	//   api      — Payload's REST API
 	//   admin    — the Payload admin panel
+	//   specimen — the theme proof sheet, which has no locale and its own root layout
 	//   _next    — framework internals, including /_next/static and /_next/image
 	//   .*\..*   — anything with a file extension: favicon.ico, robots.txt, images
-	matcher: ['/((?!api|admin|_next|.*\\..*).*)'],
+	matcher: ['/((?!api|admin|specimen|_next|.*\\..*).*)'],
 }

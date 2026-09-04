@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { isLocale } from '@/lib/locale'
+import { fontVariables } from '../fonts'
+import '../globals.css'
 
 export const metadata: Metadata = {
 	title: 'Anna Milazzo',
@@ -9,7 +11,8 @@ export const metadata: Metadata = {
 
 /**
  * Root layout for the Portfolio. The Payload admin has its own root layout under
- * `(payload)`, so there is deliberately no `app/layout.tsx`.
+ * `(payload)`, and neither the font variables nor the theme layer belong there — the
+ * stylesheet's Preflight would zero the admin's own margins, padding and borders.
  *
  * `lang` is read from `params` rather than `next/root-params`: root-param types are
  * emitted by typegen, and `validate` typechecks before it builds, so the getter would
@@ -32,7 +35,7 @@ export default async function FrontendLayout({
 	}
 
 	return (
-		<html lang={lang}>
+		<html lang={lang} className={fontVariables}>
 			<body>{children}</body>
 		</html>
 	)
