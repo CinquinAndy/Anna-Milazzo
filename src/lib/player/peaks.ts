@@ -66,11 +66,33 @@ export function summarise(channels: readonly Float32Array[], sampleCount: number
 		readings.push(counted === 0 ? 0 : Math.sqrt(energy / counted))
 	}
 
-	const loudest = Math.max(...readings)
-	if (loudest <= 0) {
-		return readings.map(() => 0)
+	return normalise(readings)
+}
+
+/**
+ * How far down the sorted readings the top of the scale is set.
+ *
+ * NOT the maximum. One transient is enough to flatten a whole track against it: measured on
+ * a real file whose first bucket held a downbeat four times louder than anything after it,
+ * every other bar came out under a quarter height and the waveform read as empty with a
+ * spike. A click, a cough or a cymbal in Anna's own recording would do the same.
+ *
+ * Reading against a high percentile instead means the loud passages still reach the top —
+ * anything above the reference simply clamps — while the body of the track uses the scale it
+ * deserves. At 128 readings this is the sixth loudest.
+ */
+const HEADROOM_PERCENTILE = 0.95
+
+/** Scales readings to 0–100 against a high percentile, clamped. */
+function normalise(readings: readonly number[]) {
+	const sorted = [...readings].sort((a, b) => a - b)
+	const reference = sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * HEADROOM_PERCENTILE))] ?? 0
+	if (reference <= 0) {
+		// Either silence, or a track so nearly silent that only its loudest moment registers.
+		const loudest = Math.max(...readings)
+		return loudest <= 0 ? readings.map(() => 0) : readings.map(r => Math.round((r / loudest) * 100))
 	}
-	return readings.map(reading => Math.round((reading / loudest) * 100))
+	return readings.map(reading => Math.min(100, Math.round((reading / reference) * 100)))
 }
 
 /**
@@ -115,11 +137,7 @@ export function resample(peaks: readonly number[], count: number) {
 		folded.push(Math.sqrt(energy / (to - from)))
 	}
 
-	const loudest = Math.max(...folded)
-	if (loudest <= 0) {
-		return folded.map(() => 0)
-	}
-	return folded.map(reading => Math.round((reading / loudest) * 100))
+	return normalise(folded)
 }
 
 /**

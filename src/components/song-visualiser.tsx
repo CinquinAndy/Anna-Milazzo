@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { useAudioEngine } from '@/components/audio-engine'
-import { BAYER, endianPacker, mix, resolveToken } from '@/lib/canvas/dither'
+import { BAYER, endianPacker, mix, type Rgb, resolveToken } from '@/lib/canvas/dither'
 import { resample } from '@/lib/player/peaks'
 
 /**
@@ -31,12 +31,42 @@ import { resample } from '@/lib/player/peaks'
 /** CSS pixels per cell. The rail is short, so half the hero's cell keeps rows for the edge. */
 const CELL = 4
 
+/** Cells held clear at each end of the rail. */
+const EDGE_MARGIN = 1
+
 /** Cells across one bar and its gutter. */
 const BAR_CELLS = 4
 const GAP_CELLS = 2
 
 /** How many cells a bar's lit top dithers away over. */
 const EDGE_SOFTNESS = 3
+
+/**
+ * How many colours the timbre ramp is expanded to.
+ *
+ * The palette has four usable hues between bass and bright, and stepping straight between
+ * them gives four flat bands: every bar is one of four colours and two neighbouring moments
+ * with slightly different timbre look identical. Interpolating them into a longer ramp and
+ * letting the matrix dither between neighbours reads as a continuous gradient while every
+ * colour on screen is still a mixture of two palette entries and nothing else.
+ */
+const RAMP_STEPS = 21
+
+/**
+ * The curve from a stored reading to a drawn height.
+ *
+ * Below one, so quiet passages are lifted. A plucked instrument spends most of its time
+ * decaying: measured on these tracks the median bucket sits around a fifth of the loudest,
+ * and drawn straight the rail is a row of stubs with a few spikes. This is a display curve
+ * and nothing else — monotonic, so louder is still taller.
+ */
+const HEIGHT_GAMMA = 0.62
+
+/** How far the foot of a bar is carried toward the ink, for weight at the base. */
+const FOOT_SHADE = 0.22
+
+/** Steps in that foot-to-top shading. */
+const SHADE_STEPS = 8
 
 /** Redraws a second while playing. */
 const FPS = 30
@@ -100,14 +130,33 @@ export function SongVisualiser({
 		// Unplayed: the ground carried a little way toward the ink. Present, plainly inert,
 		// and never competing with the colour of a bar that has been played.
 		const ghostWord = pack(mix(back, ink, 0.3))
-		// Green, yellow, orange, magenta: bass to bright. Straight from the palette — over
-		// paper these need their saturation, where over the hero's blue they were softened
-		// toward it.
-		const RAMP = (['--spring', '--lemon', '--accent', '--magenta'] as const).map(token =>
-			pack(resolveToken(host, token))
+		// Green, yellow, orange, magenta, purple: bass to bright. Straight from the palette —
+		// over paper these need their saturation, where over the hero's blue they were
+		// softened toward it.
+		const ANCHORS = (['--spring', '--lemon', '--accent', '--magenta', '--grape'] as const).map(token =>
+			resolveToken(host, token)
 		)
+		/** The anchors expanded into a long ramp, and each step shaded from foot to top. */
+		const RAMP: Uint32Array[] = []
+		for (let step = 0; step < RAMP_STEPS; step++) {
+			const along = (step / (RAMP_STEPS - 1)) * (ANCHORS.length - 1)
+			const lower = Math.min(ANCHORS.length - 1, Math.floor(along))
+			const upper = Math.min(ANCHORS.length - 1, lower + 1)
+			const hue = mix(ANCHORS[lower] as Rgb, ANCHORS[upper] as Rgb, along - lower)
+			// Every step is also a short vertical ramp: darker at the foot, full colour at the
+			// top. A flat fill of one colour is a bar chart; a bar with weight underneath it
+			// is an object standing on the rail.
+			const shades = new Uint32Array(SHADE_STEPS)
+			for (let shade = 0; shade < SHADE_STEPS; shade++) {
+				shades[shade] = pack(mix(hue, ink, FOOT_SHADE * (1 - shade / (SHADE_STEPS - 1))))
+			}
+			RAMP.push(shades)
+		}
 		// The playhead itself, drawn over everything so it survives a tall bar.
 		const markWord = pack(ink)
+		// The rule the bars stand on. Lighter than the rail's own keyline, which is a border
+		// around the whole control rather than an axis inside it.
+		const floorWord = pack(mix(back, ink, 0.55))
 
 		let width = 0
 		let height = 0
@@ -121,7 +170,9 @@ export function SongVisualiser({
 
 		/** How many bars the rail has room for, and this track's readings folded onto them. */
 		const layout = () => {
-			bars = Math.max(1, Math.floor((width + GAP_CELLS) / (BAR_CELLS + GAP_CELLS)))
+			// One cell held back at each end. Without it the first bar sits flush against the
+			// rail's keyline and reads as part of the border rather than as the first reading.
+			bars = Math.max(1, Math.floor((width - 2 * EDGE_MARGIN + GAP_CELLS) / (BAR_CELLS + GAP_CELLS)))
 			const storedPeaks = peaksRef.current
 			const storedTone = toneRef.current
 			heights = storedPeaks === null || storedPeaks.length === 0 ? [] : resample(storedPeaks, bars)
@@ -140,16 +191,33 @@ export function SongVisualiser({
 					}
 					return sum / (to - from)
 				})
+				// Smoothed across neighbours before anything else. Timbre moves gradually in
+				// music; the bar-to-bar jitter at this resolution is the attack of one note
+				// against the decay of the last, and drawn raw it turns the rail into confetti
+				// — a different hue on every bar, which reads as noise rather than as a
+				// reading. A three-bar window keeps every real move and loses the flicker.
+				const smoothed = folded.map((_, bar) => {
+					let sum = 0
+					let count = 0
+					for (let near = bar - 1; near <= bar + 1; near++) {
+						const value = folded[near]
+						if (value !== undefined) {
+							sum += value
+							count++
+						}
+					}
+					return sum / Math.max(1, count)
+				})
 				// Stretched across the track's OWN range of timbre, the same way its loudness
 				// already is. No piece uses the whole spectrum: measured on these tracks the
 				// centroid moves within a band perhaps thirty points wide, and read absolutely
 				// that lands every bar on one or two ramp colours. Stretched, the difference
 				// between this track's darkest and brightest moment is the difference between
 				// the ends of the ramp — which is what the colour is for.
-				const lowest = Math.min(...folded)
-				const highest = Math.max(...folded)
+				const lowest = Math.min(...smoothed)
+				const highest = Math.max(...smoothed)
 				const span = highest - lowest
-				colours = folded.map(value => (span < 1 ? 50 : ((value - lowest) / span) * 100))
+				colours = smoothed.map(value => (span < 1 ? 50 : ((value - lowest) / span) * 100))
 			}
 			grown = new Float64Array(bars)
 		}
@@ -176,22 +244,25 @@ export function SongVisualiser({
 				return
 			}
 			const pitch = BAR_CELLS + GAP_CELLS
-			const margin = Math.floor((width - (bars * pitch - GAP_CELLS)) / 2)
+			const margin = Math.max(EDGE_MARGIN, Math.floor((width - (bars * pitch - GAP_CELLS)) / 2))
 			const mark = Math.round(progress * (width - 1))
 
 			words.fill(backWord)
 
 			for (let bar = 0; bar < bars; bar++) {
-				const full = Math.max(0, Math.min(1, (heights[bar] ?? 0) / 100))
+				const reading = Math.max(0, Math.min(1, (heights[bar] ?? 0) / 100))
+				const full = reading ** HEIGHT_GAMMA
 				const lift = grown[bar] as number
 				// Grown from its ghost to its true height, never from nothing: the bar keeps
 				// its place in the shape the whole way up.
 				const level = full * (GHOST + (1 - GHOST) * lift)
 				const top = height - level * height
+				const foot = height - 1
+				const reach = Math.max(1, foot - top)
 				const from = margin + bar * pitch
 
-				// Colour by timbre, not by height. Height is already saying how loud this
-				// moment is, and a colour that repeats it says nothing new.
+				// Colour by timbre, not by height. Height already says how loud this moment is,
+				// and a colour that repeats it says nothing new.
 				const stop = (Math.max(0, Math.min(100, colours[bar] ?? 50)) / 100) * (RAMP.length - 1)
 				const lower = Math.min(RAMP.length - 1, stop | 0)
 				const upper = Math.min(RAMP.length - 1, lower + 1)
@@ -201,7 +272,7 @@ export function SongVisualiser({
 					if (x < 0 || x >= width) {
 						continue
 					}
-					for (let y = height - 1; y >= 0; y--) {
+					for (let y = foot; y >= 0; y--) {
 						if (y < top) {
 							// Above the bar but inside its soft top: the matrix decides. Without
 							// this, flat-topped bars read as a spreadsheet chart.
@@ -218,17 +289,32 @@ export function SongVisualiser({
 						// lit-or-not correlates the two — a lit cell is one with a low threshold,
 						// so every blend leans to the lower stop and the ramp bands.
 						const blend = ((BAYER[(y + 4) & 7] as unknown as number[])[(x + 2) & 7] ?? 0) / 64
-						const pick = stop - lower > blend ? upper : lower
+						const hue = RAMP[stop - lower > blend ? upper : lower]
+						const shade = Math.min(SHADE_STEPS - 1, Math.round(((foot - y) / reach) * (SHADE_STEPS - 1)))
 						// Dithered back toward the ghost while it is still growing, so a bar
 						// arrives at its colour rather than switching to it.
-						words[y * width + x] = (lift > blend ? RAMP[pick] : ghostWord) ?? backWord
+						words[y * width + x] = (lift > blend ? hue?.[shade] : ghostWord) ?? backWord
 					}
 				}
+			}
+
+			// The floor the bars stand on. A histogram without an axis is a row of shapes; one
+			// with a rule under it is a reading of something.
+			for (let x = 0; x < width; x++) {
+				words[(height - 1) * width + x] = floorWord
 			}
 
 			if (progress > 0) {
 				for (let y = 0; y < height; y++) {
 					words[y * width + mark] = markWord
+				}
+				// A cap at the head of the playhead, so the line reads as a position marker
+				// rather than as one more bar that happens to be black.
+				for (let x = mark - 1; x <= mark + 1; x++) {
+					if (x >= 0 && x < width) {
+						words[x] = markWord
+						words[width + x] = markWord
+					}
 				}
 			}
 			context.putImageData(image, 0, 0)

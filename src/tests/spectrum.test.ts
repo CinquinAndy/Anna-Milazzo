@@ -205,7 +205,34 @@ describe('toneOf', () => {
 		expect(tone[1]).toBeGreaterThan(85)
 	})
 
-	it('calls silence the middle rather than pure bass', () => {
+	it('gives a rest the timbre of the phrase around it', () => {
+		const bands = 20
+		// Bass, then silence, then bass again. The quiet stretch has no centroid of its own,
+		// and inventing one put a differently coloured bar in the middle of a phrase.
+		const data: number[] = []
+		for (let frame = 0; frame < 9; frame++) {
+			for (let band = 0; band < bands; band++) {
+				data.push(frame >= 3 && frame < 6 ? 0 : band === 1 ? 100 : 0)
+			}
+		}
+		const tone = toneOf({ bands, fps: 12, data }, 3)
+		expect(tone[1], 'the rest was given a colour of its own').toBe(tone[0])
+	})
+
+	it('takes the timbre that follows when the track opens on silence', () => {
+		const bands = 20
+		const data: number[] = []
+		for (let frame = 0; frame < 6; frame++) {
+			for (let band = 0; band < bands; band++) {
+				data.push(frame < 3 ? 0 : band === 17 ? 100 : 0)
+			}
+		}
+		const tone = toneOf({ bands, fps: 12, data }, 2)
+		expect(tone[0]).toBe(tone[1])
+		expect(tone[0]).toBeGreaterThan(85)
+	})
+
+	it('calls a wholly silent track the middle, having nothing else to go on', () => {
 		const bands = 20
 		const [quiet] = toneOf({ bands, fps: 12, data: Array.from({ length: 4 * bands }, () => 0) }, 1)
 		expect(quiet).toBe(50)

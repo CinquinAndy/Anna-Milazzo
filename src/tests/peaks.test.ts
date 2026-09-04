@@ -58,6 +58,17 @@ describe('resample', () => {
 		expect(median).toBeLessThan(80)
 	})
 
+	it('is not flattened by a single transient', () => {
+		// One bucket four times louder than the rest — a downbeat, a click, a cymbal. Read
+		// against the maximum this put the body of the track under a quarter height and the
+		// waveform looked empty with a spike in it. This is that case, from a real file.
+		const peaks = [100, 27, 13, 7, 4, 16, 8, 5, 3, ...Array.from({ length: 119 }, (_, i) => 20 + (i % 11) * 2)]
+		const folded = resample(peaks, 34)
+		const body = folded.slice(2)
+		const median = [...body].sort((a, b) => a - b)[Math.floor(body.length / 2)] ?? 0
+		expect(median, 'one loud bucket flattened the whole track').toBeGreaterThan(40)
+	})
+
 	it('sends the loudest bar to the top whatever the width', () => {
 		const peaks = Array.from({ length: 128 }, (_, index) => (index === 60 ? 100 : 30))
 		for (const count of [20, 44, 83]) {

@@ -209,7 +209,7 @@ export function toneOf(spectrum: Spectrum, buckets: number) {
 		return []
 	}
 
-	const out: number[] = []
+	const out: (number | null)[] = []
 	for (let bucket = 0; bucket < buckets; bucket++) {
 		const from = Math.floor((bucket * frameCount) / buckets)
 		const to = Math.max(from + 1, Math.floor(((bucket + 1) * frameCount) / buckets))
@@ -222,11 +222,32 @@ export function toneOf(spectrum: Spectrum, buckets: number) {
 				total += reading
 			}
 		}
-		// Silence has no centroid. Reported as the middle rather than as zero, which would
-		// draw a silent passage as though it were pure bass.
-		out.push(total <= 0 ? 50 : Math.round((weighted / total / (bands - 1)) * 100))
+		// Silence has no centroid at all. Left as null here and filled in below, because any
+		// fixed answer is a colour the track does not have — reporting the middle put a
+		// magenta bar at the head of every file whose first moment was quiet.
+		out.push(total <= 0 ? null : Math.round((weighted / total / (bands - 1)) * 100))
 	}
-	return out
+
+	// Silent stretches take the timbre around them: a rest inside a phrase belongs to that
+	// phrase, and drawing it as a different colour says something about it that is not true.
+	let last: number | null = null
+	for (let i = 0; i < out.length; i++) {
+		if (out[i] === null) {
+			out[i] = last
+		} else {
+			last = out[i] as number
+		}
+	}
+	let next: number | null = null
+	for (let i = out.length - 1; i >= 0; i--) {
+		if (out[i] === null) {
+			out[i] = next
+		} else {
+			next = out[i] as number
+		}
+	}
+	// A track with no energy anywhere. Nothing to say, so say the middle once.
+	return out.map(value => value ?? 50)
 }
 
 /**

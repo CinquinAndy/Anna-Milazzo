@@ -159,12 +159,19 @@ function render(track: (typeof TRACKS)[number]) {
 		)
 	}
 
-	const bars = Math.floor(track.seconds / (beat * 4))
+	// A short lead-in before anything sounds. Starting on the downbeat put every instrument
+	// on sample zero at once, which is a click rather than a chord — measured, the first
+	// analysis bucket came out four times louder than anything after it.
+	const LEAD_IN = 0.06
+	const bars = Math.floor((track.seconds - LEAD_IN) / (beat * 4))
 	for (let bar = 0; bar < bars; bar++) {
-		const at = bar * beat * 4
+		const at = LEAD_IN + bar * beat * 4
 		// A chord under the bar, and a bass note two octaves down.
+		// Spread across a few milliseconds rather than struck together. Two hands do not
+		// land three notes on the same sample, and stacking them there is what turns a chord
+		// into a transient.
 		for (const [index, step] of [0, 2, 4].entries()) {
-			pluck(at, degree(step + bar) - 12, beat * 3.4, 0.15, 0.3 + index * 0.2)
+			pluck(at + index * 0.011, degree(step + bar) - 12, beat * 3.4, 0.15, 0.3 + index * 0.2)
 		}
 		pluck(at, degree(bar) - 24, beat * 3.8, 0.2, 0.5)
 		for (let eighth = 0; eighth < 8; eighth++) {
@@ -179,6 +186,18 @@ function render(track: (typeof TRACKS)[number]) {
 				pluck(when, degree(bar * 3 + eighth), beat * 1.6, 0.125, 0.34 + (eighth % 3) * 0.15)
 			}
 		}
+	}
+
+	// Fade the very ends. An MP3 that starts or stops on a non-zero sample clicks, and the
+	// click is loud enough to become the loudest thing a measurement finds in the file.
+	const fade = Math.floor(0.03 * RATE)
+	for (let i = 0; i < fade; i++) {
+		const gain = i / fade
+		left[i] = (left[i] as number) * gain
+		right[i] = (right[i] as number) * gain
+		const j = count - 1 - i
+		left[j] = (left[j] as number) * gain
+		right[j] = (right[j] as number) * gain
 	}
 
 	let peak = 0
