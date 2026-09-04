@@ -316,12 +316,14 @@
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		/* The same signature move as every control: hover lifts, and the shadow grows.
-		 * Named properties, not `all` — `all` will happily animate layout and force a
-		 * reflow, and it turns every future style change into an accidental animation. */
-		transition:
-			transform 90ms cubic-bezier(0, 0, 0.58, 1),
-			filter 90ms cubic-bezier(0, 0, 0.58, 1);
+		/* Deliberately NOT hover-reactive. A Folder is not a control — there is nothing
+		 * to click on the card itself — so lifting it on hover promised an interaction
+		 * that does not exist. Worse, it compounded: entering the card shifted every
+		 * child by 2px, then landing on a button shifted that button another 2px, so
+		 * simply moving the pointer across a Folder made the contents jump twice. And
+		 * animating `filter` re-rasterised the whole card each frame. The lift belongs to
+		 * the controls inside, which are the things you can actually press. */
+
 		/* One shadow for the union of tab and body. `box-shadow` on each box
 		 * instead puts a black notch inside the silhouette where they join, and
 		 * steps where the tab's right edge meets the body. */
@@ -332,15 +334,6 @@
 		.folder {
 			/* Proportional at 375px, and it stops eating the gutter. */
 			--folder-shadow: 5px;
-		}
-	}
-
-	/* Only where there is a real pointer: on a touch screen `:hover` sticks after a tap
-	 * and the Folder would stay lifted. */
-	@media (hover: hover) {
-		.folder:hover {
-			transform: translate(-2px, -2px);
-			filter: drop-shadow(11px 11px 0 var(--border));
 		}
 	}
 
