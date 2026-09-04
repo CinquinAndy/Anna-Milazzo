@@ -757,6 +757,64 @@
 		}
 	}
 
+	/* The scrolling column of directions. A framed window with the track running through
+	 * it, clipped — the vertical cousin of the marquee band. */
+	.terms {
+		overflow: hidden;
+		block-size: 22rem;
+		border: var(--border-brutal) solid var(--border);
+		background-color: var(--ink);
+		box-shadow: var(--shadow-xl);
+		/* Fades the words out at both ends rather than cutting them, so the column reads as
+		 * continuing past the frame instead of starting and stopping inside it. */
+		mask-image: linear-gradient(to bottom, transparent, black 14%, black 86%, transparent);
+	}
+	.terms-track {
+		display: flex;
+		flex-direction: column;
+	}
+	.terms-pass {
+		display: flex;
+		flex-direction: column;
+		gap: calc(var(--spacing) * 4);
+		margin: 0;
+		padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+		padding-block-end: calc(var(--spacing) * 4);
+		list-style: none;
+	}
+	.terms-chip {
+		align-self: flex-start;
+		border: 3px solid var(--border);
+		padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+		box-shadow: var(--shadow-sm);
+		color: var(--ink);
+		font-family: var(--font-display);
+		font-size: clamp(1.25rem, 2.4vw, 1.9rem);
+		font-style: italic;
+		line-height: 1.05;
+		white-space: nowrap;
+	}
+	/* Every other one pushed off the left edge, so the column has a rhythm rather than a
+	 * flush margin. */
+	.terms-chip:nth-child(even) {
+		align-self: flex-end;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.terms-track {
+			animation: terms-scroll var(--terms-duration, 28s) linear infinite;
+		}
+	}
+
+	@keyframes terms-scroll {
+		from {
+			translate: 0 0;
+		}
+		to {
+			translate: 0 -50%;
+		}
+	}
+
 	/* The badge turns slowly, so the name set around its ring orbits.
 	 *
 	 * Animating the `rotate` property, not `transform`: the component already puts its resting

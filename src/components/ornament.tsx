@@ -16,7 +16,7 @@ import type { CSSProperties } from 'react'
  * whole layer is trying to avoid.
  */
 
-export type OrnamentKind = 'asterisk' | 'arrow' | 'underline' | 'blob' | 'cross'
+export type OrnamentKind = 'asterisk' | 'arrow' | 'underline' | 'blob' | 'cross' | 'sparkle'
 
 const SHAPES: Record<OrnamentKind, { viewBox: string; path: React.ReactNode }> = {
 	asterisk: {
@@ -49,6 +49,12 @@ const SHAPES: Record<OrnamentKind, { viewBox: string; path: React.ReactNode }> =
 	blob: {
 		viewBox: '0 0 100 100',
 		path: <path fill="currentColor" d="M52 6c22-4 42 14 41 36s-10 42-33 48S16 78 12 56 30 10 52 6z" />,
+	},
+	/* The four-point star that runs through every reference the client sent. Concave sides
+	   rather than a rotated square: it is the star's pinched waist that reads as a sparkle. */
+	sparkle: {
+		viewBox: '0 0 100 100',
+		path: <path fill="currentColor" d="M50 0c4 28 18 42 46 46-28 4-42 18-46 46-4-28-18-42-46-46 28-4 42-18 46-46z" />,
 	},
 	cross: {
 		viewBox: '0 0 100 100',
