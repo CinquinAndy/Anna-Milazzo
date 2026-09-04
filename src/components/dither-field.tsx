@@ -177,9 +177,13 @@ export function DitherField() {
 		 * looks like above its level.
 		 */
 		const host = canvas.parentElement ?? canvas
-		const RAMP = [resolveToken(host, '--spring'), resolveToken(host, '--lemon'), resolveToken(host, '--accent')].map(
-			colour => pack(colour) >>> 0
-		)
+		// Green, yellow, orange, red — the order every level meter has used since they had needles.
+		const RAMP = [
+			resolveToken(host, '--spring'),
+			resolveToken(host, '--lemon'),
+			resolveToken(host, '--accent'),
+			resolveToken(host, '--magenta'),
+		].map(colour => pack(colour) >>> 0)
 
 		let width = 0
 		let height = 0
@@ -270,7 +274,21 @@ export function DitherField() {
 					}
 					// Position within the bar, so a short bar still runs the whole ramp.
 					const climb = top > 0 ? fromFoot / top : 0
-					words[row + x] = RAMP[climb < 0.34 ? 0 : climb < 0.68 ? 1 : 2] ?? frontWord
+					const stop = climb * (RAMP.length - 1)
+					const lower = Math.min(RAMP.length - 1, stop | 0)
+					// The step between two ramp colours is DITHERED, not interpolated. Blending
+					// in RGB would smooth the ramp by inventing hundreds of colours, inside a
+					// component whose whole premise is that there are only a few — the gradient
+					// would come out smooth and the image would stop being dithered. Letting the
+					// matrix choose between the two neighbouring stops reads just as smooth and
+					// adds no colour at all, which is what ordered dithering exists to do.
+					//
+					// A second, offset read of the matrix. Reusing the threshold that decided
+					// on/off would correlate the two — a lit cell is one with a low threshold, so
+					// every blend would lean toward the lower stop and the ramp would band.
+					const blend = ((BAYER[(y + 4) & 7] as unknown as number[])[(x + 2) & 7] ?? 0) / 64
+					const pick = stop - lower > blend ? Math.min(RAMP.length - 1, lower + 1) : lower
+					words[row + x] = RAMP[pick] ?? frontWord
 				}
 			}
 			context.putImageData(image, 0, 0)
