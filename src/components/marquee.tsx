@@ -1,4 +1,8 @@
+import { BAND_PHRASE } from '@/lib/player/bars'
 import type { Home } from '@/payload-types'
+
+/** Lattice order, so the bars step through the palette rather than sampling it randomly. */
+const BAND_TINTS = ['var(--cantaloupe)', 'var(--lemon)', 'var(--spring)', 'var(--blue)', 'var(--magenta)'] as const
 
 /**
  * The black strip that cuts the page in half.
@@ -10,6 +14,11 @@ import type { Home } from '@/payload-types'
  * The words are Anna's own skills rather than a new CMS field — they are already written
  * in both languages, already hers to edit, and a marquee of what she does is worth more
  * than a marquee of her name.
+ *
+ * Two lanes in one band, text above and amplitude bars below, rather than two full-bleed
+ * strips — which would spend 180px of scroll on one idea. The bars do the contrast job the
+ * band was already doing and say music for free; everything clears on black, so there is
+ * no pairing to check.
  */
 export function Marquee({ skills }: { skills: Home['skills'] }) {
 	const entries = (skills?.entries ?? []).map(entry => entry.name).filter(Boolean)
@@ -41,6 +50,21 @@ export function Marquee({ skills }: { skills: Home['skills'] }) {
 							</li>
 						))}
 					</ul>
+				))}
+			</div>
+
+			<div className="band-bars">
+				{BAND_PHRASE.map((bar, index) => (
+					<span
+						key={`band-${bar.id}`}
+						className="band-bar"
+						style={
+							{
+								'--bar': `${bar.height}%`,
+								backgroundColor: BAND_TINTS[index % BAND_TINTS.length],
+							} as React.CSSProperties
+						}
+					/>
 				))}
 			</div>
 		</div>

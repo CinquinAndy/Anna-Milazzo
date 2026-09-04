@@ -532,6 +532,55 @@
 		}
 	}
 
+	/* Five ruled lines with nothing on them. Music paper rather than school paper: it is
+	 * structural, survives any width, needs no glyphs, and says "this is where music gets
+	 * written" without a note. Ink measures 19.35:1 on the paper ground, so the rules are
+	 * set faint deliberately — this wants to be texture, not content. */
+	/* Five ruled lines with nothing on them, repeating down the section as systems with a
+	 * rest between them. Music paper rather than school paper: structural, survives any
+	 * width, needs no glyphs, and says "this is where music gets written" without a note.
+	 *
+	 * Written as one explicit gradient rather than a repeating one inside a tall tile: a
+	 * repeating-linear-gradient cannot be told to stop after five lines, so it fills the
+	 * gap between systems too and the result is notebook paper. The stops below draw
+	 * exactly five rules in the first 54px of a 112px tile, and the tile repeats on both
+	 * axes — the first attempt used repeat-x, which drew one system at the top of the
+	 * section and nothing below it. */
+	.stave-ground {
+		--stave-ink: color-mix(in oklch, var(--ink) 30%, transparent);
+		background-image: linear-gradient(
+			to bottom,
+			var(--stave-ink) 0 2px,
+			transparent 2px 13px,
+			var(--stave-ink) 13px 15px,
+			transparent 15px 26px,
+			var(--stave-ink) 26px 28px,
+			transparent 28px 39px,
+			var(--stave-ink) 39px 41px,
+			transparent 41px 52px,
+			var(--stave-ink) 52px 54px,
+			transparent 54px 112px
+		);
+		background-size: 100% 112px;
+		background-repeat: repeat;
+	}
+
+	/* The divider's second lane. One black band carrying text above and bars below, rather
+	 * than two full-bleed strips eating 180px of scroll for one idea. */
+	.band-bars {
+		display: flex;
+		align-items: center;
+		gap: 3px;
+		block-size: 3rem;
+		padding-inline: calc(var(--spacing) * 2);
+		padding-block-end: calc(var(--spacing) * 2);
+	}
+	.band-bar {
+		flex: 1 1 0;
+		min-inline-size: 0;
+		block-size: var(--bar, 50%);
+	}
+
 	@keyframes marquee-travel {
 		from {
 			transform: translateX(0);
@@ -612,33 +661,44 @@
 
 	.playhead-blocks {
 		--playhead: 0;
-		--block: 1rem;
 		position: absolute;
 		inset: 0;
 		border: var(--border-brutal) solid var(--border);
 		background-color: var(--card);
-		background-image: repeating-linear-gradient(
-			90deg,
-			transparent 0 calc(var(--block) - 3px),
-			var(--border) calc(var(--block) - 3px) var(--block)
-		);
+		/* Each bar has two 2px keylines, so none can shrink below 4px: at 375px the phrase is
+		 * wider than the rail and used to spill out of the page. Clipped rather than made
+		 * responsive — the fill's clip-path is relative to this box, so the mapping from time
+		 * to filled width stays correct however many bars are visible. */
+		overflow: hidden;
 		/* The range on top owns every pointer event. */
 		pointer-events: none;
 	}
-	/* The played portion. Cantaloupe rather than the blue of the play control, so the two
-	 * halves of the transport never read as the same object. It carries no text, so its
-	 * 2.08:1 against white does not apply. */
-	.playhead-blocks::before {
-		content: "";
+	.playhead-bars {
+		display: flex;
+		align-items: center;
+		gap: 2px;
+		block-size: 100%;
+		padding-inline: 3px;
+	}
+	.playhead-bar {
+		flex: 1 1 0;
+		min-inline-size: 0;
+		block-size: var(--bar, 50%);
+		border: 2px solid var(--border);
+	}
+	/* The played copy, clipped to the playhead. clip-path: inset() is composited, so this
+	 * costs nothing per frame and the engine contract is unchanged — still one custom
+	 * property, still written from the animation frame, still no React re-render. */
+	.playhead-fill {
 		position: absolute;
 		inset: 0;
-		inline-size: calc(var(--playhead) * 100%);
+		clip-path: inset(0 calc(100% - var(--playhead) * 100%) 0 0);
+	}
+	/* Cantaloupe rather than the blue of the play control, so the two halves of the
+	 * transport never read as the same object. It carries no text, so its 2.078:1 against
+	 * white does not apply. */
+	.playhead-fill .playhead-bar {
 		background-color: var(--accent);
-		background-image: repeating-linear-gradient(
-			90deg,
-			transparent 0 calc(var(--block) - 3px),
-			var(--border) calc(var(--block) - 3px) var(--block)
-		);
 	}
 
 	/* Invisible, full-bleed over the rail, and still a real range: arrow keys, Home/End,

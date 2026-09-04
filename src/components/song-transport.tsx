@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from 'react'
 import { useAudioEngine } from '@/components/audio-engine'
+import { BAR_PHRASE } from '@/lib/player/bars'
 import { formatRunningTime, isPlaying, type PlayableSong } from '@/lib/player/controller'
 
 /**
@@ -96,16 +97,39 @@ export function SongTransport({
 			</button>
 
 			<div className="transport-rail">
-				{/* Chunky blocks, not a waveform: a real waveform would mean downloading and
-				    decoding every track to draw it, and renders thin and grey — which is what
-				    this visual language rejects (ADR-0007). */}
+				{/* An amplitude phrase, not a waveform: a real waveform would mean downloading
+				    and decoding every track to draw it (ADR-0007). Two identical rows of bars,
+				    the upper one clipped to the playhead — so the thing that fills is the same
+				    shape as the thing behind it, and the fill costs one composited clip-path
+				    per frame rather than a re-layout. */}
 				<div
 					ref={registerProgress}
 					className="playhead-blocks"
 					data-progress={song.id}
 					aria-hidden="true"
 					style={{ '--playhead': 0 } as React.CSSProperties}
-				/>
+				>
+					<div className="playhead-bars">
+						{BAR_PHRASE.map(bar => (
+							<span
+								key={`${song.id}-bar-${bar.id}`}
+								className="playhead-bar"
+								style={{ '--bar': `${bar.height}%` } as React.CSSProperties}
+							/>
+						))}
+					</div>
+					<div className="playhead-fill">
+						<div className="playhead-bars">
+							{BAR_PHRASE.map(bar => (
+								<span
+									key={`${song.id}-fill-${bar.id}`}
+									className="playhead-bar"
+									style={{ '--bar': `${bar.height}%` } as React.CSSProperties}
+								/>
+							))}
+						</div>
+					</div>
+				</div>
 				{/* A styled native range, not a custom role="slider": the native control
 				    already reports its value, takes arrow keys, and works with every assistive
 				    technology without being reimplemented. It is transparent and covers the
