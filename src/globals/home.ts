@@ -114,6 +114,18 @@ export const Home: GlobalConfig = {
 			fields: [
 				{ name: 'heading', type: 'text', localized: true, label: { en: 'Heading', it: 'Titolo' } },
 				{
+					name: 'scrollLabel',
+					type: 'text',
+					localized: true,
+					label: { en: 'Strip label', it: 'Etichetta della striscia' },
+					admin: {
+						description: {
+							en: 'Names the scrollable strip for a screen reader; never shown.',
+							it: 'Nomina la striscia scorrevole per uno screen reader; mai mostrata.',
+						},
+					},
+				},
+				{
 					name: 'entries',
 					type: 'array',
 					label: { en: 'Entries', it: 'Tappe' },

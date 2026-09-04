@@ -459,6 +459,10 @@ export interface Home {
   };
   timeline?: {
     heading?: string | null;
+    /**
+     * Names the scrollable strip for a screen reader; never shown.
+     */
+    scrollLabel?: string | null;
     entries?:
       | {
           /**
@@ -588,6 +592,7 @@ export interface HomeSelect<T extends boolean = true> {
     | T
     | {
         heading?: T;
+        scrollLabel?: T;
         entries?:
           | T
           | {

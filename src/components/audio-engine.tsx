@@ -14,6 +14,8 @@ type Engine = {
 	send: (event: PlayerEvent) => void
 	/** Registers the element whose `--playhead` should follow the running Song. */
 	trackProgress: (songId: string, node: HTMLElement | null) => void
+	/** Registers the seek control whose thumb should follow the running Song. */
+	trackSeek: (songId: string, node: HTMLInputElement | null) => void
 }
 
 const AudioEngineContext = createContext<Engine | null>(null)
@@ -43,22 +45,27 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 	// Set when a seek arrives before the element has metadata to seek within.
 	const pendingSeekRef = useRef<number | null>(null)
 	const progressNodesRef = useRef(new Map<string, HTMLElement>())
+	const seekNodesRef = useRef(new Map<string, HTMLInputElement>())
 	const frameRef = useRef<number | null>(null)
 	// `apply` needs to report a rejected play() back into the reducer, and it is defined
 	// before `send` is. The ref breaks the cycle without making either depend on the other.
 	const sendRef = useRef<(event: PlayerEvent) => void>(() => {})
-	// Swapping `src` on a playing element runs the media load algorithm, which sets
-	// `paused` and fires a `pause` event. That is not the Recruiter pausing — it is the
-	// old Song being replaced by the new one — and treating it as one would put the
-	// Folder they just pressed straight back into a stopped state.
-	const swappingRef = useRef(false)
 
-	const writePlayhead = useCallback((songId: string | null, fraction: number) => {
+	const writePlayhead = useCallback((songId: string | null, fraction: number, seconds: number) => {
 		for (const [id, node] of progressNodesRef.current) {
 			// Written to a custom property, never to React state: `timeupdate` has no
 			// specified frequency and a state write per frame would re-render the whole
 			// stack sixty times a second.
 			node.style.setProperty('--playhead', id === songId ? String(fraction) : '0')
+		}
+		for (const [id, node] of seekNodesRef.current) {
+			// Not while a Recruiter has hold of it: a slider whose value is rewritten
+			// every frame fights the drag, and one rewritten while focused announces itself
+			// continuously to a screen reader.
+			if (document.activeElement === node) {
+				continue
+			}
+			node.value = id === songId ? String(Math.floor(seconds)) : '0'
 		}
 	}, [])
 
@@ -70,7 +77,6 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 
 		switch (command.kind) {
 			case 'load': {
-				swappingRef.current = !element.paused
 				element.src = command.source
 				pendingSeekRef.current = null
 				break
@@ -121,7 +127,7 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 
 			if (next.status !== 'playing') {
 				const duration = next.song?.durationSeconds ?? 0
-				writePlayhead(next.song?.id ?? null, duration > 0 ? next.positionSeconds / duration : 0)
+				writePlayhead(next.song?.id ?? null, duration > 0 ? next.positionSeconds / duration : 0, next.positionSeconds)
 			}
 		},
 		[apply, writePlayhead]
@@ -144,7 +150,7 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 			const element = audioRef.current
 			const song = stateRef.current.song
 			if (element !== null && song !== null) {
-				writePlayhead(song.id, Math.min(1, element.currentTime / song.durationSeconds))
+				writePlayhead(song.id, Math.min(1, element.currentTime / song.durationSeconds), element.currentTime)
 			}
 			frameRef.current = requestAnimationFrame(tick)
 		}
@@ -166,8 +172,16 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 		}
 	}, [])
 
+	const trackSeek = useCallback((songId: string, node: HTMLInputElement | null) => {
+		if (node === null) {
+			seekNodesRef.current.delete(songId)
+		} else {
+			seekNodesRef.current.set(songId, node)
+		}
+	}, [])
+
 	return (
-		<AudioEngineContext.Provider value={{ state, send, trackProgress }}>
+		<AudioEngineContext.Provider value={{ state, send, trackProgress, trackSeek }}>
 			{children}
 			{/* preload="none": nothing is fetched until a Recruiter asks for it, so the page
 			    is readable on a slow connection without waiting on media nobody requested. */}
@@ -183,18 +197,28 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 						pendingSeekRef.current = null
 					}
 				}}
-				onPlaying={() => {
-					swappingRef.current = false
-				}}
 				onPause={() => {
-					if (swappingRef.current) {
-						swappingRef.current = false
+					// Swapping `src` runs the media load algorithm, which can fire `pause` on
+					// its way out. That is the old Song being replaced, not the Recruiter
+					// stopping — and it is distinguishable without any bookkeeping, because a
+					// load drops the element back to HAVE_NOTHING. Nothing that has nothing
+					// loaded can meaningfully pause.
+					if (audioRef.current === null || audioRef.current.readyState === 0) {
 						return
 					}
+					// Record where it stopped before recording that it stopped, so the state
+					// says what a Recruiter would say: paused, here.
+					send({ type: 'advanced', seconds: audioRef.current.currentTime })
 					send({ type: 'stopped' })
 				}}
 				onEnded={() => send({ type: 'ended' })}
-				onError={() => send({ type: 'failed' })}
+				onError={() => {
+					// `error` fires with no `error` object when a load is merely superseded.
+					if (audioRef.current?.error == null) {
+						return
+					}
+					send({ type: 'failed' })
+				}}
 			/>
 		</AudioEngineContext.Provider>
 	)

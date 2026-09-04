@@ -10,7 +10,11 @@ async function element(page: import('@playwright/test').Page) {
 		return audio === null
 			? null
 			: {
-					src: audio.currentSrc || audio.src,
+					// `src` updates the moment it is assigned. `currentSrc` only catches up
+					// when the resource selection algorithm runs, so reading it would report
+					// the previous Song for a beat after a swap.
+					src: audio.src,
+					currentSrc: audio.currentSrc,
 					paused: audio.paused,
 					preload: audio.preload,
 					count: document.querySelectorAll('audio').length,

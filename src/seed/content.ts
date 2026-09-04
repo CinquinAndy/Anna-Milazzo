@@ -137,7 +137,11 @@ type HomeCopy = {
 		pauseLabel: string
 		seekLabel: string
 	}
-	timeline: { heading: string; entries: readonly { period: string; label: string; detail: string }[] }
+	timeline: {
+		heading: string
+		scrollLabel: string
+		entries: readonly { period: string; label: string; detail: string }[]
+	}
 	contactCta: { heading: string; body: string; buttonLabel: string }
 }
 
@@ -177,6 +181,7 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 		},
 		timeline: {
 			heading: 'Percorso',
+			scrollLabel: 'Percorso di Anna, in ordine cronologico',
 			entries: [
 				{
 					period: '2019–2022',
@@ -245,6 +250,7 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 		},
 		timeline: {
 			heading: 'Training and experience',
+			scrollLabel: 'Anna’s path, in chronological order',
 			entries: [
 				{
 					period: '2019–2022',

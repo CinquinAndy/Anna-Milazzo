@@ -4,6 +4,7 @@ import { Hero } from '@/components/hero'
 import { LanguageSwitch } from '@/components/language-switch'
 import { Skills } from '@/components/skills'
 import { SongStack } from '@/components/song-stack'
+import { Timeline } from '@/components/timeline'
 import { isLocale, type Locale, localeHref } from '@/lib/locale'
 import { getHome } from '@/lib/payload/get-home'
 import { getSongs } from '@/lib/payload/get-songs'
@@ -49,6 +50,7 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 				<About about={home.about} />
 				<Skills skills={home.skills} />
 				<SongStack songs={songs} labels={home.songs} />
+				<Timeline timeline={home.timeline} scrollLabel={home.timeline?.scrollLabel ?? ''} />
 			</main>
 		</>
 	)

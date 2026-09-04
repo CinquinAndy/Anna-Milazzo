@@ -21,7 +21,7 @@ export function SongTransport({
 	pauseLabel: string
 	seekLabel: string
 }) {
-	const { state, send, trackProgress } = useAudioEngine()
+	const { state, send, trackProgress, trackSeek } = useAudioEngine()
 	const seekRef = useRef<HTMLInputElement | null>(null)
 	const running = isPlaying(state, song.id)
 
@@ -38,29 +38,18 @@ export function SongTransport({
 		return () => input.removeEventListener('change', commit)
 	}, [send, song])
 
-	// Keep the thumb with the playhead while this Song runs — imperatively, so sixty
-	// frames a second do not become sixty renders.
-	useEffect(() => {
-		if (!running) {
-			return
-		}
-		let frame = 0
-		const follow = () => {
-			const input = seekRef.current
-			// Not while a Recruiter has hold of it, and not while it is focused: a slider
-			// whose value is rewritten each second announces itself continuously.
-			if (input !== null && document.activeElement !== input) {
-				input.value = String(Math.floor(state.positionSeconds))
-			}
-			frame = requestAnimationFrame(follow)
-		}
-		frame = requestAnimationFrame(follow)
-		return () => cancelAnimationFrame(frame)
-	}, [running, state.positionSeconds])
-
+	// Every per-frame DOM write lives in the engine, which owns the animation frame. The
+	// transport only says which nodes belong to which Song.
 	const registerProgress = useCallback(
 		(node: HTMLDivElement | null) => trackProgress(song.id, node),
 		[song.id, trackProgress]
+	)
+	const registerSeek = useCallback(
+		(node: HTMLInputElement | null) => {
+			seekRef.current = node
+			trackSeek(song.id, node)
+		},
+		[song.id, trackSeek]
 	)
 
 	return (
@@ -97,7 +86,7 @@ export function SongTransport({
 			    reports its value, takes arrow keys, and works with every assistive
 			    technology without being reimplemented. */}
 			<input
-				ref={seekRef}
+				ref={registerSeek}
 				type="range"
 				className="playhead-seek"
 				min={0}

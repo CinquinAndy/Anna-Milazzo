@@ -165,6 +165,7 @@ function homeData(
 		songs: copy.songs,
 		timeline: {
 			heading: copy.timeline.heading,
+			scrollLabel: copy.timeline.scrollLabel,
 			entries: withRowIds(copy.timeline.entries, stored?.timeline),
 		},
 		contactCta: copy.contactCta,

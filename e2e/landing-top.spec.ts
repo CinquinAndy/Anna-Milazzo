@@ -77,13 +77,23 @@ test.describe('the top of the landing page', () => {
 			expect(overflow.scrollWidth, 'the page scrolls sideways').toBeLessThanOrEqual(overflow.clientWidth)
 
 			// Nothing sticks out of the viewport either — an element can overflow without
-			// making the document scrollable if something above it clips.
+			// making the document scrollable if something above it clips. Content inside a
+			// scroll container is exempt: that is the timeline strip doing its job, and the
+			// page-level assertion above already proves the page is not the thing scrolling.
 			const wide = await page.evaluate(() => {
 				const limit = document.documentElement.clientWidth
+				const insideScroller = (el: Element) => {
+					for (let node = el.parentElement; node !== null; node = node.parentElement) {
+						if (/(auto|scroll)/.test(getComputedStyle(node).overflowX)) {
+							return true
+						}
+					}
+					return false
+				}
 				return [...document.querySelectorAll('body *')]
 					.filter(el => {
 						const box = el.getBoundingClientRect()
-						return box.width > 0 && (box.right > limit + 1 || box.left < -1)
+						return box.width > 0 && (box.right > limit + 1 || box.left < -1) && !insideScroller(el)
 					})
 					.map(el => `${el.tagName.toLowerCase()}.${el.className || '(no class)'}`.slice(0, 80))
 			})
