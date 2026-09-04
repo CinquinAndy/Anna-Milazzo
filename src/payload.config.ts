@@ -14,6 +14,7 @@ import { Contact } from './globals/contact'
 import { Home } from './globals/home'
 import { Legals } from './globals/legals'
 import { Settings } from './globals/settings'
+import { r2Storage } from './lib/storage'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -55,7 +56,22 @@ export default buildConfig({
 		fallbackLanguage: 'it',
 	},
 	secret: process.env.PAYLOAD_SECRET ?? '',
+	plugins: [r2Storage],
 	sharp,
+	// A file over this size is refused with a visible error and no record is written.
+	// Deliberately below Next's `proxyClientMaxBodySize`, so the limit that fails loudly
+	// is always the one that fires first.
+	//
+	// `abortOnLimit` is the load-bearing line, not `limits`. On its own, `limits.fileSize`
+	// TRUNCATES the upload at the limit and saves the record anyway — measured: a 60.2MB
+	// track came back 201 Created at exactly 52428800 bytes. That is the silent corruption
+	// this ticket exists to prevent, arriving through a different door than the one the
+	// spec warned about.
+	upload: {
+		abortOnLimit: true,
+		limits: { fileSize: 50 * 1024 * 1024 },
+		responseOnLimit: 'That file is larger than 50 MB. Export it smaller and try again.',
+	},
 	typescript: {
 		outputFile: path.resolve(dirname, 'payload-types.ts'),
 	},

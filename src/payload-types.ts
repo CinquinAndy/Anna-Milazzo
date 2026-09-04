@@ -169,6 +169,7 @@ export interface Song {
 export interface Media {
   id: number;
   alt: string;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -187,6 +188,7 @@ export interface Media {
  */
 export interface Audio {
   id: number;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -326,6 +328,7 @@ export interface SongsSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -343,6 +346,7 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "audio_select".
  */
 export interface AudioSelect<T extends boolean = true> {
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

@@ -6,6 +6,13 @@ import type { NextConfig } from 'next'
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const nextConfig: NextConfig = {
+	experimental: {
+		// The default is 10MB, and on overflow Next truncates the body silently, logs a
+		// warning and lets the request succeed — which would let Anna upload a corrupt
+		// track and believe it worked. Set above the largest expected track, and above
+		// Payload's own 50MB limit so the error Anna sees is Payload's, not a truncation.
+		proxyClientMaxBodySize: '64mb',
+	},
 	// Next 16 defaults to Turbopack; the webpack block is only the fallback path.
 	webpack: webpackConfig => {
 		webpackConfig.resolve.extensionAlias = {

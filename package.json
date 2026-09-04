@@ -26,6 +26,7 @@
 		"migrate:create": "bun run payload migrate:create",
 		"migrate:status": "bun run payload migrate:status",
 		"seed": "bun run payload run src/seed/index.ts",
+		"seed:reset": "bun run payload run src/seed/reset.ts",
 		"generate:types": "bun run payload generate:types",
 		"generate:importmap": "bun run payload generate:importmap"
 	},
@@ -33,6 +34,7 @@
 		"@payloadcms/db-postgres": "3.88.0",
 		"@payloadcms/next": "3.88.0",
 		"@payloadcms/richtext-lexical": "3.88.0",
+		"@payloadcms/storage-s3": "3.88.0",
 		"@payloadcms/ui": "3.88.0",
 		"graphql": "16.14.2",
 		"next": "16.3.4",
