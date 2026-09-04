@@ -553,18 +553,41 @@
 		}
 	}
 
-	/* A mixing desk, drawn with borders. Every part is a rectangle or a circle with a
-	 * keyline, so it inherits the page's language rather than importing an icon set. */
+	/* A device panel: a meter that moves over a deck that does not. Every part is a
+	 * rectangle or a circle with a keyline, so it inherits the page's language rather than
+	 * importing an icon set. */
 	.console {
 		display: flex;
-		align-items: flex-end;
-		gap: calc(var(--spacing) * 3);
-	}
-	.console-strip {
-		display: flex;
 		flex-direction: column;
-		align-items: center;
+		gap: calc(var(--spacing) * 4);
+		inline-size: max-content;
+	}
+	.console-meter {
+		display: flex;
+		align-items: flex-end;
+		gap: calc(var(--spacing) * 2);
+		block-size: 9rem;
+		padding: calc(var(--spacing) * 3);
+		border: var(--border-brutal) solid var(--border);
+		background-color: var(--ink);
+		box-shadow: var(--shadow-lg);
+	}
+	.console-bar {
+		inline-size: 0.9rem;
+		block-size: 100%;
+		border: 2px solid var(--border);
+		/* Anchored at the floor, so scaling only ever grows upward. */
+		transform-origin: bottom;
+		transform: scaleY(0.28);
+	}
+	.console-deck {
+		display: flex;
+		justify-content: space-around;
 		gap: calc(var(--spacing) * 3);
+		padding: calc(var(--spacing) * 3);
+		border: var(--border-brutal) solid var(--border);
+		background-color: var(--sheet);
+		box-shadow: var(--shadow-md);
 	}
 	.console-knob {
 		position: relative;
@@ -573,7 +596,7 @@
 		block-size: 2rem;
 		border: 3px solid var(--border);
 		border-radius: 50%;
-		background-color: var(--sheet);
+		background-color: var(--dust);
 	}
 	/* The line that says which way the knob is turned. Without it a circle is a circle. */
 	.console-pointer {
@@ -585,19 +608,241 @@
 		margin-inline-start: -1.5px;
 		background-color: var(--border);
 	}
-	.console-track {
-		position: relative;
-		display: block;
-		inline-size: 0.75rem;
-		block-size: 7rem;
-		border: 3px solid var(--border);
-		background-color: var(--sheet);
+
+	/* Declared inside no-preference rather than switched off under reduce: an animation that
+	 * only exists when motion is welcome cannot be left running by an override that never
+	 * reaches it. With reduced motion the bars simply stand at their resting scale. */
+	@media (prefers-reduced-motion: no-preference) {
+		.console-bar {
+			animation-name: meter-a;
+			animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1);
+			animation-iteration-count: infinite;
+			animation-direction: alternate;
+		}
+		.console-bar[data-variant="b"] {
+			animation-name: meter-b;
+		}
+		.console-bar[data-variant="c"] {
+			animation-name: meter-c;
+		}
+		.console-bar[data-variant="d"] {
+			animation-name: meter-d;
+		}
 	}
-	.console-cap {
+
+	/* Four shapes, not one. A single shared curve makes eleven bars read as a barber's pole;
+	 * different floors and ceilings make them read as a signal. */
+	@keyframes meter-a {
+		from {
+			transform: scaleY(0.18);
+		}
+		to {
+			transform: scaleY(0.92);
+		}
+	}
+	@keyframes meter-b {
+		from {
+			transform: scaleY(0.34);
+		}
+		to {
+			transform: scaleY(0.66);
+		}
+	}
+	@keyframes meter-c {
+		from {
+			transform: scaleY(0.12);
+		}
+		to {
+			transform: scaleY(1);
+		}
+	}
+	@keyframes meter-d {
+		from {
+			transform: scaleY(0.46);
+		}
+		to {
+			transform: scaleY(0.8);
+		}
+	}
+
+	/* The arrangement. `--bar` is one year, and it is the unit everything here is measured
+	 * in: clip offsets, clip widths, ruler ticks and the playhead all multiply it, so the
+	 * whole timeline rescales from this one value. */
+	.daw {
+		/* One year. Narrow enough that a seven-year arrangement fits the 72rem measure
+		 * without scrolling on a desktop — at 13rem the last three lanes started off-screen
+		 * and read as empty rows, which is authentic for a sequencer and useless for a
+		 * portfolio. */
+		--bar: 8rem;
+		--gutter: 9.5rem;
+		overflow-x: auto;
+		border: var(--border-brutal) solid var(--border);
+		background-color: var(--ink);
+		box-shadow: var(--shadow-xl);
+	}
+	@media (width <= 40rem) {
+		.daw {
+			--bar: 9rem;
+			--gutter: 7rem;
+		}
+	}
+	.daw-grid {
+		position: relative;
+		inline-size: max-content;
+		min-inline-size: 100%;
+	}
+
+	/* The single strongest tell, and the thing generic charts never have: ticks with a
+	 * hierarchy. Tall rules at the bar lines, short ones at the beats between them. */
+	.daw-ruler {
+		display: flex;
+		position: sticky;
+		inset-block-start: 0;
+		z-index: 3;
+		border-block-end: var(--border-brutal) solid var(--border);
+		background-color: var(--ink);
+	}
+	.daw-ruler-gutter {
+		flex: none;
+		inline-size: var(--gutter);
+		border-inline-end: var(--border-brutal) solid var(--border);
+		background-color: var(--ink);
+	}
+	.daw-ruler-track {
+		display: flex;
+		background-repeat: repeat-x;
+		background-position:
+			0 100%,
+			0 100%;
+		background-size:
+			var(--bar) 14px,
+			calc(var(--bar) / 4) 7px;
+		background-image:
+			linear-gradient(90deg, var(--sheet) 0 2px, transparent 2px),
+			linear-gradient(90deg, color-mix(in oklch, var(--sheet) 45%, transparent) 0 2px, transparent 2px);
+	}
+	.daw-bar {
+		flex: none;
+		inline-size: var(--bar);
+		padding: calc(var(--spacing) * 2) calc(var(--spacing) * 2) calc(var(--spacing) * 5);
+		color: var(--sheet);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		letter-spacing: 0.08em;
+	}
+
+	.daw-lanes {
+		display: flex;
+		flex-direction: column;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.daw-lane {
+		display: flex;
+		min-block-size: 7.5rem;
+		border-block-end: 2px solid color-mix(in oklch, var(--sheet) 30%, transparent);
+	}
+	.daw-lane:last-child {
+		border-block-end: 0;
+	}
+
+	/* Sticky, opaque, and above the clips. A transparent sticky header shows the clips
+	 * sliding underneath it, which is worse than not having one. */
+	.daw-lane-header {
+		position: sticky;
+		inset-inline-start: 0;
+		z-index: 2;
+		flex: none;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: calc(var(--spacing) * 2);
+		inline-size: var(--gutter);
+		padding: calc(var(--spacing) * 3);
+		border-inline-end: var(--border-brutal) solid var(--border);
+		background-color: var(--ink);
+	}
+	.daw-period {
+		color: var(--sheet);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		letter-spacing: 0.06em;
+	}
+	.daw-switches {
+		display: flex;
+		gap: calc(var(--spacing) * 1.5);
+	}
+	/* Solo and mute. Spans, never buttons — see the component note. */
+	.daw-switch {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 1.25rem;
+		block-size: 1.25rem;
+		border: 2px solid var(--sheet);
+		color: var(--sheet);
+		font-family: var(--font-mono);
+		font-size: 0.625rem;
+	}
+
+	.daw-track {
+		position: relative;
+		flex: 1;
+		padding-block: calc(var(--spacing) * 3);
+	}
+	/* Width is duration. This is the difference between a chart and an arrangement. */
+	.daw-clip {
 		position: absolute;
-		inset-inline: -0.4rem;
-		block-size: 1.1rem;
+		inset-block: calc(var(--spacing) * 3);
+		inset-inline-start: calc(var(--offset) * var(--bar));
+		/* Honest length, with a floor. Width means duration — three years really is three
+		 * times one — but a single-year clip at one bar leaves 128px for an Italian title,
+		 * and an unreadable clip is worse than a slightly generous one. The floor only ever
+		 * affects the shortest entries, so the proportion between the long ones survives. */
+		inline-size: max(calc(var(--length) * var(--bar) - var(--spacing) * 2), 12rem);
+		overflow: hidden;
+		padding: calc(var(--spacing) * 3);
 		border: 3px solid var(--border);
+		color: var(--foreground);
+		box-shadow: var(--shadow-sm);
+	}
+	.daw-clip-title {
+		font-family: var(--font-display);
+		font-size: 1rem;
+		line-height: 1.05;
+		text-transform: uppercase;
+		font-stretch: 88%;
+	}
+	/* Clamped to whole lines. Letting it simply overflow-hidden cut the last line through
+	 * the middle of the letterforms, which reads as a rendering fault rather than as a clip
+	 * that is too short for its text. */
+	.daw-clip-detail {
+		display: -webkit-box;
+		overflow: hidden;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		margin-block-start: calc(var(--spacing) * 2);
+		font-family: var(--font-sans);
+		font-size: 0.8125rem;
+		line-height: 1.25;
+	}
+
+	.daw-playhead {
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: calc(var(--gutter) + var(--offset) * var(--bar));
+		z-index: 1;
+		inline-size: 3px;
+		background-color: var(--lemon);
+	}
+	.daw-playhead::before {
+		content: "";
+		position: absolute;
+		inset-block-start: 0;
+		inset-inline-start: -7px;
+		border: 8px solid transparent;
+		border-block-start-color: var(--lemon);
 	}
 
 	/* The divider's second lane. One black band carrying text above and bars below, rather

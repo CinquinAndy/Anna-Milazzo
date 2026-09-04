@@ -1,40 +1,70 @@
 /**
- * A strip of mixing-desk channels: a knob and a fader per channel, caps at different
- * heights so the row reads as a desk somebody has set rather than a graphic.
+ * A spectrum analyser sitting in a device panel: bars that move, over a row of knobs and
+ * faders that do not.
  *
- * Chosen over the more obvious music objects because a fader says "studio" instantly and
- * costs almost nothing to draw — no glyphs, no illustration, no asset. It is also the one
- * device on the page that reads as equipment rather than as ornament, which is what stops
- * the skills field from being a list floating in a colour.
+ * The first version was faders alone, which read as equipment but sat dead on the page.
+ * Bars that move read as sound being made right now, and it is the one place on this site
+ * where continuous motion is honest — everything else here moves only when pressed.
  *
- * Decoration throughout: hidden from assistive technology, carrying nothing the tags
- * beside it do not already say, and nothing here moves.
+ * The bars animate `transform: scaleY`, not `height`: scale is composited, so eleven bars
+ * looping forever cost nothing per frame, where animating height would relayout the row
+ * sixty times a second.
+ *
+ * Four keyframe variants rather than one, cycled with staggered durations and delays, so
+ * the row never falls into step with itself. A single shared animation reads as a barber's
+ * pole; this reads as a signal.
+ *
+ * Decoration throughout: hidden from assistive technology, saying nothing the tags beside
+ * it do not, and entirely still when reduced motion is asked for.
  */
 
-const CHANNELS = [
-	{ id: 'c1', cap: 72, turn: -38, tint: 'var(--magenta)' },
-	{ id: 'c2', cap: 34, turn: 24, tint: 'var(--sheet)' },
-	{ id: 'c3', cap: 58, turn: -12, tint: 'var(--spring)' },
-	{ id: 'c4', cap: 86, turn: 41, tint: 'var(--blue)' },
-	{ id: 'c5', cap: 46, turn: -27, tint: 'var(--cantaloupe)' },
-	{ id: 'c6', cap: 64, turn: 8, tint: 'var(--sheet)' },
-	{ id: 'c7', cap: 28, turn: -45, tint: 'var(--magenta)' },
-	{ id: 'c8', cap: 78, turn: 33, tint: 'var(--spring)' },
+const BARS = [
+	{ id: 'b1', variant: 'a', tint: 'var(--magenta)', duration: '1.10s', delay: '0s' },
+	{ id: 'b2', variant: 'b', tint: 'var(--spring)', duration: '0.86s', delay: '-0.35s' },
+	{ id: 'b3', variant: 'c', tint: 'var(--cantaloupe)', duration: '1.34s', delay: '-0.72s' },
+	{ id: 'b4', variant: 'd', tint: 'var(--blue)', duration: '0.94s', delay: '-0.18s' },
+	{ id: 'b5', variant: 'b', tint: 'var(--lemon)', duration: '1.52s', delay: '-0.94s' },
+	{ id: 'b6', variant: 'a', tint: 'var(--spring)', duration: '0.78s', delay: '-0.52s' },
+	{ id: 'b7', variant: 'd', tint: 'var(--magenta)', duration: '1.22s', delay: '-0.08s' },
+	{ id: 'b8', variant: 'c', tint: 'var(--blue)', duration: '0.90s', delay: '-0.63s' },
+	{ id: 'b9', variant: 'b', tint: 'var(--cantaloupe)', duration: '1.40s', delay: '-0.27s' },
+	{ id: 'b10', variant: 'a', tint: 'var(--lemon)', duration: '1.02s', delay: '-0.81s' },
+	{ id: 'b11', variant: 'd', tint: 'var(--spring)', duration: '1.28s', delay: '-0.44s' },
+] as const
+
+/** Static. Rotation here is composition, not animation — a knob that turns by itself is a fault. */
+const KNOBS = [
+	{ id: 'k1', turn: -38 },
+	{ id: 'k2', turn: 24 },
+	{ id: 'k3', turn: -12 },
+	{ id: 'k4', turn: 41 },
 ] as const
 
 export function Console({ className }: { className?: string }) {
 	return (
 		<div className={`console ${className ?? ''}`} aria-hidden="true" data-console>
-			{CHANNELS.map(channel => (
-				<div key={channel.id} className="console-strip">
-					<span className="console-knob" style={{ transform: `rotate(${channel.turn}deg)` }}>
+			<div className="console-meter">
+				{BARS.map(bar => (
+					<span
+						key={bar.id}
+						className="console-bar"
+						data-variant={bar.variant}
+						style={{
+							backgroundColor: bar.tint,
+							animationDuration: bar.duration,
+							animationDelay: bar.delay,
+						}}
+					/>
+				))}
+			</div>
+
+			<div className="console-deck">
+				{KNOBS.map(knob => (
+					<span key={knob.id} className="console-knob" style={{ transform: `rotate(${knob.turn}deg)` }}>
 						<span className="console-pointer" />
 					</span>
-					<span className="console-track">
-						<span className="console-cap" style={{ insetBlockEnd: `${channel.cap}%`, backgroundColor: channel.tint }} />
-					</span>
-				</div>
-			))}
+				))}
+			</div>
 		</div>
 	)
 }

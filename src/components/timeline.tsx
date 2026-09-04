@@ -1,25 +1,39 @@
-import { Ornament } from '@/components/ornament'
 import { SectionTitle } from '@/components/section-title'
+import { arrange } from '@/lib/timeline/span'
 import type { Home } from '@/payload-types'
 
-/** The fills cycle so consecutive steps read as distinct blocks on the track. */
-/* Three real colours on the dark strip. The first build cycled card/secondary/accent,
- * two of which were near-identical beiges, so consecutive steps merged. */
-const FILLS = ['bg-sheet', 'bg-lemon', 'bg-spring'] as const
+/** The fills cycle so no two neighbouring clips share a colour on the dark ground. */
+const CLIP_FILLS = ['bg-sheet', 'bg-lemon', 'bg-spring', 'bg-accent'] as const
 
 /**
- * Anna's training and experience as a sequencer track: rectangular blocks laid along a
- * time ruler, each one a step in her path, readable in one scan.
+ * Anna's training and experience as a DAW arrangement.
  *
- * An ordered list, because that is what it is. Drawing it as an image would put the whole
- * of her history out of reach of a screen reader, and the visual is only a layout of the
- * same list.
+ * The concept was right the first time and the execution was not: a row of blocks on a
+ * line is a Gantt chart, and a Gantt chart is the least memorable object in software. What
+ * turns it into an arrangement is the chrome around the blocks — a ruler whose ticks have
+ * a hierarchy, named track lanes in a gutter that stays put while the arrangement scrolls,
+ * a playhead, and clips whose width is their duration rather than a uniform card size.
+ * Three years at the conservatory is genuinely three times a one-year commission.
+ *
+ * The S and M squares on each lane are solo and mute. They are `<span>`, never `<button>`:
+ * a control that looks pressable and does nothing is both an accessibility trap and a lie.
+ * Free to anyone who has opened a DAW, invisible to everyone else.
+ *
+ * Still an ordered list underneath. The list is the content; the arrangement is a layout
+ * of it, and drawing it as an image would put Anna's whole history out of reach of a
+ * screen reader.
  */
 export function Timeline({ timeline, scrollLabel }: { timeline: Home['timeline']; scrollLabel: string }) {
 	const entries = timeline?.entries ?? []
-	if (entries.length === 0) {
+	const arrangement = arrange(entries, entry => entry.period)
+
+	if (entries.length === 0 || arrangement === null) {
 		return null
 	}
+
+	// The playhead parks at the most recent entry's start — "now" in her arrangement.
+	const playhead = Math.max(...arrangement.lanes.map(lane => lane.offset))
+	const bars = Array.from({ length: arrangement.years }, (_, index) => arrangement.firstYear + index)
 
 	return (
 		<section
@@ -31,36 +45,56 @@ export function Timeline({ timeline, scrollLabel }: { timeline: Home['timeline']
 			{timeline?.heading ? <SectionTitle>{timeline.heading}</SectionTitle> : null}
 
 			<div className="relative px-5 py-14 sm:px-8 md:py-20">
-				<Ornament
-					kind="blob"
-					tone="sheet"
-					rotation={-24}
-					className="top-8 right-5 h-9 w-9 sm:right-12 sm:h-12 sm:w-12"
-				/>
 				<div className="mx-auto max-w-6xl">
-					{/* The strip scrolls inside its own container, never the page. `tabIndex` is
-				    what makes a scrollable region reachable without a pointer. */}
+					{/* The arrangement scrolls inside its own container, never the page.
+					    `tabIndex` is what makes a scrollable region reachable without a pointer. */}
 					{/* biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region has to be
-				    reachable without a pointer — WCAG 2.1.1 — and `tabindex` is the only way to
-				    give a scroll container keyboard focus. */}
-					<section className="mt-10 overflow-x-auto pb-4" tabIndex={0} aria-label={scrollLabel} data-timeline-scroller>
-						<ol className="flex min-w-max list-none items-stretch gap-0 border-t-brutal border-sheet p-0 pt-0">
-							{entries.map((entry, index) => (
-								<li key={entry.id ?? entry.period} className="relative flex min-w-[14rem] max-w-[18rem] flex-col">
-									{/* The ruler tick: where this step begins on the track. */}
-									<div aria-hidden="true" className="h-4 w-1 bg-sheet" />
-									<div
-										className={`flex h-full flex-col border-brutal border-border text-foreground ${FILLS[index % FILLS.length]} -ml-[2px] p-4`}
-									>
-										<span className="font-mono text-xs tracking-wider">{entry.period}</span>
-										<h3 className="mt-2 font-display text-h5 uppercase [font-stretch:90%]">{entry.label}</h3>
-										{entry.detail ? (
-											<p className="mt-2 font-sans text-sm leading-snug whitespace-pre-line">{entry.detail}</p>
-										) : null}
-									</div>
-								</li>
-							))}
-						</ol>
+					    reachable without a pointer — WCAG 2.1.1 — and `tabindex` is the only way to
+					    give a scroll container keyboard focus. */}
+					<section className="daw" tabIndex={0} aria-label={scrollLabel} data-timeline-scroller>
+						<div className="daw-grid">
+							<div className="daw-ruler" aria-hidden="true">
+								<div className="daw-ruler-gutter" />
+								<div className="daw-ruler-track">
+									{bars.map(year => (
+										<span key={year} className="daw-bar">
+											{year}
+										</span>
+									))}
+								</div>
+							</div>
+
+							<ol className="daw-lanes">
+								{arrangement.lanes.map((lane, index) => (
+									<li key={lane.entry.id ?? lane.entry.period} className="daw-lane">
+										<div className="daw-lane-header">
+											<span className="daw-period">{lane.entry.period}</span>
+											<span className="daw-switches" aria-hidden="true">
+												<span className="daw-switch">S</span>
+												<span className="daw-switch">M</span>
+											</span>
+										</div>
+										<div className="daw-track">
+											<div
+												className={`daw-clip ${CLIP_FILLS[index % CLIP_FILLS.length]}`}
+												style={{ '--offset': lane.offset, '--length': lane.length } as React.CSSProperties}
+											>
+												<h3 className="daw-clip-title">{lane.entry.label}</h3>
+												{lane.entry.detail ? <p className="daw-clip-detail">{lane.entry.detail}</p> : null}
+											</div>
+										</div>
+									</li>
+								))}
+							</ol>
+
+							{/* Static, and unmistakable anyway. Lemon rather than magenta: on grape,
+							    lemon measures 3.84:1 and magenta 1.58:1, which would vanish. */}
+							<span
+								className="daw-playhead"
+								style={{ '--offset': playhead } as React.CSSProperties}
+								aria-hidden="true"
+							/>
+						</div>
 					</section>
 				</div>
 			</div>

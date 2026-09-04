@@ -34,19 +34,21 @@ export function Skills({ skills }: { skills: Home['skills'] }) {
 		<section className="relative border-b-brutal border-border bg-secondary" data-enter data-skills>
 			{skills?.heading ? <SectionTitle>{skills.heading}</SectionTitle> : null}
 
-			<div className="relative px-5 py-14 sm:px-8 md:py-20">
+			<div className="relative px-5 py-16 sm:px-8 md:py-24">
 				{/* No column for a heading any more — it lives in the band above — so the tags
 				    take the whole measure rather than sitting in a well beside an empty gutter. */}
 				<div className="relative mx-auto max-w-6xl">
 					<Ornament kind="underline" tone="magenta" rotation={-2} className="-top-7 left-1 h-4 w-40" />
 
-					<div className="grid items-end gap-10 lg:grid-cols-[1fr_auto] lg:gap-14">
-						<ul className="flex flex-wrap gap-3 sm:gap-4">
+					<div className="grid items-center gap-12 lg:grid-cols-[1fr_auto] lg:gap-16">
+						{/* Generous and uneven: the tags are stuck on, and things stuck on do not sit at
+						    a uniform pitch. */}
+						<ul className="flex max-w-3xl flex-wrap gap-x-6 gap-y-7 sm:gap-x-8 sm:gap-y-9">
 							{entries.map((entry, index) => (
 								<li
 									key={entry.id ?? entry.name}
 									style={{ transform: `rotate(${TAG_TILTS[index % TAG_TILTS.length]}deg)` }}
-									className={`border-brutal border-border ${TAG_FILLS[index % TAG_FILLS.length]} px-4 py-2 font-mono text-sm text-foreground shadow-md sm:text-base`}
+									className={`border-brutal border-border ${TAG_FILLS[index % TAG_FILLS.length]} px-5 py-3 font-mono text-sm text-foreground shadow-lg sm:text-base`}
 								>
 									{entry.name}
 								</li>
