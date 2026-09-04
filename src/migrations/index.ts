@@ -4,6 +4,7 @@ import * as migration_20260904_005732_r2_storage from './20260904_005732_r2_stor
 import * as migration_20260904_011542_audio_labels from './20260904_011542_audio_labels';
 import * as migration_20260904_012130_timeline_label from './20260904_012130_timeline_label';
 import * as migration_20260904_215954_peaks from './20260904_215954_peaks';
+import * as migration_20260904_225010_spectrum from './20260904_225010_spectrum';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20260904_215954_peaks.up,
     down: migration_20260904_215954_peaks.down,
-    name: '20260904_215954_peaks'
+    name: '20260904_215954_peaks',
+  },
+  {
+    up: migration_20260904_225010_spectrum.up,
+    down: migration_20260904_225010_spectrum.down,
+    name: '20260904_225010_spectrum'
   },
 ];

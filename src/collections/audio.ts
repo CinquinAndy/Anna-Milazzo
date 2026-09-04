@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { readTrackPeaks } from '@/lib/player/decode-track'
+import { readTrack } from '@/lib/player/decode-track'
 
 /** One full track per record. Anna holds the masters — see ADR-0006. */
 export const Audio: CollectionConfig = {
@@ -23,6 +23,28 @@ export const Audio: CollectionConfig = {
 			// casts. The shape is fixed by `summarise`, so it may as well be declared.
 			typescriptSchema: [() => ({ type: 'array', items: { type: 'number' } })],
 		},
+		{
+			name: 'spectrum',
+			type: 'json',
+			// The visualiser's data: frequency content over time, measured from the file.
+			// Deliberately NOT sent with the landing page — a three-minute track is around
+			// 40 KB gzipped, and five of those on every visit would cost more than the page.
+			// `getSongs` populates only `url` and `peaks`, and this is fetched on first play.
+			admin: { hidden: true },
+			access: { create: () => false, update: () => false },
+			typescriptSchema: [
+				() => ({
+					type: 'object',
+					additionalProperties: false,
+					required: ['bands', 'fps', 'data'],
+					properties: {
+						bands: { type: 'number' },
+						fps: { type: 'number' },
+						data: { type: 'array', items: { type: 'number' } },
+					},
+				}),
+			],
+		},
 	],
 	hooks: {
 		beforeChange: [
@@ -37,12 +59,14 @@ export const Audio: CollectionConfig = {
 				// A failed decode is not a failed upload. Anna uploading a file this build of
 				// the decoder cannot read should still get a working Song with a playable
 				// track; the transport falls back to its authored phrase when peaks are
-				// missing, so the cost of landing here is cosmetic.
-				const peaks = await readTrackPeaks(new Uint8Array(upload.data)).catch(() => null)
-				if (peaks === null) {
-					req.payload.logger.warn(`Could not measure a waveform for ${upload.name}; the fallback phrase is used.`)
+				// missing and the visualiser simply stays still, so the cost of landing here
+				// is cosmetic.
+				const measured = await readTrack(new Uint8Array(upload.data)).catch(() => null)
+				if (measured === null) {
+					req.payload.logger.warn(`Could not measure ${upload.name}; the fallback phrase is used.`)
+					return { ...data, peaks: null, spectrum: null }
 				}
-				return { ...data, peaks }
+				return { ...data, peaks: measured.peaks, spectrum: measured.spectrum }
 			},
 		],
 	},

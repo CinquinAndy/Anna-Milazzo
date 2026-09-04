@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getPayload, type Payload } from 'payload'
-import { readTrackPeaks } from '@/lib/player/decode-track'
+import { readTrack } from '@/lib/player/decode-track'
 import config from '../payload.config'
 import {
 	SEED_CONTACT,
@@ -50,13 +50,23 @@ async function upsertUpload(
 			await payload.update({ collection, id: found.id, locale: 'it', data: { alt: alt.it } })
 			await payload.update({ collection, id: found.id, locale: 'en', data: { alt: alt.en } })
 		}
-		// Tracks uploaded before waveforms existed carry none. Measured from the fixture on
-		// disk rather than by re-uploading, so repairing a waveform never touches the bucket
-		// and never risks the file Anna is actually serving.
-		if (collection === 'audio' && !Array.isArray((found as { peaks?: unknown }).peaks)) {
-			const peaks = await readTrackPeaks(await readFile(path.join(FIXTURES, filename))).catch(() => null)
-			if (peaks !== null) {
-				await payload.update({ collection, id: found.id, data: { peaks: [...peaks] } })
+		// Tracks uploaded before waveforms and spectra existed carry neither. Measured from
+		// the fixture on disk rather than by re-uploading, so repairing one never touches the
+		// bucket and never risks the file Anna is actually serving.
+		const stored = found as { peaks?: unknown; spectrum?: unknown }
+		if (collection === 'audio' && (!Array.isArray(stored.peaks) || stored.spectrum == null)) {
+			const measured = await readTrack(await readFile(path.join(FIXTURES, filename))).catch(() => null)
+			if (measured !== null) {
+				await payload.update({
+					collection,
+					id: found.id,
+					// Spread rather than passed as null: the generated field type is optional,
+					// not nullable, and a track too short to analyse simply has no spectrum.
+					data: {
+						peaks: [...measured.peaks],
+						...(measured.spectrum === null ? {} : { spectrum: measured.spectrum }),
+					},
+				})
 			}
 		}
 		return found.id
