@@ -300,4 +300,86 @@
 		background-color: var(--card);
 		color: var(--foreground);
 	}
+
+	/* ---- the Folder --------------------------------------------------
+	 * A tabbed paper shape with one unbroken keyline. Built with the
+	 * negative-margin technique: the body is pulled up by exactly one keyline so
+	 * its top border occupies the bottom 4px of the tab's box, and the tab —
+	 * opaque, `z-index: 2`, `border-bottom: 0` — paints over that strip for
+	 * exactly its own width. Outside the tab the body's top border is untouched.
+	 * One continuous outline, no seam.
+	 *
+	 * NOT `clip-path`: it clips the border along with the shape, and a 4px keyline
+	 * is the whole point of this design. */
+	.folder {
+		--folder-shadow: 8px;
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		/* One shadow for the union of tab and body. `box-shadow` on each box
+		 * instead puts a black notch inside the silhouette where they join, and
+		 * steps where the tab's right edge meets the body. */
+		filter: drop-shadow(var(--folder-shadow) var(--folder-shadow) 0 var(--border));
+	}
+
+	@media (width <= 40rem) {
+		.folder {
+			/* Proportional at 375px, and it stops eating the gutter. */
+			--folder-shadow: 5px;
+		}
+	}
+
+	.folder-tab {
+		position: relative;
+		z-index: 2;
+		width: max-content;
+		max-width: 70%;
+		margin-inline-start: 1.5rem;
+		/* The trick. Must equal the keyline width exactly. */
+		margin-block-end: calc(var(--border-brutal) * -1);
+		padding: 0.35rem 1.15rem;
+		border: var(--border-brutal) solid var(--border);
+		border-block-end: 0;
+		/* Opaque, and identical to the body, or the seam shows through. */
+		background: var(--card);
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		letter-spacing: 0.08em;
+	}
+
+	.folder[data-tab="end"] .folder-tab {
+		margin-inline-start: auto;
+		margin-inline-end: 1.5rem;
+	}
+
+	.folder-body {
+		position: relative;
+		z-index: 1;
+		border: var(--border-brutal) solid var(--border);
+		background: var(--card);
+	}
+
+	/* A single focus ring on the whole Folder, not one per child. */
+	.folder:focus-within {
+		outline: 3px solid var(--ring);
+		outline-offset: 4px;
+	}
+
+	/* ---- tape ---------------------------------------------------------
+	 * Top two corners only, mirrored, rotated 40-50 degrees, straddling the
+	 * boundary between the cover and the paper behind it — a strip contained
+	 * inside the image reads as a printed graphic, not as tape. Translucent so
+	 * the surface below shows through; opaque tape is the commonest failure.
+	 * Rotation is composition, never animation. */
+	.tape {
+		position: absolute;
+		z-index: 3;
+		inline-size: 6.5rem;
+		block-size: 1.75rem;
+		background: color-mix(in oklch, var(--accent) 78%, transparent);
+		mix-blend-mode: multiply;
+		/* The one place in this design a soft shadow is correct: tape is thin. */
+		box-shadow: 0 1px 3px rgb(0 0 0 / 0.28);
+		pointer-events: none;
+	}
 }

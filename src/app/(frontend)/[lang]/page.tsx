@@ -3,8 +3,10 @@ import { About } from '@/components/about'
 import { Hero } from '@/components/hero'
 import { LanguageSwitch } from '@/components/language-switch'
 import { Skills } from '@/components/skills'
+import { SongStack } from '@/components/song-stack'
 import { isLocale, type Locale, localeHref } from '@/lib/locale'
 import { getHome } from '@/lib/payload/get-home'
+import { getSongs } from '@/lib/payload/get-songs'
 
 function localeOf(lang: string): Locale {
 	return isLocale(lang) ? lang : 'it'
@@ -32,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export default async function LandingPage({ params }: { params: Promise<{ lang: string }> }) {
 	const { lang } = await params
 	const locale = localeOf(lang)
-	const home = await getHome(locale)
+	const [home, songs] = await Promise.all([getHome(locale), getSongs(locale)])
 
 	return (
 		<>
@@ -46,6 +48,7 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 				<Hero hero={home.hero} />
 				<About about={home.about} />
 				<Skills skills={home.skills} />
+				<SongStack songs={songs} labels={home.songs} />
 			</main>
 		</>
 	)
