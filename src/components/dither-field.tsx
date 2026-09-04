@@ -68,6 +68,14 @@ const BAR_SOFTNESS = 7
 const FPS = 20
 /** The tallest a bar may ever stand, as a fraction of the field. See heightOf. */
 const BAR_CEILING = 0.42
+/** How far each meter colour moves toward the paper before it is used. Raising lightness
+ *  and cutting saturation is what "pastel" means, and the paper is the palette's own soft
+ *  neutral, so the softened colours stay related to everything else on the page. */
+const RAMP_PASTEL = 0.36
+/** And how opaque the result then sits over the blue. Not real alpha: the context is
+ *  opaque, so this is pre-multiplied at pack time and costs nothing per frame — the pixels
+ *  are exactly what a translucent layer would have composited to. */
+const RAMP_ALPHA = 0.76
 
 type Rgb = { r: number; g: number; b: number }
 
@@ -180,12 +188,22 @@ export function DitherField() {
 		 */
 		const host = canvas.parentElement ?? canvas
 		// Green, yellow, orange, red — the order every level meter has used since they had needles.
+		const paper = resolveToken(host, '--paper')
+		const mix = (a: Rgb, b: Rgb, amount: number): Rgb => ({
+			r: Math.round(a.r + (b.r - a.r) * amount),
+			g: Math.round(a.g + (b.g - a.g) * amount),
+			b: Math.round(a.b + (b.b - a.b) * amount),
+		})
 		const RAMP = [
 			resolveToken(host, '--spring'),
 			resolveToken(host, '--lemon'),
 			resolveToken(host, '--accent'),
 			resolveToken(host, '--magenta'),
-		].map(colour => pack(colour) >>> 0)
+		]
+			// Softened toward the paper, then laid over the ground at part opacity. Both steps
+			// happen once, here: the loop still writes one opaque word per cell.
+			.map(colour => mix(back, mix(colour, paper, RAMP_PASTEL), RAMP_ALPHA))
+			.map(colour => pack(colour) >>> 0)
 
 		let width = 0
 		let height = 0
