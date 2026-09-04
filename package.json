@@ -25,6 +25,7 @@
 		"migrate": "bun run payload migrate",
 		"migrate:create": "bun run payload migrate:create",
 		"migrate:status": "bun run payload migrate:status",
+		"seed": "bun run payload run src/seed/index.ts",
 		"generate:types": "bun run payload generate:types",
 		"generate:importmap": "bun run payload generate:importmap"
 	},

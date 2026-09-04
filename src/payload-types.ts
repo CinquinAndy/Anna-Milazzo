@@ -67,6 +67,9 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    songs: Song;
+    media: Media;
+    audio: Audio;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -75,6 +78,9 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    songs: SongsSelect<false> | SongsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    audio: AudioSelect<false> | AudioSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -84,10 +90,20 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
-  locale: null;
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('it' | 'en') | ('it' | 'en')[];
+  globals: {
+    home: Home;
+    contact: Contact;
+    legals: Legal;
+    settings: Setting;
+  };
+  globalsSelect: {
+    home: HomeSelect<false> | HomeSelect<true>;
+    contact: ContactSelect<false> | ContactSelect<true>;
+    legals: LegalsSelect<false> | LegalsSelect<true>;
+    settings: SettingsSelect<false> | SettingsSelect<true>;
+  };
+  locale: 'it' | 'en';
   widgets: {
     collections: CollectionsWidget;
   };
@@ -114,6 +130,72 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * The works shown on the landing page, in the order set below.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "songs".
+ */
+export interface Song {
+  id: number;
+  title: string;
+  /**
+   * Left empty in English, the Italian text is shown instead.
+   */
+  story?: string | null;
+  cover: number | Media;
+  track: number | Audio;
+  /**
+   * Stored here so the page can show a running time without loading the audio.
+   */
+  durationSeconds: number;
+  /**
+   * Optional. Left empty, no link is shown.
+   */
+  platformUrl?: string | null;
+  /**
+   * Lowest first. Anna’s strongest work goes at the top.
+   */
+  order: number;
+  reference?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audio".
+ */
+export interface Audio {
+  id: number;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -163,10 +245,23 @@ export interface PayloadKv {
  */
 export interface PayloadLockedDocument {
   id: number;
-  document?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
+  document?:
+    | ({
+        relationTo: 'songs';
+        value: number | Song;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'audio';
+        value: number | Audio;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
@@ -208,6 +303,55 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "songs_select".
+ */
+export interface SongsSelect<T extends boolean = true> {
+  title?: T;
+  story?: T;
+  cover?: T;
+  track?: T;
+  durationSeconds?: T;
+  platformUrl?: T;
+  order?: T;
+  reference?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audio_select".
+ */
+export interface AudioSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -270,6 +414,244 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home".
+ */
+export interface Home {
+  id: number;
+  hero: {
+    name: string;
+    /**
+     * What a Recruiter should know in the first two seconds.
+     */
+    tagline: string;
+    portrait?: (number | null) | Media;
+  };
+  about?: {
+    heading?: string | null;
+    body?: string | null;
+  };
+  skills?: {
+    heading?: string | null;
+    entries?:
+      | {
+          name: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  songs?: {
+    heading?: string | null;
+    intro?: string | null;
+    listenLabel?: string | null;
+    platformLabel?: string | null;
+  };
+  timeline?: {
+    heading?: string | null;
+    entries?:
+      | {
+          /**
+           * For example 2021–2024.
+           */
+          period: string;
+          label: string;
+          detail?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  contactCta?: {
+    heading?: string | null;
+    body?: string | null;
+    buttonLabel?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact".
+ */
+export interface Contact {
+  id: number;
+  heading?: string | null;
+  intro?: string | null;
+  form?: {
+    nameLabel?: string | null;
+    emailLabel?: string | null;
+    messageLabel?: string | null;
+    submitLabel?: string | null;
+    sendingLabel?: string | null;
+  };
+  outcome?: {
+    success?: string | null;
+    failure?: string | null;
+    invalid?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legals".
+ */
+export interface Legal {
+  id: number;
+  heading?: string | null;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings".
+ */
+export interface Setting {
+  id: number;
+  contactEmail?: string | null;
+  socialLinks?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  legalsLinkLabel?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home_select".
+ */
+export interface HomeSelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        name?: T;
+        tagline?: T;
+        portrait?: T;
+      };
+  about?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+      };
+  skills?:
+    | T
+    | {
+        heading?: T;
+        entries?:
+          | T
+          | {
+              name?: T;
+              id?: T;
+            };
+      };
+  songs?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+        listenLabel?: T;
+        platformLabel?: T;
+      };
+  timeline?:
+    | T
+    | {
+        heading?: T;
+        entries?:
+          | T
+          | {
+              period?: T;
+              label?: T;
+              detail?: T;
+              id?: T;
+            };
+      };
+  contactCta?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        buttonLabel?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact_select".
+ */
+export interface ContactSelect<T extends boolean = true> {
+  heading?: T;
+  intro?: T;
+  form?:
+    | T
+    | {
+        nameLabel?: T;
+        emailLabel?: T;
+        messageLabel?: T;
+        submitLabel?: T;
+        sendingLabel?: T;
+      };
+  outcome?:
+    | T
+    | {
+        success?: T;
+        failure?: T;
+        invalid?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legals_select".
+ */
+export interface LegalsSelect<T extends boolean = true> {
+  heading?: T;
+  body?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings_select".
+ */
+export interface SettingsSelect<T extends boolean = true> {
+  contactEmail?: T;
+  socialLinks?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  legalsLinkLabel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

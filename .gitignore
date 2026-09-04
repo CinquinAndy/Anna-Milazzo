@@ -14,3 +14,7 @@ next-env.d.ts
 /playwright/.cache/
 
 .DS_Store
+
+# Payload writes uploads here until ticket 05 moves them to R2
+/media/
+/audio/
