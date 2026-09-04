@@ -587,15 +587,15 @@
 	.console-meter {
 		display: flex;
 		align-items: flex-end;
-		gap: calc(var(--spacing) * 2);
-		block-size: 9rem;
-		padding: calc(var(--spacing) * 3);
+		gap: calc(var(--spacing) * 3);
+		block-size: 18rem;
+		padding: calc(var(--spacing) * 4);
 		border: var(--border-brutal) solid var(--border);
 		background-color: var(--ink);
 		box-shadow: var(--shadow-lg);
 	}
 	.console-bar {
-		inline-size: 0.9rem;
+		inline-size: 1.7rem;
 		block-size: 100%;
 		border: 2px solid var(--border);
 		/* Anchored at the floor, so scaling only ever grows upward. */
@@ -605,8 +605,8 @@
 	.console-deck {
 		display: flex;
 		justify-content: space-around;
-		gap: calc(var(--spacing) * 3);
-		padding: calc(var(--spacing) * 3);
+		gap: calc(var(--spacing) * 4);
+		padding: calc(var(--spacing) * 4);
 		border: var(--border-brutal) solid var(--border);
 		background-color: var(--sheet);
 		box-shadow: var(--shadow-md);
@@ -614,8 +614,8 @@
 	.console-knob {
 		position: relative;
 		display: block;
-		inline-size: 2rem;
-		block-size: 2rem;
+		inline-size: 3.25rem;
+		block-size: 3.25rem;
 		border: 3px solid var(--border);
 		border-radius: 50%;
 		background-color: var(--dust);
@@ -623,11 +623,11 @@
 	/* The line that says which way the knob is turned. Without it a circle is a circle. */
 	.console-pointer {
 		position: absolute;
-		inset-block-start: 2px;
+		inset-block-start: 3px;
 		inset-inline-start: 50%;
-		inline-size: 3px;
+		inline-size: 4px;
 		block-size: 40%;
-		margin-inline-start: -1.5px;
+		margin-inline-start: -2px;
 		background-color: var(--border);
 	}
 
