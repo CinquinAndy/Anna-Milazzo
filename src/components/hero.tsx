@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { HeroRoll } from '@/components/hero-roll'
 import { Ornament } from '@/components/ornament'
 import { Piano } from '@/components/piano'
 import { Portrait } from '@/components/portrait'
@@ -22,8 +23,6 @@ import type { Home } from '@/payload-types'
  * English, and short strings expand 200-300%, so the column widths are set by the Italian.
  */
 
-/** Four rings, evenly out of phase, so one is always mid-flight. */
-const RIPPLE_DELAYS = ['0s', '-1.8s', '-3.6s', '-5.4s'] as const
 export function Hero({
 	hero,
 	listenLabel,
@@ -40,11 +39,7 @@ export function Hero({
 			data-enter
 			className="relative flex flex-col overflow-hidden border-b-brutal border-border bg-primary px-5 py-16 sm:px-8 md:min-h-[calc(100svh-var(--header-h))] md:justify-between md:py-14"
 		>
-			<div className="hero-waves" aria-hidden="true">
-				{RIPPLE_DELAYS.map(delay => (
-					<span key={delay} className="hero-wave" style={{ animationDelay: delay }} />
-				))}
-			</div>
+			<HeroRoll />
 
 			<Ornament kind="asterisk" tone="sheet" rotation={-13} className="top-6 left-4 h-10 w-10 sm:h-14 sm:w-14" />
 			<Ornament kind="cross" tone="magenta" rotation={22} className="bottom-8 left-8 h-7 w-7 sm:h-10 sm:w-10" />

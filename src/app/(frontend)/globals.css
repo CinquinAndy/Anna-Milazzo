@@ -637,7 +637,10 @@
 	@media (prefers-reduced-motion: no-preference) {
 		.console-bar {
 			animation-name: meter-a;
-			animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1);
+			/* Stepped, not eased. A segmented meter jumps between levels — and the page's
+			 * signature gesture is a press that lands, not a glide. Six steps is enough to
+			 * read as quantised without reading as broken. */
+			animation-timing-function: steps(6, end);
 			animation-iteration-count: infinite;
 			animation-direction: alternate;
 		}
@@ -687,55 +690,72 @@
 		}
 	}
 
-	/* Ripples spreading from behind the record. Periodic and continuous, which is what
-	 * makes a graphic read as sound rather than as an interface — the same principle as the
-	 * keyboard below it, at a different speed so the two never lock into step.
+	/* The piano roll behind the hero. Two passes, the track twice as wide as the frame,
+	 * travelling exactly half of itself — the same seamless-loop construction as the
+	 * marquee, for the same reason.
 	 *
-	 * Scale and opacity only, both composited, so four rings looping forever cost nothing.
-	 * Sized in one place: the ring is 22rem across and the keyframes scale it, so changing
-	 * the reach is one number. */
-	.hero-waves {
+	 * Held low in opacity because it sits under a headline: the point is that it registers
+	 * as a moving grid at the edge of attention, not that anyone reads the notes. */
+	/* Masked off the text column rather than dimmed under it. A `sheet` note at 17% over the
+	 * blue composites to #5980B6, where white measures 4.07:1 — fine for the headline, which
+	 * is large text, and a failure for the tagline, which is 20px on a phone and needs 4.5.
+	 * Keeping the roll out from under the words means the copy always sits on bare primary
+	 * at 5.78:1, and lets the pattern be twice as strong where it does show.
+	 *
+	 * Hidden below the breakpoint entirely: on a phone the copy spans the full width, so
+	 * there is no column left to mask it out of. */
+	.hero-roll {
+		display: none;
 		position: absolute;
 		inset: 0;
 		overflow: hidden;
+		opacity: 0.34;
 		pointer-events: none;
 	}
-	.hero-wave {
-		position: absolute;
-		inset-block-start: 46%;
-		inset-inline-start: 74%;
-		inline-size: 22rem;
-		aspect-ratio: 1;
-		margin-block-start: -11rem;
-		margin-inline-start: -11rem;
-		border: 3px solid color-mix(in oklch, var(--sheet) 42%, transparent);
-		border-radius: 50%;
-		opacity: 0;
-		scale: 0.15;
-	}
-	@media (width <= 48rem) {
-		.hero-wave {
-			inset-inline-start: 60%;
+	@media (width >= 48rem) {
+		.hero-roll {
+			display: block;
+			/* 58%, measured rather than guessed. The glyphs — not the element boxes, which
+			 * are block-width and meaningless here — reach furthest at 1280px, where the
+			 * tagline wraps and ends at 52.0% of the hero. Checked across 768 to 2560; the
+			 * headline never passes 49.2%. Six points of margin over the worst case. */
+			mask-image: linear-gradient(to right, transparent 0 58%, black 72%);
 		}
+	}
+	.hero-roll-track {
+		display: flex;
+		inline-size: 200%;
+		block-size: 100%;
+	}
+	.hero-roll-pass {
+		position: relative;
+		flex: 1 1 50%;
+		block-size: 100%;
+	}
+	/* Keylined rectangles, like every other object on this page. The ripples they replace
+	 * were circles inside a system where nothing else has a radius. */
+	.hero-roll-note {
+		position: absolute;
+		block-size: 3.2%;
+		min-block-size: 14px;
+		border: 2px solid var(--ink);
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
-		.hero-wave {
-			animation: hero-ripple 7.2s linear infinite;
+		.hero-roll-track {
+			animation: roll-play 46s linear infinite;
 		}
 	}
 
-	@keyframes hero-ripple {
-		0% {
-			scale: 0.15;
-			opacity: 0;
+	/* Left, because that is the direction a sequencer plays. Linear here and nowhere else:
+	 * a transport moves at a constant rate by definition, so this is the one loop on the
+	 * site that should not be stepped. */
+	@keyframes roll-play {
+		from {
+			translate: 0 0;
 		}
-		12% {
-			opacity: 0.85;
-		}
-		100% {
-			scale: 3.1;
-			opacity: 0;
+		to {
+			translate: -50% 0;
 		}
 	}
 
@@ -784,7 +804,7 @@
 	@media (prefers-reduced-motion: no-preference) {
 		.piano-hit {
 			animation-name: key-strike;
-			animation-timing-function: cubic-bezier(0, 0, 0.58, 1);
+			animation-timing-function: steps(4, end);
 			animation-iteration-count: infinite;
 		}
 	}
