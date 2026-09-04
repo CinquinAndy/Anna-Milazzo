@@ -66,6 +66,8 @@ const BAR_SOFTNESS = 7
 /** Deliberately low. The page's motion is quantised, and a field stepping at 20fps reads as
  *  sequenced rather than as a smooth gradient sliding about. */
 const FPS = 20
+/** The tallest a bar may ever stand, as a fraction of the field. See heightOf. */
+const BAR_CEILING = 0.42
 
 type Rgb = { r: number; g: number; b: number }
 
@@ -216,13 +218,17 @@ export function DitherField() {
 				Math.sin(time * 1.7 + bar * 0.53) * 0.5 +
 				Math.sin(time * 2.6 - bar * 0.31) * 0.31 +
 				Math.sin(time * 1.1 + bar * 0.87) * 0.19
-			// The floor matters more than the ceiling. The field spans the whole section and
+			// The floor matters as much as the ceiling. The field spans the whole section and
 			// the keyboard covers roughly its bottom eighth, so a bar shorter than that is
-			// invisible however lively it is. The base starts well clear of it and the range
-			// runs to about two thirds of the section at full energy, which puts the tallest
-			// crests near the middle of the screen.
-			const reach = 0.22 + energy * 0.2
-			return Math.max(0, (0.3 + reach * (0.5 + swing * 0.5)) * height)
+			// invisible however lively it is; the base starts clear of it.
+			const reach = 0.16 + energy * 0.06
+			const raw = (0.2 + reach * (0.5 + swing * 0.5)) * height
+			// Clamped, not merely tuned. The meter ramp runs to the top of every bar, and none
+			// of its colours can carry white text, so a bar that reached the copy would break
+			// it. Measured across nine viewports, the lowest type sitting directly on the blue
+			// is at 46.0% of the field height from its foot — 1600x900 is the worst case — so
+			// the ceiling is 42% and the invariant survives anyone re-tuning the sines above.
+			return Math.max(0, Math.min(raw, height * BAR_CEILING))
 		}
 
 		/**
@@ -240,11 +246,6 @@ export function DitherField() {
 			for (let bar = 0; bar < bars; bar++) {
 				tops[bar] = heightOf(bar, drift, energy)
 			}
-
-			// The lowest 40% of the field. Bars reach about 48% of it, and the lowest copy on
-			// the blue sits at roughly 46% from the foot, so the ramp can never arrive under
-			// a word. Verified by sampling the composited page, not by assuming.
-			const brightCeiling = height * 0.4
 
 			for (let y = 0; y < height; y++) {
 				const rowBayer = BAYER[y & 7] as unknown as number[]
@@ -268,7 +269,7 @@ export function DitherField() {
 						words[row + x] = backWord
 						continue
 					}
-					if (bar !== hoverBar || fromFoot > brightCeiling) {
+					if (bar !== hoverBar) {
 						words[row + x] = frontWord
 						continue
 					}
