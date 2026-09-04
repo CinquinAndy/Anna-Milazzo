@@ -12,6 +12,23 @@ import type { Home, Song } from '@/payload-types'
  */
 const TAPE_ANGLES = [-44, -39, -47, -41, -45, -38] as const
 
+/**
+ * Tape tints, cycled down the stack. Deterministic for the same reason as the angles, and
+ * paired so the two strips on one cover are never the same colour — real tape comes off
+ * whichever roll is nearest, and a matched pair reads as a printed graphic.
+ */
+const TAPE_TINTS = [
+	['var(--spring)', 'var(--lemon)'],
+	['var(--blue)', 'var(--magenta)'],
+	['var(--lemon)', 'var(--spring)'],
+	['var(--magenta)', 'var(--blue)'],
+] as const
+
+function tapeTint(index: number, side: 'start' | 'end'): string {
+	const pair = TAPE_TINTS[index % TAPE_TINTS.length] ?? TAPE_TINTS[0]
+	return side === 'start' ? pair[0] : pair[1]
+}
+
 function tapeAngle(index: number, side: 'start' | 'end'): number {
 	const base = TAPE_ANGLES[index % TAPE_ANGLES.length] ?? -43
 	// The two strips mirror each other across the cover.
@@ -61,13 +78,23 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 					    has to bridge the image and the paper behind it or the illusion dies. */}
 					<span
 						aria-hidden="true"
-						className="tape -top-3 -left-6"
-						style={{ transform: `rotate(${tapeAngle(index, 'start')}deg)` }}
+						className="tape -top-2 -left-5"
+						style={
+							{
+								transform: `rotate(${tapeAngle(index, 'start')}deg)`,
+								'--tape-tint': tapeTint(index, 'start'),
+							} as React.CSSProperties
+						}
 					/>
 					<span
 						aria-hidden="true"
-						className="tape -top-3 -right-6"
-						style={{ transform: `rotate(${tapeAngle(index, 'end')}deg)` }}
+						className="tape -top-2 -right-5"
+						style={
+							{
+								transform: `rotate(${tapeAngle(index, 'end')}deg)`,
+								'--tape-tint': tapeTint(index, 'end'),
+							} as React.CSSProperties
+						}
 					/>
 				</div>
 

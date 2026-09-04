@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { About } from '@/components/about'
+import { ContactCta } from '@/components/contact-cta'
 import { Hero } from '@/components/hero'
-import { Ornament } from '@/components/ornament'
+import { Marquee } from '@/components/marquee'
 import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
 import { Skills } from '@/components/skills'
@@ -43,26 +43,29 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 
 	return (
 		<>
-			<SiteHeader path="/" locale={locale} />
+			<SiteHeader
+				path="/"
+				locale={locale}
+				nav={[
+					...(home.songs?.heading ? [{ label: home.songs.heading, href: '#ascolta' }] : []),
+					...(home.timeline?.heading ? [{ label: home.timeline.heading, href: '#percorso' }] : []),
+				]}
+				contact={
+					home.contactCta?.buttonLabel
+						? { label: home.contactCta.buttonLabel, href: localeHref('/contact', locale) }
+						: undefined
+				}
+			/>
 
 			<main>
 				<Hero hero={home.hero} />
 				<About about={home.about} />
 				<Skills skills={home.skills} />
+				<Marquee skills={home.skills} />
 				<SongStack songs={songs} labels={home.songs} />
 				<Timeline timeline={home.timeline} scrollLabel={home.timeline?.scrollLabel ?? ''} />
 
-				{/* The route to contact. The destination exists now, so the button can. */}
-				<section data-enter className="relative px-5 py-14 sm:px-8 md:py-20">
-					<Ornament kind="asterisk" rotation={11} className="top-10 right-6 h-9 w-9 sm:right-12 sm:h-12 sm:w-12" />
-					<div className="mx-auto flex max-w-6xl flex-col items-start gap-6">
-						<h2 className="font-display uppercase [font-stretch:88%]">{home.contactCta?.heading}</h2>
-						{home.contactCta?.body ? <p className="max-w-prose font-sans text-lg">{home.contactCta.body}</p> : null}
-						<Link href={localeHref('/contact', locale)} className="control control-accent" data-contact-cta>
-							{home.contactCta?.buttonLabel}
-						</Link>
-					</div>
-				</section>
+				<ContactCta cta={home.contactCta} locale={locale} />
 			</main>
 			<SiteFooter settings={settings} locale={locale} />
 		</>

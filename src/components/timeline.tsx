@@ -24,6 +24,7 @@ export function Timeline({ timeline, scrollLabel }: { timeline: Home['timeline']
 		<section
 			className="relative border-b-brutal border-border bg-grape px-5 py-14 text-grape-foreground sm:px-8 md:py-20"
 			data-enter
+			id="percorso"
 			data-timeline
 		>
 			<Ornament kind="blob" tone="sheet" rotation={-24} className="top-8 right-5 h-9 w-9 sm:right-12 sm:h-12 sm:w-12" />

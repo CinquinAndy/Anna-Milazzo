@@ -19,6 +19,7 @@ export function SongStack({ songs, labels }: { songs: Song[]; labels: Home['song
 		<section
 			data-enter
 			className="relative border-b-brutal border-border bg-accent px-5 py-14 text-accent-foreground sm:px-8 md:py-20"
+			id="ascolta"
 			data-song-stack
 		>
 			<Ornament kind="cross" tone="sheet" rotation={19} className="top-10 right-4 h-8 w-8 sm:right-8 sm:h-11 sm:w-11" />

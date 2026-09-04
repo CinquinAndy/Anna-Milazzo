@@ -339,6 +339,55 @@
 		color: var(--accent-foreground);
 	}
 
+	/* The nav bar's own control. Smaller than .control and squarer in feel: the bar has to
+	 * hold five of these at 375px without wrapping into three rows. */
+	.nav-pill {
+		display: inline-flex;
+		align-items: center;
+		border: 2px solid var(--border);
+		background-color: var(--sheet);
+		padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3);
+		box-shadow: var(--shadow-2xs);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		text-decoration: none;
+		white-space: nowrap;
+		transition:
+			transform 90ms cubic-bezier(0, 0, 0.58, 1),
+			box-shadow 90ms cubic-bezier(0, 0, 0.58, 1);
+	}
+	.nav-pill:hover {
+		transform: translate(-1px, -1px);
+		box-shadow: var(--shadow-xs);
+	}
+	.nav-pill:active {
+		transform: translate(2px, 2px);
+		box-shadow: 0 0 0 0 var(--border);
+	}
+	.nav-pill-mark {
+		background-color: var(--ink);
+		color: var(--sheet);
+		font-family: var(--font-display);
+		font-size: 0.9375rem;
+		font-weight: 700;
+		letter-spacing: 0.02em;
+	}
+	.nav-pill-cta {
+		background-color: var(--magenta);
+		color: var(--magenta-foreground);
+	}
+
+	/* The sticky bar must never land on the heading an anchor jumped to. */
+	[id] {
+		scroll-margin-block-start: 5rem;
+	}
+
+	.control-ink {
+		background-color: var(--ink);
+		color: var(--sheet);
+	}
 	.control-paper {
 		background-color: var(--card);
 		color: var(--foreground);
@@ -422,16 +471,74 @@
 	 * inside the image reads as a printed graphic, not as tape. Translucent so
 	 * the surface below shows through; opaque tape is the commonest failure.
 	 * Rotation is composition, never animation. */
+	/* Tape. Thinner and more translucent than the first build, which made it read as
+	 * orange triangles rather than as a strip laid over the edge. The colour is set per
+	 * instance from --tape-tint, cycled in the Folder, because one tint everywhere is the
+	 * tell that this is a repeated component. */
 	.tape {
 		position: absolute;
 		z-index: 3;
-		inline-size: 6.5rem;
-		block-size: 1.75rem;
-		background: color-mix(in oklch, var(--accent) 78%, transparent);
+		inline-size: 5.5rem;
+		block-size: 1.15rem;
+		background: color-mix(in oklch, var(--tape-tint, var(--accent)) 62%, transparent);
 		mix-blend-mode: multiply;
 		/* The one place in this design a soft shadow is correct: tape is thin. */
-		box-shadow: 0 1px 3px rgb(0 0 0 / 0.28);
+		box-shadow: 0 1px 3px rgb(0 0 0 / 0.22);
 		pointer-events: none;
+	}
+
+	/* The strip that separates the two warm sections. Overflow hidden on the frame, the
+	 * track twice as wide as the content, and the travel exactly one pass — so the loop
+	 * has no seam to arrive. */
+	.marquee {
+		overflow: hidden;
+	}
+	.marquee-track {
+		display: flex;
+		inline-size: max-content;
+	}
+	.marquee-pass {
+		display: flex;
+		align-items: center;
+		gap: calc(var(--spacing) * 6);
+		margin: 0;
+		padding: calc(var(--spacing) * 3) 0;
+		padding-inline-end: calc(var(--spacing) * 6);
+		list-style: none;
+	}
+	.marquee-item {
+		display: flex;
+		align-items: center;
+		gap: calc(var(--spacing) * 6);
+		font-family: var(--font-display);
+		font-size: 1.5rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		white-space: nowrap;
+		font-stretch: 88%;
+	}
+	.marquee-star {
+		inline-size: 0.85rem;
+		block-size: 0.85rem;
+		flex: none;
+	}
+
+	/* Declared inside no-preference rather than switched off under reduce: an animation
+	 * that only exists when motion is welcome cannot be left running by an override that
+	 * does not reach it. */
+	@media (prefers-reduced-motion: no-preference) {
+		.marquee-track {
+			animation: marquee-travel 38s linear infinite;
+		}
+	}
+
+	@keyframes marquee-travel {
+		from {
+			transform: translateX(0);
+		}
+		to {
+			transform: translateX(-50%);
+		}
 	}
 
 	/* ---- the playhead -------------------------------------------------
