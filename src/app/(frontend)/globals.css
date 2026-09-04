@@ -532,10 +532,38 @@
 		}
 	}
 
+	/* Hollow letters: the stroke carries the word and the dark block shows through.
+	 * `-webkit-text-stroke` only — the unprefixed `text-stroke` is drafted but no engine
+	 * ships it, so declaring it would be decoration in the stylesheet rather than in the
+	 * page. Every current engine supports the prefixed form. */
+	.section-title-outlined {
+		color: transparent;
+		-webkit-text-stroke: 3px var(--sheet);
+	}
+	@media (width >= 40rem) {
+		.section-title-outlined {
+			-webkit-text-stroke-width: 4px;
+		}
+	}
+
 	/* Five ruled lines with nothing on them. Music paper rather than school paper: it is
 	 * structural, survives any width, needs no glyphs, and says "this is where music gets
 	 * written" without a note. Ink measures 19.35:1 on the paper ground, so the rules are
 	 * set faint deliberately — this wants to be texture, not content. */
+	/* Hollow letters: the stroke carries the word and the dark block shows through.
+	 * `-webkit-text-stroke` only — the unprefixed `text-stroke` is drafted but no engine
+	 * ships it, so declaring it would be decoration in the stylesheet rather than in the
+	 * page. Every current engine supports the prefixed form. */
+	.section-title-outlined {
+		color: transparent;
+		-webkit-text-stroke: 3px var(--sheet);
+	}
+	@media (width >= 40rem) {
+		.section-title-outlined {
+			-webkit-text-stroke-width: 4px;
+		}
+	}
+
 	/* Five ruled lines with nothing on them, repeating down the section as systems with a
 	 * rest between them. Music paper rather than school paper: structural, survives any
 	 * width, needs no glyphs, and says "this is where music gets written" without a note.

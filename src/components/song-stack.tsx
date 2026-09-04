@@ -1,5 +1,6 @@
 import { Folder } from '@/components/folder'
 import { Ornament } from '@/components/ornament'
+import { SectionTitle } from '@/components/section-title'
 import type { Home, Song } from '@/payload-types'
 
 /**
@@ -18,22 +19,32 @@ export function SongStack({ songs, labels }: { songs: Song[]; labels: Home['song
 	return (
 		<section
 			data-enter
-			className="relative border-b-brutal border-border bg-accent px-5 py-14 text-accent-foreground sm:px-8 md:py-20"
+			className="relative border-b-brutal border-border bg-accent text-accent-foreground"
 			id="ascolta"
 			data-song-stack
 		>
-			<Ornament kind="cross" tone="sheet" rotation={19} className="top-10 right-4 h-8 w-8 sm:right-8 sm:h-11 sm:w-11" />
-			<div className="mx-auto max-w-6xl">
-				<h2 className="font-display uppercase [font-stretch:88%]">{labels?.heading}</h2>
-				{labels?.intro ? <p className="mt-4 max-w-prose font-sans text-lg">{labels.intro}</p> : null}
+			{/* The work is what this page is for, so its heading is the loudest thing on it:
+			    hollow letters on a black band, edge to edge. */}
+			{labels?.heading ? <SectionTitle variant="outlined">{labels.heading}</SectionTitle> : null}
 
-				<ul className="mt-10 flex list-none flex-col gap-[clamp(2.5rem,8vw,4rem)] p-0">
-					{songs.map((song, index) => (
-						<li key={song.id}>
-							<Folder song={song} index={index} labels={labels} />
-						</li>
-					))}
-				</ul>
+			<div className="relative px-5 py-14 sm:px-8 md:py-20">
+				<Ornament
+					kind="cross"
+					tone="sheet"
+					rotation={19}
+					className="top-10 right-4 h-8 w-8 sm:right-8 sm:h-11 sm:w-11"
+				/>
+				<div className="mx-auto max-w-6xl">
+					{labels?.intro ? <p className="max-w-prose font-sans text-lg">{labels.intro}</p> : null}
+
+					<ul className="mt-10 flex list-none flex-col gap-[clamp(2.5rem,8vw,4rem)] p-0">
+						{songs.map((song, index) => (
+							<li key={song.id}>
+								<Folder song={song} index={index} labels={labels} />
+							</li>
+						))}
+					</ul>
+				</div>
 			</div>
 		</section>
 	)

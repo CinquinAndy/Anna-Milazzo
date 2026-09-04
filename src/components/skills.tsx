@@ -1,4 +1,5 @@
 import { Ornament } from '@/components/ornament'
+import { SectionTitle } from '@/components/section-title'
 import type { Home } from '@/payload-types'
 
 /**
@@ -19,28 +20,25 @@ export function Skills({ skills }: { skills: Home['skills'] }) {
 	}
 
 	return (
-		<section
-			className="relative border-b-brutal border-border bg-secondary px-5 py-14 sm:px-8 md:py-20"
-			data-enter
-			data-skills
-		>
-			<div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-[minmax(0,18rem)_1fr] md:gap-14">
-				<div className="relative self-start">
-					<h2 className="font-display uppercase [font-stretch:88%]">{skills?.heading}</h2>
-					{/* Below the heading box, not behind the glyphs: an ornament under type is
-					    the one way this layer could cost contrast. */}
-					<Ornament kind="underline" tone="magenta" rotation={-2} className="-bottom-6 left-0 h-4 w-40" />
+		<section className="relative border-b-brutal border-border bg-secondary" data-enter data-skills>
+			{skills?.heading ? <SectionTitle>{skills.heading}</SectionTitle> : null}
+
+			<div className="relative px-5 py-14 sm:px-8 md:py-20">
+				{/* No column for a heading any more — it lives in the band above — so the tags
+				    take the whole measure rather than sitting in a well beside an empty gutter. */}
+				<div className="relative mx-auto max-w-6xl">
+					<Ornament kind="underline" tone="magenta" rotation={-2} className="-top-7 left-1 h-4 w-40" />
+					<ul className="flex flex-wrap gap-3 sm:gap-4">
+						{entries.map((entry, index) => (
+							<li
+								key={entry.id ?? entry.name}
+								className={`border-brutal border-border ${TAG_FILLS[index % TAG_FILLS.length]} px-4 py-2 font-mono text-sm text-foreground shadow-sm`}
+							>
+								{entry.name}
+							</li>
+						))}
+					</ul>
 				</div>
-				<ul className="flex flex-wrap gap-3">
-					{entries.map((entry, index) => (
-						<li
-							key={entry.id ?? entry.name}
-							className={`border-brutal border-border ${TAG_FILLS[index % TAG_FILLS.length]} px-4 py-2 font-mono text-sm text-foreground shadow-sm`}
-						>
-							{entry.name}
-						</li>
-					))}
-				</ul>
 			</div>
 		</section>
 	)
