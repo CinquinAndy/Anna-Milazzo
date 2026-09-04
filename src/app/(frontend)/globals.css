@@ -181,6 +181,15 @@
 	border-width: var(--border-brutal);
 }
 
+/* The same width on one edge, for section rules and the Folder's tab seam. */
+@utility border-t-brutal {
+	border-top-width: var(--border-brutal);
+}
+
+@utility border-b-brutal {
+	border-bottom-width: var(--border-brutal);
+}
+
 @layer base {
 	* {
 		@apply border-border;

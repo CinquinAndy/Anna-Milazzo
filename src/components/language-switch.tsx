@@ -20,15 +20,27 @@ const LOCALE_NAMES: Record<Locale, string> = {
 export function LanguageSwitch({ path, locale }: { path: string; locale: Locale }) {
 	return (
 		<nav aria-label={locale === 'it' ? 'Lingua' : 'Language'} data-language-switch>
-			<ul>
+			<ul className="flex items-center gap-2">
 				{LOCALES.map(candidate => (
 					<li key={candidate}>
 						{candidate === locale ? (
-							<span aria-current="true" lang={candidate}>
+							<span
+								aria-current="true"
+								lang={candidate}
+								className="inline-flex border-2 border-border bg-foreground px-3 py-2 font-mono text-xs text-background uppercase"
+							>
 								{LOCALE_NAMES[candidate]}
 							</span>
 						) : (
-							<Link href={localeHref(path, candidate)} hrefLang={candidate} lang={candidate}>
+							<Link
+								href={localeHref(path, candidate)}
+								hrefLang={candidate}
+								lang={candidate}
+								// inline-flex, not inline: an inline box's padding and border do not
+								// contribute to its line box, so the focus ring would be painted
+								// over whatever sits behind the header rather than on the paper.
+								className="inline-flex border-2 border-border bg-card px-3 py-2 font-mono text-xs uppercase"
+							>
 								{LOCALE_NAMES[candidate]}
 							</Link>
 						)}
