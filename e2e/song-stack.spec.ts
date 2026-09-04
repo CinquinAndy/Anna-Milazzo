@@ -164,3 +164,25 @@ test.describe('the Folder stack', () => {
 		expect(small, 'tap targets below 24x24').toEqual([])
 	})
 })
+
+test('a Song created in the admin, with no seed handle, still gets a player', async ({ page }) => {
+	await page.goto('/')
+
+	// `reference` is a seed handle hidden from the admin, so Anna's own Songs have none.
+	// Every Folder must carry a play control regardless of where the Song came from.
+	const folders = page.locator('[data-song-stack] .folder')
+	const count = await folders.count()
+
+	for (let i = 0; i < count; i++) {
+		const handle = await folders.nth(i).getAttribute('data-song')
+		expect(handle, 'a Folder has no handle at all').toBeTruthy()
+		await expect(folders.nth(i).locator('[data-play]'), `Folder ${i + 1} has no play control`).toHaveCount(1)
+	}
+
+	// And the handle falls back to the record id rather than vanishing.
+	const stripped = await page.evaluate(() => {
+		const folder = document.querySelector('[data-song-stack] .folder')
+		return folder?.querySelector('[data-play]')?.getAttribute('data-play') ?? ''
+	})
+	expect(stripped.length).toBeGreaterThan(0)
+})

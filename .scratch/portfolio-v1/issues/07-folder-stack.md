@@ -68,3 +68,13 @@ unbroken around tab and body, and the shadow is one silhouette.
 
 **The play control is present and does nothing**, as the ticket asks. It carries
 `data-play` with the Song's reference so ticket 08 has a handle to bind to.
+
+## Review follow-up
+
+**A Song Anna creates herself rendered with no player at all.** `reference` is a seed
+handle, hidden from the admin and with no default, so every Song she adds through the
+admin has none — and the Folder was gating the whole transport on it. Cover, title and
+story rendered; the play control, progress blocks and seek slider silently did not, with
+nothing to tell her why. It falls back to the record id now. The suite could not have
+caught this because every selector in it is a seeded literal; a test now walks every
+Folder and requires a play control on each.

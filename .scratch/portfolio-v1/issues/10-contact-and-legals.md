@@ -60,3 +60,12 @@ list markers, so `.legal-prose` puts them back for that one page.
 has to be reachable from every page, and a test walks all three to check it. The landing
 page's route to contact went in at the same time: the copy was already seeded in ticket 04
 but a button to a 404 is worse than no button.
+
+## Review follow-up
+
+**After a successful send the form could no longer be typed in.** `useActionState` holds
+the last outcome until the next submission, and the clear-on-sent block was conditioned on
+the field values, so it ran on every render: each keystroke set state, re-rendered,
+re-satisfied the condition and was wiped in the same pass. All three fields, no error, and
+a page reload the only way out — on the site's one conversion point. It clears once per
+result now, keyed on the result's identity.

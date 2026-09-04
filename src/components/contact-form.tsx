@@ -1,7 +1,7 @@
 'use client'
 
 import Script from 'next/script'
-import { useActionState, useId, useState } from 'react'
+import { useActionState, useId, useRef, useState } from 'react'
 import { submitContactMessage } from '@/app/(frontend)/[lang]/contact/actions'
 import type { ContactResult } from '@/lib/contact/send-contact-message'
 import type { Contact } from '@/payload-types'
@@ -25,6 +25,8 @@ export function ContactForm({ copy, locale }: { copy: Contact; locale: string })
 	const [name, setName] = useState('')
 	const [email, setEmail] = useState('')
 	const [body, setBody] = useState('')
+	// Identity, not value: each submission produces a fresh result object.
+	const clearedFor = useRef<ContactResult | null>(null)
 	const ids = useId()
 	const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''
 
@@ -32,8 +34,11 @@ export function ContactForm({ copy, locale }: { copy: Contact; locale: string })
 	const outcome = copy.outcome
 
 	// Sent is the one outcome that should clear the box: leaving the text sitting there
-	// invites the Recruiter to send it twice.
-	if (result?.outcome === 'sent' && (name !== '' || email !== '' || body !== '')) {
+	// invites the Recruiter to send it twice. Once per result, though — `useActionState`
+	// holds the last outcome until the next submission, so a condition on the field values
+	// instead would erase every keystroke they typed afterwards and read as a broken form.
+	if (result?.outcome === 'sent' && clearedFor.current !== result) {
+		clearedFor.current = result
 		setName('')
 		setEmail('')
 		setBody('')

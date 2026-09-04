@@ -182,3 +182,43 @@ test.describe('audio playback', () => {
 		await expect(page.locator('[data-progress="citta-alle-quattro"]')).toHaveCSS('--playhead', '0')
 	})
 })
+
+test('pausing keeps the playhead where the audio stopped', async ({ page }) => {
+	await page.goto('/')
+
+	const control = page.locator(`[data-play="${FIRST}"]`)
+	const seek = page.locator(`[data-seek="${FIRST}"]`)
+	await control.click()
+
+	// Let it get past the first second so zero and the real position differ.
+	await expect.poll(async () => (await element(page))?.paused).toBe(false)
+	await expect
+		.poll(async () => page.evaluate(() => document.querySelector('audio')?.currentTime ?? 0), { timeout: 10_000 })
+		.toBeGreaterThan(1.5)
+
+	await control.click()
+	await expect.poll(async () => (await element(page))?.paused).toBe(true)
+
+	const stopped = await page.evaluate(() => document.querySelector('audio')?.currentTime ?? 0)
+	expect(stopped).toBeGreaterThan(1.5)
+
+	// The controls must report where the Recruiter actually is, not snap back to the
+	// start — a seek slider reading 0 turns the next arrow key into a jump backwards.
+	await expect.poll(async () => Number(await seek.inputValue())).toBeGreaterThan(0)
+	await expect
+		.poll(async () =>
+			Number(
+				await page
+					.locator(`[data-progress="${FIRST}"]`)
+					.evaluate(el => getComputedStyle(el).getPropertyValue('--playhead'))
+			)
+		)
+		.toBeGreaterThan(0)
+
+	// Nudging forward goes forward.
+	await seek.focus()
+	await page.keyboard.press('ArrowRight')
+	await expect
+		.poll(async () => page.evaluate(() => document.querySelector('audio')?.currentTime ?? 0))
+		.toBeGreaterThan(stopped - 0.5)
+})

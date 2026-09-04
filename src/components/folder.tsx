@@ -35,13 +35,16 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 	// The audio URL comes from the record, already pointing at the bucket's public
 	// domain. A Song without one has nothing to play.
 	const trackUrl = typeof song.track === 'object' ? song.track.url : null
-	const playable: PlayableSong | null =
-		song.reference !== null && song.reference !== undefined && trackUrl
-			? { id: song.reference, source: trackUrl, durationSeconds: song.durationSeconds }
-			: null
+	// `reference` is a seed handle and a test selector, hidden from the admin — so every
+	// Song Anna creates herself has none. Falling back to the record id keeps the player
+	// present for those: gating on `reference` meant her own Songs arrived silently
+	// unplayable, with nothing to tell her why.
+	const playable: PlayableSong | null = trackUrl
+		? { id: song.reference ?? String(song.id), source: trackUrl, durationSeconds: song.durationSeconds }
+		: null
 
 	return (
-		<article className="folder" data-song={song.reference ?? undefined} data-tab={tabSide}>
+		<article className="folder" data-song={song.reference ?? String(song.id)} data-tab={tabSide}>
 			{/* Decorative repetition: the number carries no information the heading does not. */}
 			<div className="folder-tab" aria-hidden="true">
 				{position}

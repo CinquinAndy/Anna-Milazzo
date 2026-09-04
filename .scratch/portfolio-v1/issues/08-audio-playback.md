@@ -73,3 +73,14 @@ exists.
 **Verified rather than assumed:** exactly one `<audio>` element on the page at
 `preload="none"`, and a network listener confirming no `.mp3` is requested until a control
 is pressed.
+
+## Review follow-up
+
+**Pausing discarded the playhead, and the next arrow key seeked backwards.** Nothing
+advances `positionSeconds` during playback — deliberately, since a state write per frame
+would re-render the whole stack — so a pause recorded position 0. The progress blocks and
+the seek thumb both snapped to the start while the audio was actually held six seconds in,
+and pressing ArrowRight then committed a seek to one second, losing what had been listened
+to. The engine now reads the playhead off the element before any transition. The unit test
+that looked like it covered this passed only because it injected an `advanced` event the
+adapter never produced.

@@ -118,7 +118,17 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 
 	const send = useCallback(
 		(event: PlayerEvent) => {
-			const { state: next, commands } = reducePlayer(stateRef.current, event)
+			// Read the playhead off the element before any transition. Nothing advances the
+			// position during playback — by design, since a state write per frame would
+			// re-render the whole stack — so without this a pause records position 0, the
+			// progress blocks snap back to the start, and the seek control's next arrow key
+			// commits a seek backwards to one second.
+			let base = stateRef.current
+			if (base.status === 'playing' && audioRef.current !== null && event.type !== 'advanced') {
+				base = reducePlayer(base, { type: 'advanced', seconds: audioRef.current.currentTime }).state
+			}
+
+			const { state: next, commands } = reducePlayer(base, event)
 			stateRef.current = next
 			for (const command of commands) {
 				apply(command)
@@ -206,9 +216,6 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 					if (audioRef.current === null || audioRef.current.readyState === 0) {
 						return
 					}
-					// Record where it stopped before recording that it stopped, so the state
-					// says what a Recruiter would say: paused, here.
-					send({ type: 'advanced', seconds: audioRef.current.currentTime })
 					send({ type: 'stopped' })
 				}}
 				onEnded={() => send({ type: 'ended' })}

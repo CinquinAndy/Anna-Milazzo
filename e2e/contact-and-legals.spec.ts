@@ -121,6 +121,25 @@ test.describe('the contact page', () => {
 	})
 })
 
+test('the form can be used again after a successful send', async ({ page }) => {
+	await page.goto('/contact')
+	await fillForm(page)
+	await waitForToken(page)
+	await page.getByRole('button', { name: 'Invia' }).click()
+	await expect(page.locator('[data-contact-outcome]')).toHaveAttribute('data-contact-outcome', 'sent', {
+		timeout: 20_000,
+	})
+
+	// A Recruiter who remembers something else must be able to write it. The sent
+	// outcome persists until the next submission, so a naive clear erases every
+	// keystroke typed afterwards and the form reads as broken.
+	await page.getByLabel('Il messaggio').fill('Un secondo progetto, se avete tempo.')
+	await expect(page.getByLabel('Il messaggio')).toHaveValue('Un secondo progetto, se avete tempo.')
+
+	await page.getByLabel('Il vostro nome').fill('Giulia Ferrari')
+	await expect(page.getByLabel('Il vostro nome')).toHaveValue('Giulia Ferrari')
+})
+
 test.describe('the legals page', () => {
 	test('renders its content from the CMS in both languages', async ({ page }) => {
 		await page.goto('/legal')

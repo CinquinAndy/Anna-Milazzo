@@ -69,3 +69,11 @@ did not, so the collections had to be emptied and re-seeded. The guard exists be
 so they inherit the zone default. For a page that streams the same few tracks repeatedly
 that is worth revisiting — but it is a Cloudflare-side setting, and deployment is out of
 scope here.
+
+## Review follow-up
+
+**The import map was never regenerated after the storage plugin landed**, so every admin
+page load logged an error about the missing `S3ClientUploadHandler`. Harmless while
+`clientUploads` is unset, but it stops being harmless the moment that is turned on — which
+is the standard remedy when a large master exceeds a body limit, i.e. exactly the scenario
+this ticket is about. Regenerated.
