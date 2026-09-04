@@ -1,6 +1,7 @@
 import { Ornament } from '@/components/ornament'
+import { Score } from '@/components/score'
 import { SectionTitle } from '@/components/section-title'
-import { Arcs, ShapeStack } from '@/components/shapes'
+import { Arcs } from '@/components/shapes'
 import { Vinyl } from '@/components/vinyl'
 import type { Home } from '@/payload-types'
 
@@ -69,10 +70,20 @@ export function About({ about }: { about: Home['about'] }) {
 						</div>
 					) : null}
 
-					{/* Shapes, not a thing. Three objects were rejected here in a row; the client
-					    asked for "formes" and kept being handed things to recognise. */}
-					<div className="relative mx-auto w-full max-w-sm lg:mx-0">
-						<ShapeStack className="block w-full" />
+					{/* A page of her own music, taped up beside her own words. Chosen out of twenty
+					    variants across four branches; the note on the component says why the other
+					    nineteen lost. Tilted and taped like the card opposite, so the two read as
+					    two things pinned to the same wall rather than as a figure and a graphic. */}
+					<div className="relative mx-auto w-full max-w-md lg:mx-0">
+						<span
+							aria-hidden="true"
+							className="tape tape-on-colour -top-3 left-10 z-10 [--tape-tint:var(--sheet)] rotate-[-38deg]"
+						/>
+						<span
+							aria-hidden="true"
+							className="tape tape-on-colour -top-3 right-8 z-10 [--tape-tint:var(--lemon)] rotate-[36deg]"
+						/>
+						<Score className="block w-full rotate-[1.4deg] drop-shadow-[10px_10px_0_var(--ink)]" />
 						<Ornament
 							kind="sparkle"
 							tone="magenta"

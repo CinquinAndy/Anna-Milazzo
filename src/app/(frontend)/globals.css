@@ -757,26 +757,6 @@
 		}
 	}
 
-	/* The one moving part of the shape composition. Slow enough to be noticed only on the
-	 * second look — a half-disc turning reads as a record label coming round, and at this
-	 * rate it never competes with the words beside it. */
-	.shape-turn {
-		transform-box: view-box;
-		transform-origin: 112px 250px;
-	}
-
-	@media (prefers-reduced-motion: no-preference) {
-		.shape-turn {
-			animation: shape-turn 24s linear infinite;
-		}
-	}
-
-	@keyframes shape-turn {
-		to {
-			rotate: 360deg;
-		}
-	}
-
 	/* The badge turns slowly, so the name set around its ring orbits.
 	 *
 	 * Animating the `rotate` property, not `transform`: the component already puts its resting
