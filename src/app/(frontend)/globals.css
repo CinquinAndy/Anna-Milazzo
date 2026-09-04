@@ -486,6 +486,13 @@
 		box-shadow: 0 1px 3px rgb(0 0 0 / 0.22);
 		pointer-events: none;
 	}
+	/* Multiply only ever darkens, so on a saturated ground the strip turns muddy — blue tape
+	 * on the green field came out dark teal and stopped reading as tape at all. On coloured
+	 * sections the strip blends normally and carries its own translucency instead. */
+	.tape-on-colour {
+		mix-blend-mode: normal;
+		background: color-mix(in oklch, var(--tape-tint, var(--accent)) 55%, transparent);
+	}
 
 	/* The strip that separates the two warm sections. Overflow hidden on the frame, the
 	 * track twice as wide as the content, and the travel exactly one pass — so the loop
@@ -546,51 +553,51 @@
 		}
 	}
 
-	/* Five ruled lines with nothing on them. Music paper rather than school paper: it is
-	 * structural, survives any width, needs no glyphs, and says "this is where music gets
-	 * written" without a note. Ink measures 19.35:1 on the paper ground, so the rules are
-	 * set faint deliberately — this wants to be texture, not content. */
-	/* Hollow letters: the stroke carries the word and the dark block shows through.
-	 * `-webkit-text-stroke` only — the unprefixed `text-stroke` is drafted but no engine
-	 * ships it, so declaring it would be decoration in the stylesheet rather than in the
-	 * page. Every current engine supports the prefixed form. */
-	.section-title-outlined {
-		color: transparent;
-		-webkit-text-stroke: 3px var(--sheet);
+	/* A mixing desk, drawn with borders. Every part is a rectangle or a circle with a
+	 * keyline, so it inherits the page's language rather than importing an icon set. */
+	.console {
+		display: flex;
+		align-items: flex-end;
+		gap: calc(var(--spacing) * 3);
 	}
-	@media (width >= 40rem) {
-		.section-title-outlined {
-			-webkit-text-stroke-width: 4px;
-		}
+	.console-strip {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: calc(var(--spacing) * 3);
 	}
-
-	/* Five ruled lines with nothing on them, repeating down the section as systems with a
-	 * rest between them. Music paper rather than school paper: structural, survives any
-	 * width, needs no glyphs, and says "this is where music gets written" without a note.
-	 *
-	 * Written as one explicit gradient rather than a repeating one inside a tall tile: a
-	 * repeating-linear-gradient cannot be told to stop after five lines, so it fills the
-	 * gap between systems too and the result is notebook paper. The stops below draw
-	 * exactly five rules in the first 54px of a 112px tile, and the tile repeats on both
-	 * axes — the first attempt used repeat-x, which drew one system at the top of the
-	 * section and nothing below it. */
-	.stave-ground {
-		--stave-ink: color-mix(in oklch, var(--ink) 30%, transparent);
-		background-image: linear-gradient(
-			to bottom,
-			var(--stave-ink) 0 2px,
-			transparent 2px 13px,
-			var(--stave-ink) 13px 15px,
-			transparent 15px 26px,
-			var(--stave-ink) 26px 28px,
-			transparent 28px 39px,
-			var(--stave-ink) 39px 41px,
-			transparent 41px 52px,
-			var(--stave-ink) 52px 54px,
-			transparent 54px 112px
-		);
-		background-size: 100% 112px;
-		background-repeat: repeat;
+	.console-knob {
+		position: relative;
+		display: block;
+		inline-size: 2rem;
+		block-size: 2rem;
+		border: 3px solid var(--border);
+		border-radius: 50%;
+		background-color: var(--sheet);
+	}
+	/* The line that says which way the knob is turned. Without it a circle is a circle. */
+	.console-pointer {
+		position: absolute;
+		inset-block-start: 2px;
+		inset-inline-start: 50%;
+		inline-size: 3px;
+		block-size: 40%;
+		margin-inline-start: -1.5px;
+		background-color: var(--border);
+	}
+	.console-track {
+		position: relative;
+		display: block;
+		inline-size: 0.75rem;
+		block-size: 7rem;
+		border: 3px solid var(--border);
+		background-color: var(--sheet);
+	}
+	.console-cap {
+		position: absolute;
+		inset-inline: -0.4rem;
+		block-size: 1.1rem;
+		border: 3px solid var(--border);
 	}
 
 	/* The divider's second lane. One black band carrying text above and bars below, rather
