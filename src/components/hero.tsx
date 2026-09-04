@@ -49,11 +49,11 @@ export function Hero({
 			{/* The corner marks stay on the section. Moved into the wrapper below, their
 			    top-6 / bottom-8 offsets resolved against the field's box instead and the
 			    asterisk slid down onto the name. */}
-			<Ornament kind="asterisk" tone="sheet" rotation={-13} className="top-6 left-4 h-10 w-10 sm:h-14 sm:w-14" />
+			<Ornament kind="asterisk" tone="sheet" rotation={-13} className="top-2 left-3 h-8 w-8 sm:h-11 sm:w-11" />
 			<Ornament kind="cross" tone="magenta" rotation={22} className="bottom-8 left-8 h-7 w-7 sm:h-10 sm:w-10" />
 
 			<div className="relative flex flex-1 flex-col justify-center">
-				<div className="shell grid items-center gap-12 md:grid-cols-[1.25fr_0.85fr] md:gap-10">
+				<div className="shell grid items-center gap-12 md:grid-cols-[1.05fr_1fr] md:gap-8">
 					<div className="relative">
 						{/* Larger than the h1 token, which is sized for section headings. The hero
 					    name is the one place on the site that should be as big as it can be and
@@ -87,7 +87,7 @@ export function Hero({
 
 					{/* The composition. Everything is positioned against this square so the record,
 				    the portrait and the badge keep their relationship at every width. */}
-					<div className="relative mx-auto aspect-square w-full max-w-[22rem] md:mx-0 md:ms-auto md:max-w-[26rem]">
+					<div className="relative mx-auto aspect-square w-full max-w-[26rem] md:mx-0 md:ms-auto md:max-w-[34rem]">
 						{/* Behind and low, so a wide arc of the disc clears the photograph. Fully
 					    hidden it is not composition, it is a wasted asset. */}
 						<Vinyl
@@ -101,7 +101,7 @@ export function Hero({
 							sizes="(min-width: 768px) 20rem, 60vw"
 							className="absolute top-0 left-0 block w-[72%] -rotate-3 border-brutal border-border bg-sheet shadow-2xl"
 						/>
-						<Badge className="absolute top-[-5%] right-[8%] block h-[27%] w-[27%]" rotation={-10} />
+						<Badge className="badge-turn absolute top-[-5%] right-[8%] block h-[26%] w-[26%]" rotation={-10} />
 					</div>
 				</div>
 			</div>

@@ -757,6 +757,27 @@
 		}
 	}
 
+	/* The badge turns slowly, so the name set around its ring orbits.
+	 *
+	 * Animating the `rotate` property, not `transform`: the component already puts its resting
+	 * tilt in `transform`, and the two compose — so the sticker keeps its -10 degrees and turns
+	 * on top of it, with no need to thread the base angle through the keyframes.
+	 *
+	 * Slow on purpose. This is the one loop on the page not tied to playback, and it earns that
+	 * by being barely perceptible: a full turn takes the better part of half a minute, which
+	 * reads as a sticker drifting rather than as a thing spinning. */
+	@media (prefers-reduced-motion: no-preference) {
+		.badge-turn {
+			animation: badge-turn 28s linear infinite;
+		}
+	}
+
+	@keyframes badge-turn {
+		to {
+			rotate: 360deg;
+		}
+	}
+
 	/* The keyboard. White keys flex to fill the width; black keys are absolutely placed on
 	 * the seam after their white key, at the standard offset, so the octave pattern is right
 	 * rather than decorative. */
