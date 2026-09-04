@@ -707,6 +707,23 @@
 		opacity: 0.42;
 	}
 
+	/* The dithered field. The canvas holds one pixel per cell and is stretched to fill;
+	 * `pixelated` is what makes the browser scale it with nearest-neighbour, so every cell
+	 * stays a hard square with no filtering — which is the whole look. `color` is what the
+	 * component reads to get the palette's blue resolved out of oklch. */
+	.dither-field {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+	}
+	.dither-canvas {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		color: var(--primary);
+		image-rendering: pixelated;
+	}
+
 	/* The ribbon. Anchored to the foot of the hero and 420px tall, which is the height its
 	 * viewBox is drawn against — one user unit to one CSS pixel, so the 4-unit keylines
 	 * inside it land at exactly 4px and match every border on the page.

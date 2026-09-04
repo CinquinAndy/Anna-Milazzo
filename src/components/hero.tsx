@@ -1,8 +1,8 @@
 import Link from 'next/link'
+import { DitherField } from '@/components/dither-field'
 import { Ornament } from '@/components/ornament'
 import { Piano } from '@/components/piano'
 import { Portrait } from '@/components/portrait'
-import { Ribbon } from '@/components/ribbon'
 import { Badge, Vinyl } from '@/components/vinyl'
 import type { Home } from '@/payload-types'
 
@@ -39,7 +39,7 @@ export function Hero({
 			data-enter
 			className="relative flex flex-col overflow-hidden border-b-brutal border-border bg-primary px-5 py-16 sm:px-8 md:min-h-[calc(100svh-var(--header-h))] md:justify-between md:py-14"
 		>
-			<Ribbon />
+			<DitherField />
 			<Ornament kind="asterisk" tone="sheet" rotation={-13} className="top-6 left-4 h-10 w-10 sm:h-14 sm:w-14" />
 			<Ornament kind="cross" tone="magenta" rotation={22} className="bottom-8 left-8 h-7 w-7 sm:h-10 sm:w-10" />
 
