@@ -2,14 +2,24 @@
 
 import { useCallback, useEffect, useRef } from 'react'
 import { useAudioEngine } from '@/components/audio-engine'
-import { isPlaying, type PlayableSong } from '@/lib/player/controller'
+import { formatRunningTime, isPlaying, type PlayableSong } from '@/lib/player/controller'
 
-/** `m:ss`, from the duration stored on the Song — no audio is loaded to work it out. */
-function runningTime(seconds: number): string {
-	const whole = Math.max(0, Math.floor(seconds))
-	return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`
-}
-
+/**
+ * The transport for one Song: a square play control, one progress rail, and the elapsed
+ * and total times.
+ *
+ * The arrangement is lifted from a 21st.dev audio player the client asked for — icon,
+ * single slider, times at either end. The implementation is not: that component mounts an
+ * `<audio>` per player (ADR-0007 allows exactly one on the page), seeks through a `<div>`
+ * with an `onClick` (no keyboard, no ARIA), and ships shuffle/skip/repeat buttons whose
+ * handlers only call `stopPropagation`.
+ *
+ * What it did fix, and what this keeps, is legibility: the previous transport had two
+ * separate widgets for one idea — decorative blocks that could not be dragged, beside a
+ * seek slider that carried no meaning — so nobody could tell which was the control. Here
+ * the blocks ARE the control: the native range sits transparent on top of them, so the
+ * thing you see filling is the thing you drag.
+ */
 export function SongTransport({
 	song,
 	playLabel,
@@ -21,7 +31,7 @@ export function SongTransport({
 	pauseLabel: string
 	seekLabel: string
 }) {
-	const { state, send, trackProgress, trackSeek } = useAudioEngine()
+	const { state, send, trackProgress, trackSeek, trackElapsed } = useAudioEngine()
 	const seekRef = useRef<HTMLInputElement | null>(null)
 	const running = isPlaying(state, song.id)
 
@@ -51,25 +61,44 @@ export function SongTransport({
 		},
 		[song.id, trackSeek]
 	)
+	const registerElapsed = useCallback(
+		(node: HTMLSpanElement | null) => trackElapsed(song.id, node),
+		[song.id, trackElapsed]
+	)
 
 	return (
-		<div className="mt-6 flex flex-wrap items-center gap-4">
+		<div className="transport mt-6">
 			<button
 				type="button"
-				className="control control-primary"
+				className="transport-play"
 				data-play={song.id}
 				data-playing={running ? 'true' : 'false'}
 				// The press handler does exactly one thing and awaits nothing: the reducer
 				// runs synchronously and `play()` is called inside this same tick.
 				onClick={() => send({ type: 'pressedPlay', song })}
 			>
-				{running ? pauseLabel : playLabel}
+				{/* Solid shapes, not a stroked icon set. A 2px rounded stroke would read as
+				    borrowed from another design system inside a 4px-keyline page. */}
+				<svg className="transport-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+					{running ? (
+						<g>
+							<rect x="5" y="3" width="5" height="18" />
+							<rect x="14" y="3" width="5" height="18" />
+						</g>
+					) : (
+						<polygon points="6,3 21,12 6,21" />
+					)}
+				</svg>
+				{/* The label still comes from the CMS; it is announced rather than drawn,
+				    because a triangle says "play" to everyone and a word only says it in two
+				    languages. */}
+				<span className="sr-only">{running ? pauseLabel : playLabel}</span>
 			</button>
 
-			<div className="flex min-w-[12rem] flex-1 items-center gap-3">
-				{/* Chunky decorative blocks, not a waveform. A real waveform would mean
-				    downloading and decoding every track to draw it, and renders thin and grey
-				    — which is what this visual language rejects (ADR-0007). */}
+			<div className="transport-rail">
+				{/* Chunky blocks, not a waveform: a real waveform would mean downloading and
+				    decoding every track to draw it, and renders thin and grey — which is what
+				    this visual language rejects (ADR-0007). */}
 				<div
 					ref={registerProgress}
 					className="playhead-blocks"
@@ -77,25 +106,31 @@ export function SongTransport({
 					aria-hidden="true"
 					style={{ '--playhead': 0 } as React.CSSProperties}
 				/>
-				<span className="font-mono text-xs whitespace-nowrap" data-duration={song.id}>
-					{runningTime(song.durationSeconds)}
-				</span>
+				{/* A styled native range, not a custom role="slider": the native control
+				    already reports its value, takes arrow keys, and works with every assistive
+				    technology without being reimplemented. It is transparent and covers the
+				    rail, so the blocks below are what you see and this is what you drag; the
+				    visible focus ring belongs to the rail. */}
+				<input
+					ref={registerSeek}
+					type="range"
+					className="playhead-seek"
+					min={0}
+					max={Math.floor(song.durationSeconds)}
+					step={1}
+					defaultValue={0}
+					aria-label={seekLabel}
+					data-seek={song.id}
+				/>
 			</div>
 
-			{/* A styled native range, not a custom role="slider": the native control already
-			    reports its value, takes arrow keys, and works with every assistive
-			    technology without being reimplemented. */}
-			<input
-				ref={registerSeek}
-				type="range"
-				className="playhead-seek"
-				min={0}
-				max={Math.floor(song.durationSeconds)}
-				step={1}
-				defaultValue={0}
-				aria-label={seekLabel}
-				data-seek={song.id}
-			/>
+			<p className="transport-time">
+				<span ref={registerElapsed} data-elapsed={song.id}>
+					{formatRunningTime(0)}
+				</span>
+				<span aria-hidden="true">/</span>
+				<span data-duration={song.id}>{formatRunningTime(song.durationSeconds)}</span>
+			</p>
 		</div>
 	)
 }

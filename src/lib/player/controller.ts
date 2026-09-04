@@ -163,3 +163,13 @@ export function progressOf(state: PlayerState, songId: string): number {
 	}
 	return Math.min(1, state.positionSeconds / state.song.durationSeconds)
 }
+
+/**
+ * `m:ss`. Lives here rather than in the transport because two places need it: the
+ * transport renders the total once at build, and the engine rewrites the elapsed reading
+ * every frame without going through React.
+ */
+export function formatRunningTime(seconds: number): string {
+	const whole = Math.max(0, Math.floor(Number.isFinite(seconds) ? seconds : 0))
+	return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`
+}

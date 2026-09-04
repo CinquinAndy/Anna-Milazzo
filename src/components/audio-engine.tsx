@@ -2,6 +2,7 @@
 
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import {
+	formatRunningTime,
 	initialPlayerState,
 	type PlayerCommand,
 	type PlayerEvent,
@@ -16,6 +17,8 @@ type Engine = {
 	trackProgress: (songId: string, node: HTMLElement | null) => void
 	/** Registers the seek control whose thumb should follow the running Song. */
 	trackSeek: (songId: string, node: HTMLInputElement | null) => void
+	/** Registers the element whose text reads the running Song's elapsed time. */
+	trackElapsed: (songId: string, node: HTMLElement | null) => void
 }
 
 const AudioEngineContext = createContext<Engine | null>(null)
@@ -46,6 +49,7 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 	const pendingSeekRef = useRef<number | null>(null)
 	const progressNodesRef = useRef(new Map<string, HTMLElement>())
 	const seekNodesRef = useRef(new Map<string, HTMLInputElement>())
+	const elapsedNodesRef = useRef(new Map<string, HTMLElement>())
 	const frameRef = useRef<number | null>(null)
 	// `apply` needs to report a rejected play() back into the reducer, and it is defined
 	// before `send` is. The ref breaks the cycle without making either depend on the other.
@@ -66,6 +70,11 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 				continue
 			}
 			node.value = id === songId ? String(Math.floor(seconds)) : '0'
+		}
+		for (const [id, node] of elapsedNodesRef.current) {
+			// textContent, not React state, for the same reason as the playhead: this is
+			// rewritten every animation frame.
+			node.textContent = formatRunningTime(id === songId ? seconds : 0)
 		}
 	}, [])
 
@@ -190,8 +199,16 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 		}
 	}, [])
 
+	const trackElapsed = useCallback((songId: string, node: HTMLElement | null) => {
+		if (node === null) {
+			elapsedNodesRef.current.delete(songId)
+		} else {
+			elapsedNodesRef.current.set(songId, node)
+		}
+	}, [])
+
 	return (
-		<AudioEngineContext.Provider value={{ state, send, trackProgress, trackSeek }}>
+		<AudioEngineContext.Provider value={{ state, send, trackProgress, trackSeek, trackElapsed }}>
 			{children}
 			{/* preload="none": nothing is fetched until a Recruiter asks for it, so the page
 			    is readable on a slow connection without waiting on media nobody requested. */}
