@@ -451,6 +451,11 @@ export interface Home {
     intro?: string | null;
     listenLabel?: string | null;
     platformLabel?: string | null;
+    pauseLabel?: string | null;
+    /**
+     * Read aloud by a screen reader; never shown.
+     */
+    seekLabel?: string | null;
   };
   timeline?: {
     heading?: string | null;
@@ -576,6 +581,8 @@ export interface HomeSelect<T extends boolean = true> {
         intro?: T;
         listenLabel?: T;
         platformLabel?: T;
+        pauseLabel?: T;
+        seekLabel?: T;
       };
   timeline?:
     | T

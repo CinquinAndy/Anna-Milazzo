@@ -1,4 +1,6 @@
 import { Portrait } from '@/components/portrait'
+import { SongTransport } from '@/components/song-transport'
+import type { PlayableSong } from '@/lib/player/controller'
 import type { Home, Song } from '@/payload-types'
 
 /**
@@ -29,6 +31,14 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 	// Alternating down the column, so tabs never collide as the stack scrolls.
 	const tabSide = index % 2 === 0 ? 'start' : 'end'
 	const position = String(index + 1).padStart(2, '0')
+
+	// The audio URL comes from the record, already pointing at the bucket's public
+	// domain. A Song without one has nothing to play.
+	const trackUrl = typeof song.track === 'object' ? song.track.url : null
+	const playable: PlayableSong | null =
+		song.reference !== null && song.reference !== undefined && trackUrl
+			? { id: song.reference, source: trackUrl, durationSeconds: song.durationSeconds }
+			: null
 
 	return (
 		<article className="folder" data-song={song.reference ?? undefined} data-tab={tabSide}>
@@ -65,25 +75,27 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 						<p className="mt-4 max-w-prose font-sans leading-relaxed whitespace-pre-line">{song.story}</p>
 					) : null}
 
-					<div className="mt-6 flex flex-wrap items-center gap-3">
-						{/* Present, and does nothing until ticket 08 wires the player. */}
-						<button type="button" className="control control-primary" data-play={song.reference ?? undefined}>
-							{labels?.listenLabel}
-						</button>
+					{playable === null ? null : (
+						<SongTransport
+							song={playable}
+							playLabel={labels?.listenLabel ?? 'Play'}
+							pauseLabel={labels?.pauseLabel ?? 'Pause'}
+							seekLabel={labels?.seekLabel ?? 'Seek'}
+						/>
+					)}
 
-						{/* No link at all rather than a dead one. */}
-						{song.platformUrl ? (
-							<a
-								href={song.platformUrl}
-								className="control control-paper"
-								rel="noreferrer noopener"
-								target="_blank"
-								data-platform-link
-							>
-								{labels?.platformLabel}
-							</a>
-						) : null}
-					</div>
+					{/* No link at all rather than a dead one. */}
+					{song.platformUrl ? (
+						<a
+							href={song.platformUrl}
+							className="control control-paper mt-4 inline-flex"
+							rel="noreferrer noopener"
+							target="_blank"
+							data-platform-link
+						>
+							{labels?.platformLabel}
+						</a>
+					) : null}
 				</div>
 			</div>
 		</article>

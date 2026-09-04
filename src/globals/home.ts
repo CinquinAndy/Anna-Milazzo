@@ -87,6 +87,24 @@ export const Home: GlobalConfig = {
 					localized: true,
 					label: { en: 'Streaming link label', it: 'Etichetta del link alla piattaforma' },
 				},
+				{
+					name: 'pauseLabel',
+					type: 'text',
+					localized: true,
+					label: { en: 'Pause control label', it: 'Etichetta del comando di pausa' },
+				},
+				{
+					name: 'seekLabel',
+					type: 'text',
+					localized: true,
+					label: { en: 'Seek control label', it: 'Etichetta del cursore di avanzamento' },
+					admin: {
+						description: {
+							en: 'Read aloud by a screen reader; never shown.',
+							it: 'Letta da uno screen reader; mai mostrata.',
+						},
+					},
+				},
 			],
 		},
 		{

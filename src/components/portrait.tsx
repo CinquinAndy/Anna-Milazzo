@@ -26,6 +26,9 @@ export function Portrait({
 	}
 
 	return (
+		// biome-ignore lint/performance/noImgElement: deliberate. next/image routes bytes
+		// through /_next/image, putting the app back in the path ticket 05 took it out of.
+		// Width and height come from the record, so there is no layout shift to fix.
 		<img
 			src={image.url ?? ''}
 			alt={image.alt}

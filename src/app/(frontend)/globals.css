@@ -382,4 +382,77 @@
 		box-shadow: 0 1px 3px rgb(0 0 0 / 0.28);
 		pointer-events: none;
 	}
+
+	/* ---- the playhead -------------------------------------------------
+	 * Chunky blocks that fill as the Song plays, driven entirely by one custom
+	 * property. `--playhead` runs 0 to 1 and is written from an animation frame,
+	 * never from React state — `timeupdate` has no specified frequency, and a
+	 * state write per frame would re-render the whole stack sixty times a second. */
+	.playhead-blocks {
+		--playhead: 0;
+		--block: 0.75rem;
+		position: relative;
+		flex: 1;
+		block-size: 1.5rem;
+		border: 2px solid var(--border);
+		background-image: repeating-linear-gradient(
+			90deg,
+			transparent 0 calc(var(--block) - 2px),
+			var(--border) calc(var(--block) - 2px) var(--block)
+		);
+	}
+
+	.playhead-blocks::before {
+		content: "";
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: 0;
+		inline-size: calc(var(--playhead) * 100%);
+		background-color: var(--primary);
+		background-image: repeating-linear-gradient(
+			90deg,
+			transparent 0 calc(var(--block) - 2px),
+			var(--border) calc(var(--block) - 2px) var(--block)
+		);
+	}
+
+	/* The seek control is a real <input type="range">, restyled. No volume control
+	 * anywhere: on iOS `volume` is not settable from script and always reads back
+	 * as 1, so the slider would be a lie on the device most likely to see it. */
+	.playhead-seek {
+		inline-size: 8rem;
+		block-size: 1.5rem;
+		appearance: none;
+		background: transparent;
+		cursor: pointer;
+	}
+
+	.playhead-seek::-webkit-slider-runnable-track {
+		block-size: 0.5rem;
+		background: var(--muted);
+		border: 2px solid var(--border);
+	}
+
+	.playhead-seek::-moz-range-track {
+		block-size: 0.5rem;
+		background: var(--muted);
+		border: 2px solid var(--border);
+	}
+
+	.playhead-seek::-webkit-slider-thumb {
+		appearance: none;
+		inline-size: 1rem;
+		block-size: 1.25rem;
+		margin-block-start: -0.5rem;
+		background: var(--accent);
+		border: 2px solid var(--border);
+	}
+
+	.playhead-seek::-moz-range-thumb {
+		inline-size: 1rem;
+		block-size: 1.25rem;
+		border-radius: 0;
+		background: var(--accent);
+		border: 2px solid var(--border);
+	}
 }

@@ -129,7 +129,14 @@ type HomeCopy = {
 	hero: { name: string; tagline: string }
 	about: { heading: string; body: string }
 	skills: { heading: string; entries: readonly string[] }
-	songs: { heading: string; intro: string; listenLabel: string; platformLabel: string }
+	songs: {
+		heading: string
+		intro: string
+		listenLabel: string
+		platformLabel: string
+		pauseLabel: string
+		seekLabel: string
+	}
 	timeline: { heading: string; entries: readonly { period: string; label: string; detail: string }[] }
 	contactCta: { heading: string; body: string; buttonLabel: string }
 }
@@ -165,6 +172,8 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 			intro: 'Cinque brani, dal più recente. Si ascoltano qui, senza andare da nessun’altra parte.',
 			listenLabel: 'Ascolta',
 			platformLabel: 'Ascolta sulla piattaforma',
+			pauseLabel: 'Pausa',
+			seekLabel: 'Punto di ascolto',
 		},
 		timeline: {
 			heading: 'Percorso',
@@ -231,6 +240,8 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 			intro: 'Five pieces, most recent first. They play here — you do not have to go anywhere else.',
 			listenLabel: 'Play',
 			platformLabel: 'Listen on the platform',
+			pauseLabel: 'Pause',
+			seekLabel: 'Playback position',
 		},
 		timeline: {
 			heading: 'Training and experience',

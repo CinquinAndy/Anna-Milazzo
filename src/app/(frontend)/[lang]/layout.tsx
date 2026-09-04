@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
+import { AudioEngine } from '@/components/audio-engine'
 import { isLocale } from '@/lib/locale'
 import { fontVariables } from '../fonts'
 import '../globals.css'
@@ -36,7 +37,9 @@ export default async function FrontendLayout({
 
 	return (
 		<html lang={lang} className={fontVariables}>
-			<body>{children}</body>
+			<body>
+				<AudioEngine>{children}</AudioEngine>
+			</body>
 		</html>
 	)
 }
