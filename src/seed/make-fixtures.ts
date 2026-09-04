@@ -59,6 +59,9 @@ const TRACKS = [
 
 const midiToHz = (midi: number) => 440 * 2 ** ((midi - 69) / 12)
 
+/** The melodic shape every track follows, in scale degrees above its chord root. */
+const CONTOUR = [0, 2, 4, 3, 5, 4, 2, 0, 3, 5, 7, 5, 4, 2, 3, 1] as const
+
 /**
  * A deterministic generator.
  *
@@ -150,6 +153,15 @@ function render(track: (typeof TRACKS)[number]) {
 		}
 	}
 
+	/**
+	 * A scale degree, wrapped into octaves.
+	 *
+	 * `step` has to stay bounded. Feeding it a running counter — which the first version did,
+	 * as `bar * 3 + eighth` — climbs an octave every five notes and never comes back, so the
+	 * piece is a rising scale rather than a phrase. Measured, that made the spectral centroid
+	 * correlate 0.88 with elapsed time on one track: the colour of the visualiser drawn from
+	 * it was a left-to-right gradient wearing the costume of a measurement.
+	 */
 	const degree = (step: number) => {
 		const scale = track.mode
 		return (
@@ -166,14 +178,15 @@ function render(track: (typeof TRACKS)[number]) {
 	const bars = Math.floor((track.seconds - LEAD_IN) / (beat * 4))
 	for (let bar = 0; bar < bars; bar++) {
 		const at = LEAD_IN + bar * beat * 4
-		// A chord under the bar, and a bass note two octaves down.
-		// Spread across a few milliseconds rather than struck together. Two hands do not
-		// land three notes on the same sample, and stacking them there is what turns a chord
-		// into a transient.
+		// A four-bar progression that cycles, so the harmony comes back instead of climbing.
+		const root = bar % 4
+		// A chord under the bar, and a bass note two octaves down. Spread across a few
+		// milliseconds rather than struck together: two hands do not land three notes on the
+		// same sample, and stacking them there is what turns a chord into a transient.
 		for (const [index, step] of [0, 2, 4].entries()) {
-			pluck(at + index * 0.011, degree(step + bar) - 12, beat * 3.4, 0.15, 0.3 + index * 0.2)
+			pluck(at + index * 0.011, degree(root + step) - 12, beat * 3.4, 0.15, 0.3 + index * 0.2)
 		}
-		pluck(at, degree(bar) - 24, beat * 3.8, 0.2, 0.5)
+		pluck(at, degree(root) - 24, beat * 3.8, 0.2, 0.5)
 		for (let eighth = 0; eighth < 8; eighth++) {
 			const when = at + eighth * beat * 0.5
 			if (track.hats > 0) {
@@ -183,7 +196,11 @@ function render(track: (typeof TRACKS)[number]) {
 				hat(when, (eighth % 2 === 0 ? 0.105 : 0.05) * track.hats)
 			}
 			if (eighth % 2 === 0) {
-				pluck(when, degree(bar * 3 + eighth), beat * 1.6, 0.125, 0.34 + (eighth % 3) * 0.15)
+				// A contour that rises and falls inside about an octave and a half, read
+				// cyclically. The shape is the point: a phrase that returns is what makes the
+				// timbre of a piece a property of the music rather than of the clock.
+				const note = CONTOUR[(bar * 4 + (eighth >> 1)) % CONTOUR.length] as number
+				pluck(when, degree(root + note), beat * 1.6, 0.125, 0.34 + (eighth % 3) * 0.15)
 			}
 		}
 	}

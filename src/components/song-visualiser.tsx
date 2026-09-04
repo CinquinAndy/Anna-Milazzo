@@ -31,6 +31,15 @@ import { resample } from '@/lib/player/peaks'
 /** CSS pixels per cell. The rail is short, so half the hero's cell keeps rows for the edge. */
 const CELL = 4
 
+/**
+ * Bars either side of each one that its colour is averaged with.
+ *
+ * Two, so a five-bar window. One was not enough once the timbre is stretched across the
+ * track's own range: the stretch magnifies small differences, and neighbouring bars flipped
+ * between opposite ends of the ramp.
+ */
+const SMOOTH_BARS = 2
+
 /** Cells held clear at each end of the rail. */
 const EDGE_MARGIN = 1
 
@@ -130,12 +139,14 @@ export function SongVisualiser({
 		// Unplayed: the ground carried a little way toward the ink. Present, plainly inert,
 		// and never competing with the colour of a bar that has been played.
 		const ghostWord = pack(mix(back, ink, 0.3))
-		// Green, yellow, orange, magenta, purple: bass to bright. Straight from the palette —
-		// over paper these need their saturation, where over the hero's blue they were
-		// softened toward it.
-		const ANCHORS = (['--spring', '--lemon', '--accent', '--magenta', '--grape'] as const).map(token =>
-			resolveToken(host, token)
-		)
+		// Green, yellow, orange, magenta: bass to bright. Straight from the palette — over paper
+		// these need their saturation, where over the hero's blue they were softened toward it.
+		//
+		// Four, not five. Adding grape at the top moved the middle of the ramp to magenta and
+		// half the rail came out purple, against a palette rule this project has held from the
+		// start: the loudest colour is rationed. Magenta is the last stop and a bar only
+		// reaches it at the brightest moments of a piece.
+		const ANCHORS = (['--spring', '--lemon', '--accent', '--magenta'] as const).map(token => resolveToken(host, token))
 		/** The anchors expanded into a long ramp, and each step shaded from foot to top. */
 		const RAMP: Uint32Array[] = []
 		for (let step = 0; step < RAMP_STEPS; step++) {
@@ -195,11 +206,13 @@ export function SongVisualiser({
 				// music; the bar-to-bar jitter at this resolution is the attack of one note
 				// against the decay of the last, and drawn raw it turns the rail into confetti
 				// — a different hue on every bar, which reads as noise rather than as a
-				// reading. A three-bar window keeps every real move and loses the flicker.
+				// reading. The window has to be wider than it first seems, because the
+				// percentile stretch below expands the middle of the range and amplifies
+				// whatever jitter survives.
 				const smoothed = folded.map((_, bar) => {
 					let sum = 0
 					let count = 0
-					for (let near = bar - 1; near <= bar + 1; near++) {
+					for (let near = bar - SMOOTH_BARS; near <= bar + SMOOTH_BARS; near++) {
 						const value = folded[near]
 						if (value !== undefined) {
 							sum += value
@@ -211,13 +224,18 @@ export function SongVisualiser({
 				// Stretched across the track's OWN range of timbre, the same way its loudness
 				// already is. No piece uses the whole spectrum: measured on these tracks the
 				// centroid moves within a band perhaps thirty points wide, and read absolutely
-				// that lands every bar on one or two ramp colours. Stretched, the difference
-				// between this track's darkest and brightest moment is the difference between
-				// the ends of the ramp — which is what the colour is for.
-				const lowest = Math.min(...smoothed)
-				const highest = Math.max(...smoothed)
-				const span = highest - lowest
-				colours = smoothed.map(value => (span < 1 ? 50 : ((value - lowest) / span) * 100))
+				// that lands every bar on one or two ramp colours.
+				//
+				// Against percentiles rather than the extremes. Two outlying buckets — the
+				// attack of one note, a moment of near-silence — were setting the whole scale,
+				// which pushed the body of a track into the top of the ramp and made the rail
+				// almost entirely magenta. The tenth and ninetieth spread the passages that
+				// actually make up the piece, and the rare bar outside them clamps.
+				const sorted = [...smoothed].sort((a, b) => a - b)
+				const low = sorted[Math.floor(sorted.length * 0.1)] ?? 0
+				const high = sorted[Math.floor(sorted.length * 0.9)] ?? 100
+				const span = high - low
+				colours = smoothed.map(value => (span < 1 ? 50 : Math.max(0, Math.min(100, ((value - low) / span) * 100))))
 			}
 			grown = new Float64Array(bars)
 		}
