@@ -14,7 +14,11 @@ export function Skills({ skills }: { skills: Home['skills'] }) {
 	}
 
 	return (
-		<section className="relative border-b-brutal border-border bg-secondary px-5 py-14 sm:px-8 md:py-20" data-skills>
+		<section
+			className="relative border-b-brutal border-border bg-secondary px-5 py-14 sm:px-8 md:py-20"
+			data-enter
+			data-skills
+		>
 			<div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-[minmax(0,18rem)_1fr] md:gap-14">
 				<div className="relative self-start">
 					<h2 className="font-display uppercase [font-stretch:88%]">{skills?.heading}</h2>

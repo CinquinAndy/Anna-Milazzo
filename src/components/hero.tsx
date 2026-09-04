@@ -11,7 +11,10 @@ import type { Home } from '@/payload-types'
  */
 export function Hero({ hero }: { hero: Home['hero'] }) {
 	return (
-		<section className="relative overflow-visible border-b-brutal border-border bg-primary px-5 py-14 sm:px-8 md:py-20">
+		<section
+			data-enter
+			className="relative overflow-visible border-b-brutal border-border bg-primary px-5 py-14 sm:px-8 md:py-20"
+		>
 			<Ornament kind="asterisk" rotation={-13} className="top-6 left-4 h-10 w-10 sm:h-14 sm:w-14" />
 			<div className="mx-auto grid max-w-6xl items-center gap-10 md:grid-cols-[1.2fr_1fr] md:gap-14">
 				<div>

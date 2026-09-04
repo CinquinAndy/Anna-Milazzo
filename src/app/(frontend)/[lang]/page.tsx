@@ -53,7 +53,7 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 				<Timeline timeline={home.timeline} scrollLabel={home.timeline?.scrollLabel ?? ''} />
 
 				{/* The route to contact. The destination exists now, so the button can. */}
-				<section className="relative px-5 py-14 sm:px-8 md:py-20">
+				<section data-enter className="relative px-5 py-14 sm:px-8 md:py-20">
 					<Ornament kind="asterisk" rotation={11} className="top-10 right-6 h-9 w-9 sm:right-12 sm:h-12 sm:w-12" />
 					<div className="mx-auto flex max-w-6xl flex-col items-start gap-6">
 						<h2 className="font-display uppercase [font-stretch:88%]">{home.contactCta?.heading}</h2>

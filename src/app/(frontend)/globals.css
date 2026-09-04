@@ -316,6 +316,12 @@
 		position: relative;
 		display: flex;
 		flex-direction: column;
+		/* The same signature move as every control: hover lifts, and the shadow grows.
+		 * Named properties, not `all` — `all` will happily animate layout and force a
+		 * reflow, and it turns every future style change into an accidental animation. */
+		transition:
+			transform 90ms cubic-bezier(0, 0, 0.58, 1),
+			filter 90ms cubic-bezier(0, 0, 0.58, 1);
 		/* One shadow for the union of tab and body. `box-shadow` on each box
 		 * instead puts a black notch inside the silhouette where they join, and
 		 * steps where the tab's right edge meets the body. */
@@ -326,6 +332,15 @@
 		.folder {
 			/* Proportional at 375px, and it stops eating the gutter. */
 			--folder-shadow: 5px;
+		}
+	}
+
+	/* Only where there is a real pointer: on a touch screen `:hover` sticks after a tap
+	 * and the Folder would stay lifted. */
+	@media (hover: hover) {
+		.folder:hover {
+			transform: translate(-2px, -2px);
+			filter: drop-shadow(11px 11px 0 var(--border));
 		}
 	}
 
@@ -477,5 +492,37 @@
 		border-radius: 0;
 		background: var(--accent);
 		border: 2px solid var(--border);
+	}
+}
+
+/* ---- section entrances ---------------------------------------------
+ * A hard arrival: opacity and a short translate, per section rather than per element.
+ *
+ * The base state carries no opacity and no transform, so a section is present and
+ * readable when the animation never runs — with reduced motion, in a browser without
+ * scroll-driven animations, or with the stylesheet half-loaded. Motion never gates
+ * access to content.
+ *
+ * Declared inside `prefers-reduced-motion: no-preference` rather than switched off
+ * afterwards: the usual `animation-duration: 0.001ms` override does not stop a
+ * scroll-driven animation, so an entrance disabled that way would still move. */
+@media (prefers-reduced-motion: no-preference) {
+	@supports (animation-timeline: view()) {
+		[data-enter] {
+			animation: section-arrival linear both;
+			animation-timeline: view();
+			animation-range: entry 0% entry 45%;
+		}
+	}
+}
+
+@keyframes section-arrival {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
 	}
 }

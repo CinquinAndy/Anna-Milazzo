@@ -16,7 +16,7 @@ export function SongStack({ songs, labels }: { songs: Song[]; labels: Home['song
 	}
 
 	return (
-		<section className="relative border-b-brutal border-border px-5 py-14 sm:px-8 md:py-20" data-song-stack>
+		<section data-enter className="relative border-b-brutal border-border px-5 py-14 sm:px-8 md:py-20" data-song-stack>
 			<Ornament kind="cross" rotation={19} className="top-10 right-4 h-8 w-8 sm:right-8 sm:h-11 sm:w-11" />
 			<div className="mx-auto max-w-6xl">
 				<h2 className="font-display uppercase [font-stretch:88%]">{labels?.heading}</h2>
