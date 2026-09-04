@@ -41,7 +41,7 @@ test.describe('the top of the landing page', () => {
 	test('renders the skills as a list, from the CMS', async ({ page }) => {
 		await page.goto('/')
 
-		const skills = page.getByRole('heading', { name: 'Cosa so fare' }).locator('..').getByRole('listitem')
+		const skills = page.locator('[data-skills]').getByRole('listitem')
 		await expect(skills).toHaveCount(7)
 		await expect(skills.first()).toHaveText('Composizione')
 	})

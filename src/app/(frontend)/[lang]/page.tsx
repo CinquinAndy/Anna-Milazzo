@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { About } from '@/components/about'
 import { Hero } from '@/components/hero'
+import { Ornament } from '@/components/ornament'
 import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
 import { Skills } from '@/components/skills'
@@ -52,7 +53,8 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 				<Timeline timeline={home.timeline} scrollLabel={home.timeline?.scrollLabel ?? ''} />
 
 				{/* The route to contact. The destination exists now, so the button can. */}
-				<section className="px-5 py-14 sm:px-8 md:py-20">
+				<section className="relative px-5 py-14 sm:px-8 md:py-20">
+					<Ornament kind="asterisk" rotation={11} className="top-10 right-6 h-9 w-9 sm:right-12 sm:h-12 sm:w-12" />
 					<div className="mx-auto flex max-w-6xl flex-col items-start gap-6">
 						<h2 className="font-display uppercase [font-stretch:88%]">{home.contactCta?.heading}</h2>
 						{home.contactCta?.body ? <p className="max-w-prose font-sans text-lg">{home.contactCta.body}</p> : null}

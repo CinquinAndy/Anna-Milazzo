@@ -1,3 +1,4 @@
+import { Ornament } from '@/components/ornament'
 import type { Home } from '@/payload-types'
 
 /** The fills cycle so consecutive steps read as distinct blocks on the track. */
@@ -18,7 +19,8 @@ export function Timeline({ timeline, scrollLabel }: { timeline: Home['timeline']
 	}
 
 	return (
-		<section className="border-b-brutal border-border bg-background px-5 py-14 sm:px-8 md:py-20" data-timeline>
+		<section className="relative border-b-brutal border-border bg-background px-5 py-14 sm:px-8 md:py-20" data-timeline>
+			<Ornament kind="blob" rotation={-24} className="top-8 right-5 h-9 w-9 sm:right-12 sm:h-12 sm:w-12" />
 			<div className="mx-auto max-w-6xl">
 				<h2 className="font-display uppercase [font-stretch:88%]">{timeline?.heading}</h2>
 

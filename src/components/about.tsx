@@ -1,3 +1,4 @@
+import { Ornament } from '@/components/ornament'
 import type { Home } from '@/payload-types'
 
 /** Who Anna is, in her own words. Every string comes from Payload (ADR-0003). */
@@ -7,7 +8,8 @@ export function About({ about }: { about: Home['about'] }) {
 	}
 
 	return (
-		<section className="border-b-brutal border-border px-5 py-14 sm:px-8 md:py-20">
+		<section className="relative border-b-brutal border-border px-5 py-14 sm:px-8 md:py-20">
+			<Ornament kind="arrow" rotation={7} className="top-8 right-5 h-8 w-16 sm:right-10 sm:h-10 sm:w-20" />
 			<div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-[minmax(0,18rem)_1fr] md:gap-14">
 				<h2 className="font-display uppercase [font-stretch:88%]">{about?.heading}</h2>
 				{/* `whitespace-pre-line` so Anna can break a paragraph in the CMS without HTML. */}
