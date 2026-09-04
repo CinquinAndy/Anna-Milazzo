@@ -35,7 +35,7 @@ export function About({ about }: { about: Home['about'] }) {
 		>
 			{about?.heading ? <SectionTitle>{about.heading}</SectionTitle> : null}
 
-			<div className="relative px-5 py-20 sm:px-8 md:py-32">
+			<div className="relative px-5 py-24 sm:px-8 md:py-48">
 				{/* Anchored to the section's corners rather than to the content, so they frame
 				    the column instead of crowding it. */}
 				<Arcs className="pointer-events-none absolute -top-10 -right-12 hidden h-52 w-52 rotate-180 sm:block md:h-72 md:w-72" />
@@ -49,7 +49,7 @@ export function About({ about }: { about: Home['about'] }) {
 				<Ornament kind="sparkle" tone="sheet" rotation={9} className="right-8 bottom-16 h-7 w-7 sm:h-10 sm:w-10" />
 				<Ornament kind="cross" tone="magenta" rotation={24} className="top-24 right-1/3 h-6 w-6 sm:h-9 sm:w-9" />
 
-				<div className="shell relative grid items-center gap-14 lg:grid-cols-[1.35fr_1fr] lg:gap-20">
+				<div className="shell relative grid items-center gap-16 lg:grid-cols-[1.3fr_1fr] lg:gap-24">
 					{about?.body ? (
 						<div className="relative mx-auto w-full max-w-2xl lg:mx-0">
 							<span
@@ -63,7 +63,7 @@ export function About({ about }: { about: Home['about'] }) {
 							{/* `whitespace-pre-line` so Anna can break a paragraph in the CMS without
 							    HTML. Set larger than body copy: this is the only prose on the landing
 							    page a Recruiter is guaranteed to read. */}
-							<p className="rotate-[-0.6deg] border-brutal border-border bg-sheet p-7 font-sans text-lg leading-relaxed whitespace-pre-line shadow-2xl sm:p-10 sm:text-xl md:text-2xl">
+							<p className="rotate-[-0.6deg] border-brutal border-border bg-sheet p-8 font-sans text-lg leading-relaxed whitespace-pre-line shadow-2xl sm:p-12 sm:text-xl md:text-[1.6rem] md:leading-[1.55]">
 								{about.body}
 							</p>
 							<Ornament kind="underline" tone="magenta" rotation={-3} className="-bottom-8 left-10 h-4 w-48 sm:w-64" />
@@ -74,7 +74,7 @@ export function About({ about }: { about: Home['about'] }) {
 					    variants across four branches; the note on the component says why the other
 					    nineteen lost. Tilted and taped like the card opposite, so the two read as
 					    two things pinned to the same wall rather than as a figure and a graphic. */}
-					<div className="relative mx-auto w-full max-w-md lg:mx-0">
+					<div className="relative mx-auto w-full max-w-lg lg:mx-0">
 						<span
 							aria-hidden="true"
 							className="tape tape-on-colour -top-3 left-10 z-10 [--tape-tint:var(--sheet)] rotate-[-38deg]"
