@@ -187,10 +187,13 @@ export function DitherField() {
 				Math.sin(time * 1.7 + bar * 0.53) * 0.5 +
 				Math.sin(time * 2.6 - bar * 0.31) * 0.31 +
 				Math.sin(time * 1.1 + bar * 0.87) * 0.19
-			// Capped at 0.44 of the hero even at full energy, so the spectrum stays under the
-			// copy rather than climbing through it.
-			const reach = 0.15 + energy * 0.17
-			return Math.max(0, (0.1 + reach * (0.5 + swing * 0.5)) * height)
+			// The floor matters more than the ceiling. The field spans the whole section and
+			// the keyboard covers roughly its bottom eighth, so a bar shorter than that is
+			// invisible however lively it is. The base starts well clear of it and the range
+			// runs to about two thirds of the section at full energy, which puts the tallest
+			// crests near the middle of the screen.
+			const reach = 0.22 + energy * 0.2
+			return Math.max(0, (0.3 + reach * (0.5 + swing * 0.5)) * height)
 		}
 
 		/**

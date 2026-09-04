@@ -39,19 +39,20 @@ export function Hero({
 			data-enter
 			className="relative flex flex-col overflow-hidden border-b-brutal border-border bg-primary px-5 py-16 sm:px-8 md:min-h-[calc(100svh-var(--header-h))] md:justify-between md:py-14"
 		>
+			{/* First child, and absolutely positioned over the whole section: the bars are
+			    anchored to its foot and rise toward the middle, passing behind the keyboard so
+			    they read as coming out of it. First in the document is also what layers it —
+			    every positioned sibling after it paints on top, with no z-index to reason
+			    about, and no stacking context to be surprised by. */}
+			<DitherField />
+
 			{/* The corner marks stay on the section. Moved into the wrapper below, their
 			    top-6 / bottom-8 offsets resolved against the field's box instead and the
 			    asterisk slid down onto the name. */}
 			<Ornament kind="asterisk" tone="sheet" rotation={-13} className="top-6 left-4 h-10 w-10 sm:h-14 sm:w-14" />
 			<Ornament kind="cross" tone="magenta" rotation={22} className="bottom-8 left-8 h-7 w-7 sm:h-10 sm:w-10" />
 
-			{/* The field's box ends where the keyboard begins, so the bars stand on it rather
-			    than behind it. Scoped by a wrapper rather than by a bottom inset: the keyboard's
-			    height differs between the mobile and desktop padding, and a hardcoded offset
-			    would drift the moment either changed. */}
 			<div className="relative flex flex-1 flex-col justify-center">
-				<DitherField />
-
 				<div className="shell grid items-center gap-12 md:grid-cols-[1.25fr_0.85fr] md:gap-10">
 					<div className="relative">
 						{/* Larger than the h1 token, which is sized for section headings. The hero

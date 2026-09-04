@@ -719,12 +719,6 @@
 		position: absolute;
 		inset-block: 0;
 		inset-inline: -1.25rem;
-		/* Behind every sibling. Both the field and the corner ornaments are positioned, so
-		 * without this they are ordered by their place in the document — and the field, which
-		 * comes later, painted straight over the asterisk. Negative rather than a low positive
-		 * because the section sets no stacking context: -1 puts the canvas above the section's
-		 * own background and below everything else in it. */
-		z-index: -1;
 		color: var(--grape);
 		pointer-events: none;
 	}
