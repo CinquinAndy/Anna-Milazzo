@@ -93,6 +93,23 @@ function readColour(element: HTMLElement): Rgb {
 	return { r: r ?? 0, g: g ?? 0, b: b ?? 0 }
 }
 
+/**
+ * Resolves a palette token to sRGB by borrowing the host's own cascade.
+ *
+ * A hidden span is attached inside the field, given `color: var(--token)`, read, and thrown
+ * away. Custom properties are inherited, so the span sees the same values the page does —
+ * and going through a real element is what makes the browser resolve the oklch rather than
+ * handing back the literal `var(...)` a direct getPropertyValue would return.
+ */
+function resolveToken(host: HTMLElement, token: string): Rgb {
+	const probe = document.createElement('span')
+	probe.style.cssText = `position:absolute;width:0;height:0;overflow:hidden;color:var(${token})`
+	host.appendChild(probe)
+	const colour = readColour(probe)
+	probe.remove()
+	return colour
+}
+
 /** WCAG relative luminance: linearise each channel, then weight. */
 function relativeLuminance({ r, g, b }: Rgb): number {
 	const channel = (value: number) => {
@@ -150,11 +167,19 @@ export function DitherField() {
 			little ? (255 << 24) | (c.b << 16) | (c.g << 8) | c.r : (c.r << 24) | (c.g << 16) | (c.b << 8) | 255
 		const backWord = pack(back) >>> 0
 		const frontWord = pack(front) >>> 0
-		// The hover fill comes off the wrapper's `color`, as the base comes off the canvas's,
-		// so both track the palette. Grape rather than an accent: white body copy measures
-		// 5.49:1 on it, where cantaloupe would be 2.08 and magenta 3.48 — and a hovered bar
-		// can stand tall enough to sit behind the tagline.
-		const hoverWord = (canvas.parentElement === null ? frontWord : pack(readColour(canvas.parentElement))) >>> 0
+		/**
+		 * The hovered bar lights like a level meter: green at the foot, through yellow, to
+		 * orange as it climbs.
+		 *
+		 * None of those three can carry white text — 1.64:1, 1.43:1 and 2.08:1 — so the ramp
+		 * is confined to the bottom of the field, below where any copy sits. Above that
+		 * ceiling a hovered bar keeps the ordinary dark fill, which is also what a real meter
+		 * looks like above its level.
+		 */
+		const host = canvas.parentElement ?? canvas
+		const RAMP = [resolveToken(host, '--spring'), resolveToken(host, '--lemon'), resolveToken(host, '--accent')].map(
+			colour => pack(colour) >>> 0
+		)
 
 		let width = 0
 		let height = 0
@@ -212,6 +237,11 @@ export function DitherField() {
 				tops[bar] = heightOf(bar, drift, energy)
 			}
 
+			// The lowest 40% of the field. Bars reach about 48% of it, and the lowest copy on
+			// the blue sits at roughly 46% from the foot, so the ramp can never arrive under
+			// a word. Verified by sampling the composited page, not by assuming.
+			const brightCeiling = height * 0.4
+
 			for (let y = 0; y < height; y++) {
 				const rowBayer = BAYER[y & 7] as unknown as number[]
 				const fromFoot = height - 1 - y
@@ -227,9 +257,20 @@ export function DitherField() {
 					// crown. A hard cut here would be a chart; the dissolve is what keeps it
 					// reading as one dithered surface.
 					const bar = (x / BAR_PITCH) | 0
-					const level = ((tops[bar] ?? 0) - fromFoot) / BAR_SOFTNESS
+					const top = tops[bar] ?? 0
+					const level = (top - fromFoot) / BAR_SOFTNESS
 					const threshold = ((rowBayer[x & 7] ?? 0) + 0.5) / 64
-					words[row + x] = level > threshold ? (bar === hoverBar ? hoverWord : frontWord) : backWord
+					if (level <= threshold) {
+						words[row + x] = backWord
+						continue
+					}
+					if (bar !== hoverBar || fromFoot > brightCeiling) {
+						words[row + x] = frontWord
+						continue
+					}
+					// Position within the bar, so a short bar still runs the whole ramp.
+					const climb = top > 0 ? fromFoot / top : 0
+					words[row + x] = RAMP[climb < 0.34 ? 0 : climb < 0.68 ? 1 : 2] ?? frontWord
 				}
 			}
 			context.putImageData(image, 0, 0)
