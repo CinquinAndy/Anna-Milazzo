@@ -7,6 +7,7 @@ import * as migration_20260904_215954_peaks from './20260904_215954_peaks';
 import * as migration_20260904_225010_spectrum from './20260904_225010_spectrum';
 import * as migration_20260904_232618_drop_spectrum from './20260904_232618_drop_spectrum';
 import * as migration_20260904_232630_tone from './20260904_232630_tone';
+import * as migration_20260905_091533_cta_badge from './20260905_091533_cta_badge';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20260904_232630_tone.up,
     down: migration_20260904_232630_tone.down,
-    name: '20260904_232630_tone'
+    name: '20260904_232630_tone',
+  },
+  {
+    up: migration_20260905_091533_cta_badge.up,
+    down: migration_20260905_091533_cta_badge.down,
+    name: '20260905_091533_cta_badge'
   },
 ];

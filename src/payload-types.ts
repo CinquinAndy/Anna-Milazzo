@@ -480,6 +480,10 @@ export interface Home {
       | null;
   };
   contactCta?: {
+    /**
+     * A few words above the heading — what she is open to right now. Left empty, nothing is shown.
+     */
+    badge?: string | null;
     heading?: string | null;
     body?: string | null;
     buttonLabel?: string | null;
@@ -609,6 +613,7 @@ export interface HomeSelect<T extends boolean = true> {
   contactCta?:
     | T
     | {
+        badge?: T;
         heading?: T;
         body?: T;
         buttonLabel?: T;

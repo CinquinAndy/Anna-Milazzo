@@ -142,7 +142,7 @@ type HomeCopy = {
 		scrollLabel: string
 		entries: readonly { period: string; label: string; detail: string }[]
 	}
-	contactCta: { heading: string; body: string; buttonLabel: string }
+	contactCta: { badge: string; heading: string; body: string; buttonLabel: string }
 }
 
 export const SEED_HOME: Record<Locale, HomeCopy> = {
@@ -211,6 +211,7 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 			],
 		},
 		contactCta: {
+			badge: 'Disponibile per commissioni',
 			heading: 'Lavoriamo insieme',
 			body: 'Se avete un progetto che ha bisogno di suono — un film, uno spazio, un podcast — scrivetemi.',
 			buttonLabel: 'Mettiamoci in contatto',
@@ -280,6 +281,7 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 			],
 		},
 		contactCta: {
+			badge: 'Available for commissions',
 			heading: 'Let’s work together',
 			body: 'If you have a project that needs sound — a film, a space, a podcast — write to me.',
 			buttonLabel: 'Get in touch',

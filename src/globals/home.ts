@@ -157,6 +157,18 @@ export const Home: GlobalConfig = {
 			type: 'group',
 			label: { en: 'Route to contact', it: 'Invito al contatto' },
 			fields: [
+				{
+					name: 'badge',
+					type: 'text',
+					localized: true,
+					label: { en: 'Availability', it: 'Disponibilità' },
+					admin: {
+						description: {
+							en: 'A few words above the heading — what she is open to right now. Left empty, nothing is shown.',
+							it: 'Poche parole sopra il titolo: a cosa è disponibile ora. Se vuoto, non viene mostrato nulla.',
+						},
+					},
+				},
 				{ name: 'heading', type: 'text', localized: true, label: { en: 'Heading', it: 'Titolo' } },
 				{ name: 'body', type: 'textarea', localized: true, label: { en: 'Text', it: 'Testo' } },
 				{
