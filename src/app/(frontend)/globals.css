@@ -1,9 +1,9 @@
-/* Anna Milazzo — theme layer.
+/* Anna Milazzo, theme layer.
  *
  * Copied from docs/design/globals.css, which stays as the reference. Derived from the
  * tweakcn "neo-brutalism" theme: Anna's palette replaces the stock red / acid-yellow /
  * electric-blue, the dark block is gone (ADR-0004), and the shadow scale is rebuilt as
- * pure offsets — tweakcn derives a blurred second layer it cannot switch off, which is
+ * pure offsets, tweakcn derives a blurred second layer it cannot switch off, which is
  * not a neo-brutalist shadow.
  *
  * Anna's colours sit at chroma ~0.12, roughly half the stock theme's ~0.23. The style's
@@ -14,7 +14,7 @@
 @import "tailwindcss";
 
 /* Tailwind's source scan is rooted at the project, not at this file, and docs/ and
- * .scratch/ are tracked — full of prose like `border-2` and `bg-background` that would
+ * .scratch/ are tracked, full of prose like `border-2` and `bg-background` that would
  * otherwise be read as class usage. Both directories exist, so neither rule is silently
  * dropped the way a glob at a missing path would be. */
 @source not "../../../docs";
@@ -32,26 +32,26 @@
 	 * exactly. So a fill wearing a 4px black keyline (needs >= 3:1) AND white body type
 	 * (needs >= 4.5:1) must land in a luminance band only 1.556x wide. This design can
 	 * therefore only ever have one dark surface family. Blue at 3.634:1 sits almost dead
-	 * centre of that band — Anna's choice is, arithmetically, the ideal dark surface here. */
+	 * centre of that band, Anna's choice is, arithmetically, the ideal dark surface here. */
 	--ink: oklch(0 0 0);
 	/* #FEE5DB. Warmed off the near-white #F7F6EC the first build used, onto the
 	 * cantaloupe's own lattice point, so the ground carries brand rather than reading as
 	 * unpainted. 17.48:1 on black. Held at L 0.94 / C 0.030 because L 0.95 / C 0.030 puts
 	 * the red channel at 1.017 and clips out of sRGB. */
 	--paper: oklch(0.94 0.03 44.76);
-	--sheet: oklch(0.99 0.005 97.968); /* #FDFCF8 — Folder bodies, inputs */
-	--dust: oklch(0.92 0.008 97.968); /* #E6E5DF — rails only, never a section */
+	--sheet: oklch(0.99 0.005 97.968); /* #FDFCF8, Folder bodies, inputs */
+	--dust: oklch(0.92 0.008 97.968); /* #E6E5DF, rails only, never a section */
 
-	/* #3866A8 — anchor. Do not touch; see the band argument above. */
+	/* #3866A8, anchor. Do not touch; see the band argument above. */
 	--blue: oklch(0.5104 0.1169 257.59);
-	/* #F79E76 Pantone 15-1239 Cantaloupe — anchor, BLACK TYPE ONLY (2.078:1 on white).
+	/* #F79E76 Pantone 15-1239 Cantaloupe, anchor, BLACK TYPE ONLY (2.078:1 on white).
 	 * Already at 87.6% of the sRGB chroma ceiling for its lightness. */
 	--cantaloupe: oklch(0.7803 0.1196 44.76);
 
-	--lemon: oklch(0.88 0.175 97.968); /* #F7D725 — black type, 14.708:1 */
-	--spring: oklch(0.82 0.18 151.175); /* #57E486 — black type, 12.852:1 */
-	--magenta: oklch(0.66 0.22 4.005); /* #F74183 — black type; NEVER a section */
-	/* #9B35D1 — white type, 5.496:1. L is 0.55 and no lower: at L 0.49 it measured
+	--lemon: oklch(0.88 0.175 97.968); /* #F7D725, black type, 14.708:1 */
+	--spring: oklch(0.82 0.18 151.175); /* #57E486, black type, 12.852:1 */
+	--magenta: oklch(0.66 0.22 4.005); /* #F74183, black type; NEVER a section */
+	/* #9B35D1, white type, 5.496:1. L is 0.55 and no lower: at L 0.49 it measured
 	 * 2.982:1 against black and its own keylines vanished. The keyline sets the floor. */
 	--grape: oklch(0.55 0.23 310.797);
 
@@ -68,7 +68,7 @@
 	--accent: var(--cantaloupe);
 	--accent-foreground: var(--ink);
 	/* Was the sand oklch(0.931 0.023 88), which sat 1.06:1 from the paper and 1.08:1 from
-	 * the card — the beige-on-beige the client called out. Repointed at the lemon. */
+	 * the card, the beige-on-beige the client called out. Repointed at the lemon. */
 	--secondary: var(--lemon);
 	--secondary-foreground: var(--ink);
 	--muted: var(--dust);
@@ -85,7 +85,7 @@
 	/* The measure every section's content is laid against. Was 72rem, which left a third of
 	 * a 1920px screen as empty gutter on both sides; the sections are colour fields, so the
 	 * emptiness read as the design not filling the page rather than as white space. One
-	 * token because it has to change in one place — a per-component max-width is how the
+	 * token because it has to change in one place, a per-component max-width is how the
 	 * header ends up a different width from the section under it. */
 	--measure: 100rem;
 	/* The sticky header occupies the flow, so a full-viewport hero has to subtract it or the
@@ -102,8 +102,7 @@
 	--magenta-foreground: var(--ink);
 	--grape-foreground: oklch(1 0 0);
 
-	/* --decor-lime is gone. #B9E67E measured 1.453:1 on cantaloupe and 1.318:1 on paper —
-	 * invisible on two of the grounds it had to live on — and h 128 was the one hue off the
+	/* --decor-lime is gone. #B9E67E measured 1.453:1 on cantaloupe and 1.318:1 on paper, * invisible on two of the grounds it had to live on, and h 128 was the one hue off the
 	 * lattice. Its jobs pass to --lemon and --spring, which are ordinary surfaces rather
 	 * than quarantined ornament. Default ornament colour is --ink, the only value clearing
 	 * 3:1 on every ground. */
@@ -117,7 +116,7 @@
 	/* ---- type ---------------------------------------------------------
 	 * The families come from next/font, which self-hosts them and exposes each as a
 	 * custom property (src/app/(frontend)/fonts.ts). The fallback after the comma is
-	 * what renders if a root layout forgot the font variables — a literal family name
+	 * what renders if a root layout forgot the font variables, a literal family name
 	 * here would never match the self-hosted face and would silently take the whole
 	 * document off-brand, because Tailwind's --default-font-family resolves from
 	 * --font-sans. */
@@ -130,7 +129,7 @@
 
 	/* ---- shadows: hard offsets, zero blur -----------------------------
 	 * On a composite silhouette (the Folder: tab + body) do NOT use these as box-shadow
-	 * per box — it puts a black notch at the tab/body join. Use one
+	 * per box, it puts a black notch at the tab/body join. Use one
 	 * filter: drop-shadow(8px 8px 0 var(--border)) on the wrapper instead. */
 	--shadow-2xs: 1px 1px 0 0 var(--border);
 	--shadow-xs: 2px 2px 0 0 var(--border);
@@ -185,7 +184,7 @@
 	--font-mono: var(--font-mono);
 	--font-serif: var(--font-serif);
 
-	/* Every corner is square. `initial` clears the whole namespace first — Tailwind
+	/* Every corner is square. `initial` clears the whole namespace first, Tailwind
 	 * ships --radius-xs/2xl/3xl/4xl and a bare --radius on top of the four steps named
 	 * below, and overriding only those four leaves `rounded`, `rounded-xs`,
 	 * `rounded-2xl`, `rounded-3xl` and `rounded-4xl` still rounding. */
@@ -258,7 +257,7 @@
 
 	body {
 		@apply bg-background text-foreground;
-		/* The paper grain goes here at build time — see the folder-ui research. */
+		/* The paper grain goes here at build time, see the folder-ui research. */
 	}
 
 	h1,
@@ -273,7 +272,7 @@
 		font-optical-sizing: auto;
 		line-height: var(--leading-display);
 		/* A line-height below 1 makes the inline content area taller than the line box,
-		 * so the glyphs — and with them the heading's hit area — spill above and below
+		 * so the glyphs, and with them the heading's hit area, spill above and below
 		 * its block box. Left alone, a hero silently swallows clicks on whatever sits
 		 * next to it. This reserves the shortfall, which is also §4.2(c)'s mitigation
 		 * for Italian capitals carrying their accents above the cap height. */
@@ -315,7 +314,7 @@
 	 * declarations so the specimen can show all three states at once.
 	 *
 	 * Under 100ms and triggered only by direct input, so this is not gated behind
-	 * prefers-reduced-motion — entrances and loops in ticket 12 are. */
+	 * prefers-reduced-motion, entrances and loops in ticket 12 are. */
 	.control {
 		display: inline-flex;
 		align-items: center;
@@ -353,7 +352,7 @@
 
 	.control-accent {
 		background-color: var(--accent);
-		/* Cantaloupe carries black type only — 2.08:1 against white. */
+		/* Cantaloupe carries black type only, 2.08:1 against white. */
 		color: var(--accent-foreground);
 	}
 
@@ -414,8 +413,7 @@
 	/* ---- the Folder --------------------------------------------------
 	 * A tabbed paper shape with one unbroken keyline. Built with the
 	 * negative-margin technique: the body is pulled up by exactly one keyline so
-	 * its top border occupies the bottom 4px of the tab's box, and the tab —
-	 * opaque, `z-index: 2`, `border-bottom: 0` — paints over that strip for
+	 * its top border occupies the bottom 4px of the tab's box, and the tab, * opaque, `z-index: 2`, `border-bottom: 0`, paints over that strip for
 	 * exactly its own width. Outside the tab the body's top border is untouched.
 	 * One continuous outline, no seam.
 	 *
@@ -426,8 +424,8 @@
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		/* Deliberately NOT hover-reactive. A Folder is not a control — there is nothing
-		 * to click on the card itself — so lifting it on hover promised an interaction
+		/* Deliberately NOT hover-reactive. A Folder is not a control, there is nothing
+		 * to click on the card itself, so lifting it on hover promised an interaction
 		 * that does not exist. Worse, it compounded: entering the card shifted every
 		 * child by 2px, then landing on a button shifted that button another 2px, so
 		 * simply moving the pointer across a Folder made the contents jump twice. And
@@ -479,7 +477,7 @@
 
 	/* ---- tape ---------------------------------------------------------
 	 * Top two corners only, mirrored, rotated 40-50 degrees, straddling the
-	 * boundary between the cover and the paper behind it — a strip contained
+	 * boundary between the cover and the paper behind it, a strip contained
 	 * inside the image reads as a printed graphic, not as tape. Translucent so
 	 * the surface below shows through; opaque tape is the commonest failure.
 	 * Rotation is composition, never animation. */
@@ -498,7 +496,7 @@
 		box-shadow: 0 1px 3px rgb(0 0 0 / 0.22);
 		pointer-events: none;
 	}
-	/* Multiply only ever darkens, so on a saturated ground the strip turns muddy — blue tape
+	/* Multiply only ever darkens, so on a saturated ground the strip turns muddy, blue tape
 	 * on the green field came out dark teal and stopped reading as tape at all. On coloured
 	 * sections the strip blends normally and carries its own translucency instead. */
 	.tape-on-colour {
@@ -507,7 +505,7 @@
 	}
 
 	/* The strip that separates the two warm sections. Overflow hidden on the frame, the
-	 * track twice as wide as the content, and the travel exactly one pass — so the loop
+	 * track twice as wide as the content, and the travel exactly one pass, so the loop
 	 * has no seam to arrive. */
 	.marquee {
 		overflow: hidden;
@@ -548,7 +546,7 @@
 	@media (prefers-reduced-motion: no-preference) {
 		.marquee-track {
 			/* Duration comes from the content, not a constant. The track travels exactly one
-			 * pass, and a pass is as wide as the words in it — so a fixed duration would scroll
+			 * pass, and a pass is as wide as the words in it, so a fixed duration would scroll
 			 * the Italian strip visibly faster than the English one, given Italian runs 200-300%
 			 * longer (ADR-0008). Deriving it keeps the linear speed the same in both. */
 			animation: marquee-travel var(--marquee-duration, 38s) linear infinite;
@@ -617,7 +615,7 @@
 	@media (prefers-reduced-motion: no-preference) {
 		.console-bar {
 			animation-name: meter-a;
-			/* Stepped, not eased. A segmented meter jumps between levels — and the page's
+			/* Stepped, not eased. A segmented meter jumps between levels, and the page's
 			 * signature gesture is a press that lands, not a glide. Six steps is enough to
 			 * read as quantised without reading as broken. */
 			animation-timing-function: steps(6, end);
@@ -678,7 +676,7 @@
 		block-size: 5rem;
 		pointer-events: none;
 	}
-	/* Ink on the blue reads at 3.63:1 — plenty for a mark, and held under full strength so
+	/* Ink on the blue reads at 3.63:1, plenty for a mark, and held under full strength so
 	 * it stays a drawing on the ground rather than a second object competing with the name. */
 	.hairpin-mark {
 		opacity: 0.5;
@@ -689,7 +687,7 @@
 
 	/* The dithered field. The canvas holds one pixel per cell and is stretched to fill;
 	 * `pixelated` is what makes the browser scale it with nearest-neighbour, so every cell
-	 * stays a hard square with no filtering — which is the whole look. `color` is what the
+	 * stays a hard square with no filtering, which is the whole look. `color` is what the
 	 * component reads to get the palette's blue resolved out of oklch. */
 	/* Bleeds through the hero's own horizontal padding so the spectrum reaches both edges of
 	 * the screen. The section clips, so the overshoot costs nothing; the two values match
@@ -716,7 +714,7 @@
 	}
 
 	/* The ribbon. Anchored to the foot of the hero and 420px tall, which is the height its
-	 * viewBox is drawn against — one user unit to one CSS pixel, so the 4-unit keylines
+	 * viewBox is drawn against, one user unit to one CSS pixel, so the 4-unit keylines
 	 * inside it land at exactly 4px and match every border on the page.
 	 *
 	 * Sits low deliberately: the copy occupies the upper left, and a band of saturated colour
@@ -740,7 +738,7 @@
 	/* The badge turns slowly, so the name set around its ring orbits.
 	 *
 	 * Animating the `rotate` property, not `transform`: the component already puts its resting
-	 * tilt in `transform`, and the two compose — so the sticker keeps its -10 degrees and turns
+	 * tilt in `transform`, and the two compose, so the sticker keeps its -10 degrees and turns
 	 * on top of it, with no need to thread the base angle through the keyframes.
 	 *
 	 * Slow on purpose. This is the one loop on the page not tied to playback, and it earns that
@@ -808,7 +806,7 @@
 		}
 	}
 
-	/* A hard attack and a short decay — struck, not faded in. The key is lit for a twelfth
+	/* A hard attack and a short decay, struck, not faded in. The key is lit for a twelfth
 	 * of the bar, which is what keeps the phrase reading as separate notes. */
 	@keyframes key-strike {
 		0% {
@@ -834,7 +832,7 @@
 	 *
 	 * 1.8s is not arbitrary: 33 1/3 rpm is 60 / 33.333 = 1.8 seconds per revolution. */
 	/* The sleeve hugs its artwork. Left to stretch it fills the grid row, which the story
-	 * beside it makes far taller than the cover — measured 256 by 538 around a 256 by 256
+	 * beside it makes far taller than the cover, measured 256 by 538 around a 256 by 256
 	 * cover at 768px, so 282px of the hover target was blank paper below the picture and the
 	 * record came out with the pointer nowhere near it. */
 	.folder-sleeve {
@@ -858,7 +856,7 @@
 		inline-size: var(--disc-size);
 		/* A MARGIN, not `inset-block-start`. A percentage inset resolves against the
 		 * containing block's HEIGHT in the block axis, and that box is a stretched grid row
-		 * whose height is set by the story beside it — so the disc sat 20px below the cover
+		 * whose height is set by the story beside it, so the disc sat 20px below the cover
 		 * on one Song and 38px below on another. A percentage margin resolves against the
 		 * WIDTH, which is the same 256px column for every Song. */
 		inset-block-start: 0;
@@ -899,7 +897,7 @@
 	/* And on a pointer device, when you rest on the artwork. The SAME end value, deliberately:
 	 * the client sent a hover component and asked for that gesture, and half a record reads as
 	 * a mistake rather than as a hint. Identical declarations also mean there is no third
-	 * state and no cascade race — "playing and hovered" is exactly "playing" because there is
+	 * state and no cascade race, "playing and hovered" is exactly "playing" because there is
 	 * nothing to resolve. What separates the two is that the sounding one TURNS.
 	 *
 	 * `(hover: hover) and (pointer: fine)` because a touch latches `:hover` on tap, which
@@ -929,7 +927,7 @@
 	 * whole timeline rescales from this one value. */
 	.daw {
 		/* One year. Narrow enough that a seven-year arrangement fits the 72rem measure
-		 * without scrolling on a desktop — at 13rem the last three lanes started off-screen
+		 * without scrolling on a desktop, at 13rem the last three lanes started off-screen
 		 * and read as empty rows, which is authentic for a sequencer and useless for a
 		 * portfolio. */
 		--bar: 11rem;
@@ -1032,7 +1030,7 @@
 		display: flex;
 		gap: calc(var(--spacing) * 1.5);
 	}
-	/* Solo and mute. Spans, never buttons — see the component note. */
+	/* Solo and mute. Spans, never buttons, see the component note. */
 	.daw-switch {
 		display: inline-flex;
 		align-items: center;
@@ -1055,8 +1053,8 @@
 		position: absolute;
 		inset-block: calc(var(--spacing) * 3);
 		inset-inline-start: calc(var(--offset) * var(--bar));
-		/* Honest length, with a floor. Width means duration — three years really is three
-		 * times one — but a single-year clip at one bar leaves 128px for an Italian title,
+		/* Honest length, with a floor. Width means duration, three years really is three
+		 * times one, but a single-year clip at one bar leaves 128px for an Italian title,
 		 * and an unreadable clip is worse than a slightly generous one. The floor only ever
 		 * affects the shortest entries, so the proportion between the long ones survives. */
 		inline-size: max(calc(var(--length) * var(--bar) - var(--spacing) * 2), 12rem);
@@ -1132,9 +1130,9 @@
 	/* ---- the playhead -------------------------------------------------
 	 * Chunky blocks that fill as the Song plays, driven entirely by one custom
 	 * property. `--playhead` runs 0 to 1 and is written from an animation frame,
-	 * never from React state — `timeupdate` has no specified frequency, and a
+	 * never from React state, `timeupdate` has no specified frequency, and a
 	 * state write per frame would re-render the whole stack sixty times a second. */
-	/* Control, rail, times — the arrangement the client asked for, in this system.
+	/* Control, rail, times, the arrangement the client asked for, in this system.
 	 * Wraps at narrow widths so the times drop under the rail rather than squeezing it. */
 	.transport {
 		display: flex;
@@ -1148,7 +1146,7 @@
 	/* Below a wide desktop the rail takes a line of its own, with the button and the time
 	 * sharing the one above it.
 	 *
-	 * Measured: squeezed beside them at 768px the rail was 136px — eleven bars for a
+	 * Measured: squeezed beside them at 768px the rail was 136px, eleven bars for a
 	 * twenty-four second track, which is a bar chart rather than a waveform. Given the full
 	 * width it is 352px. Three rows was the other failure mode, and a grid gets both: two
 	 * rows, and the widest rail the card can give. */
@@ -1235,7 +1233,7 @@
 	 * keyboard user would tab to something with no visible state at all. */
 	/* `:has(:focus-visible)`, not `:focus-within`. A plain mouse click on the rail focuses
 	 * the range input inside it, and `:focus-within` painted a 3px ring round the whole
-	 * control — in `--ring`, which is `--blue`, on the one thing the client asked to have
+	 * control, in `--ring`, which is `--blue`, on the one thing the client asked to have
 	 * blue taken off. `:focus-visible` is the browser's own answer to "did this come from a
 	 * keyboard", and ink is what every other keyline on this card is. */
 	.transport-rail:has(:focus-visible) {
@@ -1276,38 +1274,6 @@
 		/* Interpolating would average the ordered dithering away, and the dithering is the
 		 * image. */
 		image-rendering: pixelated;
-	}
-	.cta-badge {
-		display: inline-flex;
-		align-items: center;
-		gap: calc(var(--spacing) * 2);
-		margin: 0;
-		padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
-		border: var(--border-brutal) solid var(--border);
-		background-color: var(--sheet);
-		color: var(--ink);
-		font-family: var(--font-mono);
-		font-size: 0.8125rem;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-	}
-	.cta-badge-light {
-		inline-size: 0.625rem;
-		block-size: 0.625rem;
-		background-color: var(--magenta);
-		border: 2px solid var(--border);
-	}
-	@media (prefers-reduced-motion: no-preference) {
-		.cta-badge-light {
-			/* Two steps, not a fade. A light is on or it is off, and easing it is the tell
-			 * that the animation came from somewhere else. */
-			animation: cta-blink 1.6s steps(1, end) infinite;
-		}
-	}
-	@keyframes cta-blink {
-		50% {
-			background-color: var(--sheet);
-		}
 	}
 	.cta-button {
 		display: inline-flex;
@@ -1370,7 +1336,7 @@
  * A hard arrival: opacity and a short translate, per section rather than per element.
  *
  * The base state carries no opacity and no transform, so a section is present and
- * readable when the animation never runs — with reduced motion, in a browser without
+ * readable when the animation never runs, with reduced motion, in a browser without
  * scroll-driven animations, or with the stylesheet half-loaded. Motion never gates
  * access to content.
  *
