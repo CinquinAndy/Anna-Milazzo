@@ -33,6 +33,14 @@ async function deliverByEmail(message: ContactMessage): Promise<boolean> {
 		return false
 	}
 
+	// Imported at call time, not at module load: the renderer pulls in react-dom/server and
+	// the whole component set, and a page that never sends an email should not pay for it.
+	const [{ render }, { ContactMessageEmail, contactMessageText }] = await Promise.all([
+		import('@react-email/render'),
+		import('@/emails/contact-message'),
+	])
+	const html = await render(<ContactMessageEmail message={message} />)
+
 	const response = await fetch(RESEND_SEND, {
 		method: 'POST',
 		headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
@@ -41,7 +49,10 @@ async function deliverByEmail(message: ContactMessage): Promise<boolean> {
 			to: [to],
 			reply_to: message.email,
 			subject: `Portfolio, messaggio da ${message.name}`,
-			text: `${message.name} <${message.email}>\n\n${message.message}`,
+			html,
+			// Both parts, always. A message with no text alternative scores worse with spam
+			// filters, and a portfolio whose contact form lands in junk has no contact form.
+			text: contactMessageText(message),
 		}),
 	})
 	return response.ok
