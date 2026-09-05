@@ -59,6 +59,11 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 	// Measured beside the waveform on upload: where the track's energy sits in the spectrum
 	// over its length, which is what gives each bar its colour.
 	const trackTone = typeof song.track === 'object' ? (song.track.tone ?? null) : null
+
+	// `Portrait` renders nothing for an upload that is missing or that came back as a bare
+	// id, and a record with no sleeve in front of it is a black circle sitting on the paper.
+	// Both or neither, decided from the same value.
+	const cover = song.cover !== null && song.cover !== undefined && typeof song.cover !== 'number' ? song.cover : null
 	// `reference` is a seed handle and a test selector, hidden from the admin — so every
 	// Song Anna creates herself has none. Falling back to the record id keeps the player
 	// present for those: gating on `reference` meant her own Songs arrived silently
@@ -80,9 +85,9 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 					    wallpaper; one that spins exactly when there is sound is the clearest
 					    "this is playing" signal there is, and it answers the complaint that you
 					    could not tell the control was a play control. */}
-					<Vinyl className="folder-disc" label="var(--lemon)" />
+					{cover === null ? null : <Vinyl className="folder-disc" label="var(--lemon)" />}
 					<Portrait
-						image={song.cover}
+						image={cover}
 						sizes="(min-width: 768px) 16rem, 70vw"
 						className="relative z-10 block w-full border-brutal border-border bg-sheet"
 					/>
