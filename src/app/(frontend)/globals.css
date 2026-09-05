@@ -1084,6 +1084,33 @@
 		gap: calc(var(--spacing) * 4);
 		flex-wrap: wrap;
 	}
+	/* Below a wide desktop the rail takes a line of its own, with the button and the time
+	 * sharing the one above it.
+	 *
+	 * Measured: squeezed beside them at 768px the rail was 136px — eleven bars for a
+	 * twenty-four second track, which is a bar chart rather than a waveform. Given the full
+	 * width it is 352px. Three rows was the other failure mode, and a grid gets both: two
+	 * rows, and the widest rail the card can give. */
+	@media (width < 64rem) {
+		.transport {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			grid-template-areas:
+				"play time"
+				"rail rail";
+			align-items: center;
+			gap: calc(var(--spacing) * 4);
+		}
+		.transport-play {
+			grid-area: play;
+		}
+		.transport-rail {
+			grid-area: rail;
+		}
+		.transport-time {
+			grid-area: time;
+		}
+	}
 
 	.transport-play {
 		flex: none;
@@ -1104,13 +1131,22 @@
 			transform 90ms cubic-bezier(0, 0, 0.58, 1),
 			box-shadow 90ms cubic-bezier(0, 0, 0.58, 1);
 	}
+	/* The shadow swap is unguarded on purpose: it is the press reading as a press, and it
+	 * moves nothing. The travel is motion, and this was the one thing in the transport that
+	 * moved for a visitor who had asked for less of it. */
 	.transport-play:hover {
-		transform: translate(-2px, -2px);
 		box-shadow: var(--shadow-lg);
 	}
 	.transport-play:active {
-		transform: translate(6px, 6px);
 		box-shadow: 0 0 0 0 var(--border);
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		.transport-play:hover {
+			transform: translate(-2px, -2px);
+		}
+		.transport-play:active {
+			transform: translate(6px, 6px);
+		}
 	}
 	.transport-icon {
 		display: block;
@@ -1124,7 +1160,10 @@
 	/* The rail is the stacking context: blocks underneath, the real control on top. */
 	.transport-rail {
 		position: relative;
-		flex: 1 1 12rem;
+		/* Basis matched to the minimum. At 12rem the row needed 296px inside a 287px card at
+		 * 375px, so it wrapped into three: the button alone on one line beside a void, the
+		 * rail on another, the time on a third. */
+		flex: 1 1 9rem;
 		min-inline-size: 9rem;
 		/* Taller than a progress bar needs to be, because it is not one: it is a histogram of
 		 * the whole track, and the difference between a quiet passage and a loud one needs
@@ -1133,8 +1172,13 @@
 	}
 	/* The range itself is transparent, so the focus ring has to belong to the rail or a
 	 * keyboard user would tab to something with no visible state at all. */
-	.transport-rail:focus-within {
-		outline: 3px solid var(--ring);
+	/* `:has(:focus-visible)`, not `:focus-within`. A plain mouse click on the rail focuses
+	 * the range input inside it, and `:focus-within` painted a 3px ring round the whole
+	 * control — in `--ring`, which is `--blue`, on the one thing the client asked to have
+	 * blue taken off. `:focus-visible` is the browser's own answer to "did this come from a
+	 * keyboard", and ink is what every other keyline on this card is. */
+	.transport-rail:has(:focus-visible) {
+		outline: 3px solid var(--ink);
 		outline-offset: 3px;
 	}
 

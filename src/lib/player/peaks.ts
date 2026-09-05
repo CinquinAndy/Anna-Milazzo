@@ -31,7 +31,7 @@ export const PEAK_RESOLUTION = 128
  * to end wherever the track goes quiet, and the seek input spans the whole rail whatever
  * the audio does.
  */
-const BAR_FLOOR = 8
+export const BAR_FLOOR = 8
 
 /**
  * Reduces decoded samples to `resolution` loudness readings, each 0–100.

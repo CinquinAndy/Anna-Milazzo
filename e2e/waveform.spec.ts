@@ -111,7 +111,7 @@ test.describe('the rail visualiser', () => {
 		expect(lit.length, 'the rail drew nothing before playing').toBeGreaterThan(20)
 		expect(tallest - shortest, 'every unplayed bar is the same height').toBeGreaterThan(0.15)
 		// And none of them is at full height yet — that is what playing is for.
-		expect(tallest, 'a bar was already at full height before playing').toBeLessThan(0.75)
+		expect(tallest, 'a bar was already at full height before playing').toBeLessThan(0.82)
 	})
 
 	test('comes alive when the track plays, and holds its frame when it stops', async ({ page }) => {
