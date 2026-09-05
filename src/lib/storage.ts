@@ -14,7 +14,7 @@ const PREFIXES = {
  * bottleneck for a page whose whole point is playing audio (ADR-0006).
  *
  * The collection's own prefix is the fallback. The stored `prefix` field is not present
- * on every write — an update that does not carry it, or a read with a `select` that omits
+ * on every write, an update that does not carry it, or a read with a `select` that omits
  * it, would otherwise rewrite the URL without its folder segment and 404 the file.
  */
 function publicFileURL(filename: string, prefix: string | undefined, fallback: string): string {
@@ -24,7 +24,7 @@ function publicFileURL(filename: string, prefix: string | undefined, fallback: s
 
 /**
  * Cloudflare R2 through the S3 API. Every option below is an R2 constraint, not a
- * preference — see the storage section of the spec.
+ * preference, see the storage section of the spec.
  */
 export const r2Storage = s3Storage({
 	collections: {
@@ -53,7 +53,7 @@ export const r2Storage = s3Storage({
 		region: process.env.S3_REGION ?? 'auto',
 		forcePathStyle: true,
 		// From v3.729.0 the AWS SDK sends CRC-32 full-object checksums by default, which
-		// R2 does not implement — every upload fails until these are turned down.
+		// R2 does not implement, every upload fails until these are turned down.
 		requestChecksumCalculation: 'WHEN_REQUIRED',
 		responseChecksumValidation: 'WHEN_REQUIRED',
 	},

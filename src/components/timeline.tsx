@@ -10,7 +10,7 @@ const CLIP_FILLS = ['bg-sheet', 'bg-lemon', 'bg-spring', 'bg-accent'] as const
  *
  * The concept was right the first time and the execution was not: a row of blocks on a
  * line is a Gantt chart, and a Gantt chart is the least memorable object in software. What
- * turns it into an arrangement is the chrome around the blocks — a ruler whose ticks have
+ * turns it into an arrangement is the chrome around the blocks, a ruler whose ticks have
  * a hierarchy, named track lanes in a gutter that stays put while the arrangement scrolls,
  * a playhead, and clips whose width is their duration rather than a uniform card size.
  * Three years at the conservatory is genuinely three times a one-year commission.
@@ -31,7 +31,7 @@ export function Timeline({ timeline, scrollLabel }: { timeline: Home['timeline']
 		return null
 	}
 
-	// The playhead parks where the most recent entry begins — "now" in her arrangement. The
+	// The playhead parks where the most recent entry begins, "now" in her arrangement. The
 	// ruler counts DOWN, so now is the smallest offset rather than the largest.
 	const playhead = Math.min(...arrangement.lanes.map(lane => lane.offset))
 	// Counted down from the last bar, so the leftmost year is the most recent one.
@@ -54,7 +54,7 @@ export function Timeline({ timeline, scrollLabel }: { timeline: Home['timeline']
 					{/* The arrangement scrolls inside its own container, never the page.
 					    `tabIndex` is what makes a scrollable region reachable without a pointer. */}
 					{/* biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region has to be
-					    reachable without a pointer — WCAG 2.1.1 — and `tabindex` is the only way to
+					    reachable without a pointer, WCAG 2.1.1, and `tabindex` is the only way to
 					    give a scroll container keyboard focus. */}
 					<section className="daw" tabIndex={0} aria-label={scrollLabel} data-timeline-scroller>
 						<div className="daw-grid">

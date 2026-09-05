@@ -62,16 +62,16 @@ describe('laying entries against one ruler', () => {
 
 	it('keeps two entries that end in the same year in the order they were written', () => {
 		const arrangement = arrange(
-			[{ period: '2024 — first' }, { period: '2024 — second' }, { period: '2019' }],
+			[{ period: '2024, first' }, { period: '2024, second' }, { period: '2019' }],
 			entry => entry.period
 		)
-		expect(arrangement?.lanes.map(lane => lane.entry.period)).toEqual(['2024 — first', '2024 — second', '2019'])
+		expect(arrangement?.lanes.map(lane => lane.entry.period)).toEqual(['2024, first', '2024, second', '2019'])
 	})
 
 	it('keeps an entry whose period has no year, and treats it as the most recent', () => {
 		const arrangement = arrange([{ period: '2019–2022' }, { period: 'in corso' }], entry => entry.period)
 		expect(arrangement?.lanes).toHaveLength(2)
-		// Placed after the last known bar, which on a reversed ruler is bar zero — the top
+		// Placed after the last known bar, which on a reversed ruler is bar zero, the top
 		// lane at the left edge, where something still going on belongs.
 		expect(arrangement?.lanes[0]).toEqual({ entry: { period: 'in corso' }, offset: 0, length: 1 })
 	})

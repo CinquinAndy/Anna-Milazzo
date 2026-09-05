@@ -9,7 +9,7 @@ import type { Home } from '@/payload-types'
  * Who Anna is, in her own words. Every string comes from Payload (ADR-0003).
  *
  * This section has been rebuilt three times and each rebuild was the client being right.
- * First a heading beside a paragraph — another line in a CV. Then the ground ruled as a
+ * First a heading beside a paragraph, another line in a CV. Then the ground ruled as a
  * musical stave, which was a second texture where the answer was not a texture at all. It
  * is now a colour field like every other section: green, the only surface in the palette
  * not already spoken for between the blue above and the lemon below, and separated from
@@ -17,7 +17,7 @@ import type { Home } from '@/payload-types'
  *
  * What was still wrong was that it held one card in a lot of empty green. The words Anna
  * has written are two sentences, and no amount of layout makes two sentences fill a screen.
- * So the section is furnished instead — a record, a cassette, a set of arcs, stars — and
+ * So the section is furnished instead, a record, a cassette, a set of arcs, stars, and
  * the card sits among them rather than alone in the middle. Every one of those objects is
  * decoration, and the section reads correctly with all of them deleted, which is the test
  * that keeps this layer additive rather than load-bearing.

@@ -5,8 +5,8 @@ All three are loaded with the `latin-ext` subset and Bricolage with its `opsz` a
 axes exposed.
 
 Recorded because the choice is driven by Italian, not by taste, and someone will
-otherwise swap it for something they like better. Short strings — which is nearly all of
-a brutalist portfolio, set very large — expand 200-300% from English to Italian per the
+otherwise swap it for something they like better. Short strings, which is nearly all of
+a brutalist portfolio, set very large, expand 200-300% from English to Italian per the
 IBM expansion table. A variable width axis is the only typographic lever that absorbs
 that at the same optical size; DM Sans, the theme's original choice, has no width axis,
 so the same text can only be paid for by shrinking the headline. DM Sans is also what

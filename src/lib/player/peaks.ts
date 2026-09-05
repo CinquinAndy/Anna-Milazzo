@@ -8,8 +8,7 @@ import type { Bar } from '@/lib/player/bars'
  * questions: what to store per track, and what to draw at a given width.
  *
  * Why RMS rather than peak. Measured on the five real tracks, peak amplitude puts the
- * median bucket at 0.83–0.98 of full scale with a dozen buckets pinned at exactly 1.0 —
- * a mastered track is loud nearly everywhere, so a peak reading draws a brick. RMS on the
+ * median bucket at 0.83–0.98 of full scale with a dozen buckets pinned at exactly 1.0, * a mastered track is loud nearly everywhere, so a peak reading draws a brick. RMS on the
  * same files lands the median at 0.63–0.76 with a floor around 0.07, which is the dynamic
  * range that makes a row of bars read as music rather than as a progress bar.
  */
@@ -18,7 +17,7 @@ import type { Bar } from '@/lib/player/bars'
  * How many buckets are stored per track.
  *
  * Above what any width draws, so the display always downsamples and never invents detail
- * it does not have. 128 numbers is roughly 400 bytes of JSON — small enough to travel with
+ * it does not have. 128 numbers is roughly 400 bytes of JSON, small enough to travel with
  * the page, which is the whole reason this is measured once on the server instead of in
  * every visitor's browser.
  */
@@ -39,7 +38,7 @@ export const BAR_FLOOR = 8
  * Normalised against the track's own loudest bucket rather than full scale, so a quietly
  * recorded piece draws the same shape a loud one does. That is a deliberate choice about
  * what the diagram is for: it shows the shape of THIS track, not how it compares to
- * another. The alternative — absolute scale — makes Anna's quieter studies look broken.
+ * another. The alternative, absolute scale, makes Anna's quieter studies look broken.
  */
 export function summarise(channels: readonly Float32Array[], sampleCount: number, resolution = PEAK_RESOLUTION) {
 	if (channels.length === 0 || sampleCount <= 0 || resolution <= 0) {
@@ -77,8 +76,7 @@ export function summarise(channels: readonly Float32Array[], sampleCount: number
  * every other bar came out under a quarter height and the waveform read as empty with a
  * spike. A click, a cough or a cymbal in Anna's own recording would do the same.
  *
- * Reading against a high percentile instead means the loud passages still reach the top —
- * anything above the reference simply clamps — while the body of the track uses the scale it
+ * Reading against a high percentile instead means the loud passages still reach the top, * anything above the reference simply clamps, while the body of the track uses the scale it
  * deserves. At 128 readings this is the sixth loudest.
  */
 const HEADROOM_PERCENTILE = 0.95
@@ -104,7 +102,7 @@ function normalise(readings: readonly number[]) {
  *
  * Taking the largest was the first attempt and it failed at exactly the width it mattered
  * at. Measured on the real tracks, folding 128 readings down to the 20 bars a phone has
- * room for put the MEDIAN bar at 99 and sent 14 of 20 past 95 — the diagram became a solid
+ * room for put the MEDIAN bar at 99 and sent 14 of 20 past 95, the diagram became a solid
  * block. Quadrature keeps the loud passages loud without dragging the quiet ones up with
  * them, and squaring still lets one loud reading dominate its bucket, so a transient is
  * felt rather than averaged away.
@@ -113,7 +111,7 @@ function normalise(readings: readonly number[]) {
  * loudest moment of a track should touch the top of the rail at any width.
  *
  * Windows can only be empty when asked for more buckets than are stored, and then the
- * nearest reading stands in — no interpolation, because inventing intermediate values would
+ * nearest reading stands in, no interpolation, because inventing intermediate values would
  * draw detail the measurement does not contain.
  */
 export function resample(peaks: readonly number[], count: number) {
@@ -146,7 +144,7 @@ export function resample(peaks: readonly number[], count: number) {
  * The rail used to draw a fixed 44 bars and hide whatever did not fit: measured, 9 of them
  * fell off the end at 375px. With an authored phrase that was cosmetic. With a waveform it
  * is a lie, because the last fifth of the track would be invisible while the playhead still
- * travels the full width — so the count follows the width instead.
+ * travels the full width, so the count follows the width instead.
  *
  * The lower bound is what the geometry allows: every bar carries two 2px keylines that
  * cannot shrink, plus a 2px gap, so a bar can never be narrower than 6px of rail.

@@ -1,8 +1,8 @@
-# Anna Milazzo — Portfolio
+# Anna Milazzo
 
 A bilingual portfolio for the composer and sound designer Anna Milazzo. Italian is the
-default language and English sits under `/en`; there are three pages — the landing page,
-contact, and legals — and every word of them is editable in the CMS.
+default language and English sits under `/en`; there are three pages (the landing
+page, contact, and legals) and every word of them is editable in the CMS.
 
 Next.js 16 with Payload 3 running inside the same application, Postgres for content,
 Cloudflare R2 for media and audio, Bun for scripts.
@@ -12,7 +12,7 @@ Cloudflare R2 for media and audio, Bun for scripts.
 ## Requirements
 
 - Bun ≥ 1.3
-- Node ≥ 20.9 — the Payload CLI runs on Node, not Bun, because Bun's runtime cannot
+- Node ≥ 20.9, the Payload CLI runs on Node, not Bun, because Bun's runtime cannot
   evaluate the lexical editor
 - A Postgres database
 - `ffmpeg`, only if you regenerate the placeholder audio
@@ -29,7 +29,7 @@ bun run dev
 The portfolio is at http://localhost:3000 and the Payload admin at
 http://localhost:3000/admin, where the first visit offers to create the first user.
 
-`bun run seed` fills the database with the placeholder content — five works, the timeline,
+`bun run seed` fills the database with the placeholder content, five works, the timeline,
 every string on the page in both languages. It is upsert-only and never deletes, because
 `DATABASE_URL` may well point at a shared database.
 
@@ -50,7 +50,7 @@ bottleneck for a page whose point is playing audio.
 
 > **A caching note.** Cloudflare caches that domain at the edge and ignores client
 > `Cache-Control`. Replacing a file under the same name leaves visitors on the old one until
-> the cache expires or is purged — worth knowing before Anna re-uploads a track.
+> the cache expires or is purged, worth knowing before Anna re-uploads a track.
 
 ---
 
@@ -69,8 +69,8 @@ Anna has not translated yet shows its Italian story under `/en` instead of a bla
 The distinctive part of this codebase. When a track is uploaded, it is decoded once on the
 server and measured twice:
 
-- **`peaks`** — 128 RMS readings, the waveform each Song's rail draws.
-- **`tone`** — 128 spectral-centroid readings, which give every bar in that rail its colour:
+- **`peaks`**, 128 RMS readings, the waveform each Song's rail draws.
+- **`tone`**, 128 spectral-centroid readings, which give every bar in that rail its colour:
   green where the sound is low, magenta where it is bright.
 
 Both are stored on the audio record and travel with the page, so the rail is correct on the
@@ -96,7 +96,7 @@ appears ([ADR-0004](docs/adr/0004-no-dark-mode.md)).
 
 Motion is quantised with `steps()` rather than eased, except where it depicts something
 physical. Every loop is declared inside `@media (prefers-reduced-motion: no-preference)` and
-never switched off afterwards — the usual `0.001ms` override does not stop scroll-driven
+never switched off afterwards, the usual `0.001ms` override does not stop scroll-driven
 animations.
 
 There is no component library, no `cn()`, no icon package and no motion library. Animation
@@ -115,7 +115,7 @@ uses them.
 | `bun run check` / `bun run format` | Biome, writing fixes / formatting only |
 | `bun run typecheck` | `tsc --noEmit` |
 | `bun run test` | Vitest, `src/tests/**/*.test.ts` |
-| `bun run test:e2e` | Playwright, `e2e/**/*.spec.ts` — needs a build first |
+| `bun run test:e2e` | Playwright, `e2e/**/*.spec.ts`, needs a build first |
 | `bun run validate` | The gate: lint, typecheck, unit tests, build, e2e |
 | `bun run migrate` | Apply pending migrations |
 | `bun run migrate:create <name>` | Generate a migration from the current Payload config |
@@ -136,14 +136,14 @@ Both are deterministic: a regenerated asset that differed from the committed one
 binary diff nobody could review.
 
 Migrations are deliberately their own script, run neither by `build` nor by `start`, so a
-deployment pipeline can call them at the point it chooses. `push` is off — schema changes
+deployment pipeline can call them at the point it chooses. `push` is off, schema changes
 always travel as a committed migration.
 
 ## Testing
 
 Unit tests cover the parts with real logic: the player's state machine, the audio analysis,
 the timeline's period parsing, the locale rules. End-to-end tests drive the built site and
-assert behaviour the unit tests cannot see — that the rail is drawn from each track's own
+assert behaviour the unit tests cannot see, that the rail is drawn from each track's own
 audio, that nothing overlaps the story at any width, that the page never scrolls sideways,
 that focus is visible on every control.
 
@@ -153,13 +153,12 @@ defects reading the source did not.
 
 ## Deployment
 
-Self-hosted on Coolify. There is deliberately no Dockerfile and no `output: 'standalone'` —
-the deployment shape is the operator's to choose, and this repository does not assume one.
+Self-hosted on Coolify. There is deliberately no Dockerfile and no `output: 'standalone'`, the deployment shape is the operator's to choose, and this repository does not assume one.
 Run `bun run migrate` before starting the new build.
 
 ## Where the decisions are written down
 
-- [`CONTEXT.md`](CONTEXT.md) — the domain language: what a Song, a Folder, a Recruiter mean here
-- [`docs/adr/`](docs/adr/) — the decisions that would otherwise be re-argued
-- [`docs/research/`](docs/research/) — primary-source research behind the visual direction
-- `.scratch/portfolio-v1/` — the original spec and tickets
+- [`CONTEXT.md`](CONTEXT.md), the domain language: what a Song, a Folder, a Recruiter mean here
+- [`docs/adr/`](docs/adr/), the decisions that would otherwise be re-argued
+- [`docs/research/`](docs/research/), primary-source research behind the visual direction
+- `.scratch/portfolio-v1/`, the original spec and tickets

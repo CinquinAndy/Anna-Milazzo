@@ -1,15 +1,15 @@
 /**
  * The ribbon sweeping across the foot of the hero, with records caught in it.
  *
- * Taken from the client's own reference — the vinyl shop whose hero is one enormous
- * multicolour band — after two background attempts that were both discrete shapes scattered
+ * Taken from the client's own reference, the vinyl shop whose hero is one enormous
+ * multicolour band, after two background attempts that were both discrete shapes scattered
  * in a field: concentric ripples, then a piano roll of small rectangles. The objection to
  * both was the same shape of idea, so this is a different shape of idea: one continuous
  * object, not a pattern.
  *
  * Built as an onion of strokes. One path, stroked eight times at decreasing widths,
  * alternating ink and colour. Each black stroke is 8 units wider than the colour laid on
- * top of it, so every band gets exactly 4 units of black on each edge — the keyline is not
+ * top of it, so every band gets exactly 4 units of black on each edge, the keyline is not
  * extra geometry, it is the stroke underneath. That is what lets a curved object obey a
  * system where every edge is a 4px black line.
  *
@@ -20,12 +20,12 @@
  * `preserveAspectRatio="xMidYMid slice"` is the whole of the responsive story: the viewBox
  * scales uniformly to cover and clips the overflow, like `object-fit: cover`. Stretching it
  * with `none` would thin the horizontal strokes, fatten the vertical ones and turn the
- * records into ellipses — which would break the one rule this design has. It also means the
+ * records into ellipses, which would break the one rule this design has. It also means the
  * records stay stuck to the band at every width, because the coordinate system is never
  * distorted.
  *
  * The viewBox is 1440 x 420 against a 420px-tall element, so one user unit is one CSS pixel
- * and the 4-unit keylines land at exactly 4px — the same width as every border on the page.
+ * and the 4-unit keylines land at exactly 4px, the same width as every border on the page.
  */
 
 /** ink first, then the colour laid inside it. Widths descend in pairs eight apart. */

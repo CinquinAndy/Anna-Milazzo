@@ -30,7 +30,7 @@ function meanOf(data: readonly number[], bands: number, band: number) {
 	return sum / frames
 }
 
-/** The analysis, or a failed test — never a silent undefined. */
+/** The analysis, or a failed test, never a silent undefined. */
 function analysed(channels: readonly Float32Array[], sampleCount: number, rate = RATE) {
 	const result = analyseSpectrum(channels, sampleCount, rate)
 	if (result === null) {
@@ -52,7 +52,7 @@ describe('bandEdges', () => {
 
 	it('gives the low octaves more bands than a logarithmic scale would', () => {
 		// Mel is nearly linear below 1 kHz. Half the range in Hz terms sits low down, which is
-		// where the melody is — and is what keeps the bottom bands more than one bin wide.
+		// where the melody is, and is what keeps the bottom bands more than one bin wide.
 		const edges = bandEdges(20, 40, 16000)
 		const belowOneK = edges.filter(hz => hz < 1000).length
 		expect(belowOneK).toBeGreaterThanOrEqual(6)

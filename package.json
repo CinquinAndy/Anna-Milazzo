@@ -2,7 +2,7 @@
 	"name": "anna-milazzo",
 	"version": "0.1.0",
 	"private": true,
-	"description": "Portfolio of Anna Milazzo — Italian at /, English at /en.",
+	"description": "Portfolio of Anna Milazzo, Italian at /, English at /en.",
 	"type": "module",
 	"packageManager": "bun@1.3.14",
 	"engines": {

@@ -1,14 +1,14 @@
 /**
  * Generates the placeholder sleeves in `fixtures/`.
  *
- * Run by hand — `bun run src/seed/make-covers.ts`. Rasterised with sharp, which is already
+ * Run by hand, `bun run src/seed/make-covers.ts`. Rasterised with sharp, which is already
  * a dependency of Payload, so this adds nothing to the project.
  *
  * WHY THESE EXIST. The first placeholders were flat single-colour squares, which is what a
  * cover looks like when it has failed to load rather than what one looks like before it has
  * been made. These are unmistakably provisional and still composed: printer's crop marks at
  * the corners say "artwork not final" in the one language every designer reads, and inside
- * them is the page's own vocabulary — an onion of quarter-arcs, flat fills inside black
+ * them is the page's own vocabulary, an onion of quarter-arcs, flat fills inside black
  * keylines, nothing that is a drawing of an object.
  *
  * Anna's own artwork replaces these. Nothing here is meant to survive her.

@@ -106,7 +106,7 @@ export default function SpecimenPage() {
 					const Tag = `h${level}` as 'h1'
 					return (
 						<div key={level} style={{ marginBlockEnd: '1.5rem' }}>
-							<Tag data-heading={level}>Anna Milazzo — compositrice</Tag>
+							<Tag data-heading={level}>Anna Milazzo, compositrice</Tag>
 							<code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>h{level}</code>
 						</div>
 					)
@@ -245,7 +245,7 @@ export default function SpecimenPage() {
 								fontSize: '0.75rem',
 							}}
 						>
-							hover — lifts, shadow grows
+							hover, lifts, shadow grows
 						</code>
 					</span>
 					<span>
@@ -260,7 +260,7 @@ export default function SpecimenPage() {
 								fontSize: '0.75rem',
 							}}
 						>
-							press — into the shadow, collapsed
+							press, into the shadow, collapsed
 						</code>
 					</span>
 				</div>

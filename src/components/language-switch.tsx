@@ -10,8 +10,8 @@ const LOCALE_NAMES: Record<Locale, string> = {
  * Switches the Portfolio between Italian and English, landing on the same page.
  *
  * The current path arrives as a prop rather than from `usePathname`. Under the proxy's
- * rewrite, a prerendered page reads the rewritten path — `/it/contact` rather than
- * `/contact` — and a switch built on it would link to `/en/it/contact`. Being told the
+ * rewrite, a prerendered page reads the rewritten path, `/it/contact` rather than
+ * `/contact`, and a switch built on it would link to `/en/it/contact`. Being told the
  * path keeps this a Server Component with no client JavaScript and no hydration risk.
  *
  * @param path   the locale-free canonical path of the current page: `/`, `/contact`, `/legal`

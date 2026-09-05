@@ -1,4 +1,4 @@
-# Payload + Next.js i18n + Coolify — primary-source research
+# Payload + Next.js i18n + Coolify, primary-source research
 
 Research date: **2026-09-03**. All version numbers verified against the npm registry and the
 payloadcms/payload repo at tag `v3.88.0` on that date.
@@ -7,15 +7,15 @@ payloadcms/payload repo at tag `v3.88.0` on that date.
 
 ## Summary
 
-1. **Payload is at v3.88.0** (published 2026-08-11), with `4.0.0-canary.31` in flight (2026-09-02) — build on v3 ([source](https://registry.npmjs.org/payload)).
-2. **Payload runs *inside* your Next.js app**, not as a separate service — it installs as a `(payload)` route group under `src/app/` plus a `withPayload()` wrapper in `next.config` ([source](https://github.com/payloadcms/payload/tree/v3.88.0/templates/blank)).
-3. **Next.js version is not free choice.** `@payloadcms/next@3.88.0` pins `next` to `>=15.2.9 <15.3.0 || >=15.3.9 <15.4.0 || >=15.4.11 <15.5.0 || >=16.2.6 <17.0.0` — Next 15.5.x, 16.0.x, 16.1.x and 16.2.0–16.2.5 are all **excluded** ([source](https://registry.npmjs.org/@payloadcms/next)).
-4. **Pin `next@16.3.4`** (latest, 2026-08-31): it satisfies Payload's range *and* clears two critical RCE advisories that affect everything `<16.3.3` ([source](https://github.com/advisories/GHSA-2xp9-vwfh-vxw4)). Payload's own blank template still pins `16.3.0` — do not copy that.
+1. **Payload is at v3.88.0** (published 2026-08-11), with `4.0.0-canary.31` in flight (2026-09-02), build on v3 ([source](https://registry.npmjs.org/payload)).
+2. **Payload runs *inside* your Next.js app**, not as a separate service, it installs as a `(payload)` route group under `src/app/` plus a `withPayload()` wrapper in `next.config` ([source](https://github.com/payloadcms/payload/tree/v3.88.0/templates/blank)).
+3. **Next.js version is not free choice.** `@payloadcms/next@3.88.0` pins `next` to `>=15.2.9 <15.3.0 || >=15.3.9 <15.4.0 || >=15.4.11 <15.5.0 || >=16.2.6 <17.0.0`, Next 15.5.x, 16.0.x, 16.1.x and 16.2.0–16.2.5 are all **excluded** ([source](https://registry.npmjs.org/@payloadcms/next)).
+4. **Pin `next@16.3.4`** (latest, 2026-08-31): it satisfies Payload's range *and* clears two critical RCE advisories that affect everything `<16.3.3` ([source](https://github.com/advisories/GHSA-2xp9-vwfh-vxw4)). Payload's own blank template still pins `16.3.0`, do not copy that.
 5. **Payload has two separate i18n systems**: `localization` (content data, per-field `localized: true`) and `i18n` (admin panel chrome). They are configured independently and the docs draw the line explicitly ([source](https://payloadcms.com/docs/configuration/localization)).
-6. **Payload localization is field-level, not document-level** — a `localized: true` field stores an object keyed by locale, and you read one locale with `payload.find({ locale: 'fr' })` / `?locale=fr` ([source](https://payloadcms.com/docs/configuration/localization)).
-7. **French admin UI ships in the box** — `@payloadcms/translations/languages/fr` is one of 45 bundled languages at v3.88.0 ([source](https://github.com/payloadcms/payload/tree/v3.88.0/packages/translations/src/languages)).
-8. **Next.js's own i18n docs recommend hand-rolled dictionaries + `[lang]` + `proxy.ts`**, with `next/root-params` (new in 16.3.0) as the way to read the locale without prop-drilling — no library required ([source](https://nextjs.org/docs/app/guides/internationalization)).
-9. **`middleware.ts` is renamed `proxy.ts` in Next 16** and deprecated under the old name — anything you read about "next-intl middleware" needs translating ([source](https://nextjs.org/docs/app/api-reference/file-conventions/proxy)).
+6. **Payload localization is field-level, not document-level**, a `localized: true` field stores an object keyed by locale, and you read one locale with `payload.find({ locale: 'fr' })` / `?locale=fr` ([source](https://payloadcms.com/docs/configuration/localization)).
+7. **French admin UI ships in the box**, `@payloadcms/translations/languages/fr` is one of 45 bundled languages at v3.88.0 ([source](https://github.com/payloadcms/payload/tree/v3.88.0/packages/translations/src/languages)).
+8. **Next.js's own i18n docs recommend hand-rolled dictionaries + `[lang]` + `proxy.ts`**, with `next/root-params` (new in 16.3.0) as the way to read the locale without prop-drilling, no library required ([source](https://nextjs.org/docs/app/guides/internationalization)).
+9. **`middleware.ts` is renamed `proxy.ts` in Next 16** and deprecated under the old name, anything you read about "next-intl middleware" needs translating ([source](https://nextjs.org/docs/app/api-reference/file-conventions/proxy)).
 10. **The `(payload)` + `[lang]` route-group collision is solvable** via Next's documented multiple-root-layouts pattern; the only hard requirement is that the proxy matcher exclude `/admin` and `/api` ([source](https://nextjs.org/docs/app/api-reference/functions/next-root-params#multiple-root-layouts)).
 11. **Local-disk media on Coolify needs an explicit persistent volume**; Payload's default `staticDir` is a folder relative to your config, which lives inside the container filesystem and is wiped on redeploy ([source](https://coolify.io/docs/knowledge-base/persistent-storage)).
 12. **Coolify's own Next.js example is booby-trapped**: it ships a standalone-output Dockerfile with a `next.config.mjs` that never sets `output: 'standalone'` ([source](https://github.com/coollabsio/coolify-examples/tree/main/nextjs/ssr)).
@@ -38,7 +38,7 @@ payloadcms/payload repo at tag `v3.88.0` on that date.
 
 ### Does it run in the same Next app?
 
-Yes — this is the defining change in Payload 3. The docs put it plainly: *"Payload runs fully in Next.js, so the [Next.js build process] is used for building Payload"* ([source](https://github.com/payloadcms/payload/blob/v3.88.0/docs/production/deployment.mdx)). There is no separate Express server, no separate port, no separate deploy target. One container, one process.
+Yes, this is the defining change in Payload 3. The docs put it plainly: *"Payload runs fully in Next.js, so the [Next.js build process] is used for building Payload"* ([source](https://github.com/payloadcms/payload/blob/v3.88.0/docs/production/deployment.mdx)). There is no separate Express server, no separate port, no separate deploy target. One container, one process.
 
 ### The `(payload)` route group pattern
 
@@ -52,7 +52,7 @@ src/
       page.tsx
       styles.css
     (payload)/
-      layout.tsx          # root layout #2  (admin chrome) — GENERATED
+      layout.tsx          # root layout #2  (admin chrome), GENERATED
       custom.css
       admin/
         [[...segments]]/
@@ -60,7 +60,7 @@ src/
           not-found.tsx   # GENERATED
         importMap.js      # GENERATED by `payload generate:importmap`
       api/
-        [...slug]/route.ts        # GENERATED — REST
+        [...slug]/route.ts        # GENERATED, REST
         graphql/route.ts          # GENERATED
         graphql-playground/route.ts
   collections/
@@ -69,10 +69,10 @@ src/
 
 Every file marked GENERATED carries the header
 `/* THIS FILE WAS GENERATED AUTOMATICALLY BY PAYLOAD. */ /* DO NOT MODIFY IT ... */`.
-`(payload)/layout.tsx` is a full root layout — it renders Payload's `RootLayout` and wires a
+`(payload)/layout.tsx` is a full root layout, it renders Payload's `RootLayout` and wires a
 `'use server'` `handleServerFunctions` bridge ([source](https://github.com/payloadcms/payload/blob/v3.88.0/templates/blank/src/app/(payload)/layout.tsx)).
 
-**This means the app has two root layouts and no `app/layout.tsx`** — the documented Next.js
+**This means the app has two root layouts and no `app/layout.tsx`**, the documented Next.js
 "multiple root layouts" pattern: *"remove the top-level `layout.js` file, and add a `layout.js` file
 inside each route group... The `<html>` and `<body>` tags need to be added to each root layout"*
 ([source](https://nextjs.org/docs/app/getting-started/project-structure#creating-multiple-root-layouts)).
@@ -110,10 +110,10 @@ const nextConfig: NextConfig = {
 export default withPayload(nextConfig, { devBundleServerPackages: false })
 ```
 
-Note the config carries **both** a `webpack` key and a `turbopack` key — Next 16 defaults to
+Note the config carries **both** a `webpack` key and a `turbopack` key, Next 16 defaults to
 Turbopack, and the `webpack` block is there for the fallback path.
 
-### Next.js compatibility — the important part
+### Next.js compatibility, the important part
 
 `@payloadcms/next@3.88.0` peer dependencies ([source](https://registry.npmjs.org/@payloadcms/next)):
 
@@ -125,7 +125,7 @@ Turbopack, and the `webpack` block is there for the fallback path.
 }
 ```
 
-Two things to notice. First, `payload` is pinned to the **exact** matching version — Payload
+Two things to notice. First, `payload` is pinned to the **exact** matching version, Payload
 packages must be upgraded in lockstep. Second, the `next` range is a set of security-patched
 windows, not a normal semver range. **Next 15.5.x is excluded entirely**, as are 16.0.x, 16.1.x and
 16.2.0–16.2.5.
@@ -139,7 +139,7 @@ How the range evolved ([source](https://registry.npmjs.org/@payloadcms/next)):
 | 3.73.0 | 2026-01-23 | `^15.4.10 \|\| >=16.1.1-canary.35 <16.2.0 \|\| ^16.2.0` ← Next 16 first admitted |
 | 3.76.0 | 2026-02-09 | narrowed to the security-window form |
 | 3.85.0 | 2026-05-26 | `... \|\| >=16.2.6 <17.0.0` ← current |
-| 4.0.0-canary.0 | 2026-06-04 | `>=16.2.6 <17.0.0` — Next 16 **only** |
+| 4.0.0-canary.0 | 2026-06-04 | `>=16.2.6 <17.0.0`, Next 16 **only** |
 
 Historical context, now superseded: in discussion #14544 (against v3.63.0) a Payload collaborator
 wrote *"We don't guarantee Next.js 16 support yet, which is why we haven't bumped the peer
@@ -156,8 +156,8 @@ or to `--force` past a peer warning is stale.
 ([source](https://github.com/payloadcms/payload/blob/v3.88.0/templates/blank/package.json)). Two
 critical advisories published 2026-08-25 cover Next `< 16.3.3`:
 
-- GHSA-2xp9-vwfh-vxw4 — *"Unauthenticated Remote Code Execution in Image Optimization API when AVIF files are used"*, vulnerable `< 16.3.3` ([source](https://github.com/advisories/GHSA-2xp9-vwfh-vxw4))
-- GHSA-p293-qw3h-jr36 — *"Unauthenticated Remote Code Execution on windows-hosted servers"*, vulnerable `>= 16.0 < 16.3.3` ([source](https://github.com/advisories/GHSA-p293-qw3h-jr36))
+- GHSA-2xp9-vwfh-vxw4, *"Unauthenticated Remote Code Execution in Image Optimization API when AVIF files are used"*, vulnerable `< 16.3.3` ([source](https://github.com/advisories/GHSA-2xp9-vwfh-vxw4))
+- GHSA-p293-qw3h-jr36, *"Unauthenticated Remote Code Execution on windows-hosted servers"*, vulnerable `>= 16.0 < 16.3.3` ([source](https://github.com/advisories/GHSA-p293-qw3h-jr36))
 
 Also relevant to this project specifically: GHSA-6gpp-xcg3-4w24, *"Middleware / Proxy bypass in App
 Router applications using Turbopack and single locale"*, high severity, vulnerable `>= 16.0.0 <
@@ -206,7 +206,7 @@ localization: {
 | `locales` | Array of supported languages. Strings or locale objects. *"The locale codes do not need to be in any specific format."* Common patterns are ISO 639 two-letter or `en-US`-style four-letter codes. |
 | `defaultLocale` | Required, must match one of the codes. *"By default, if no locale is specified, documents will be returned in this locale."* |
 | `fallback` | Boolean, **true by default**. *"If a document is requested in a locale, but a field does not have a localized value corresponding to the requested locale, then if this property is enabled, the document will automatically fall back to the fallback locale value."* |
-| `filterAvailableLocales` | Server-side `async ({ req, locales }) => locales` — filters what appears in the admin locale selector. Aimed at multi-tenant setups. Note the caveat: *"the filtering happens at the root level of the application and its result is not calculated every time you navigate to a new page"*, so you may need `router.refresh`. |
+| `filterAvailableLocales` | Server-side `async ({ req, locales }) => locales`, filters what appears in the admin locale selector. Aimed at multi-tenant setups. Note the caveat: *"the filtering happens at the root level of the application and its result is not calculated every time you navigate to a new page"*, so you may need `router.refresh`. |
 
 Locale object keys: `code` (required), `label` (string, or an object keyed by i18n language),
 `rtl` (boolean), `fallbackLocale` (a code or array of codes)
@@ -214,7 +214,7 @@ Locale object keys: `code` (required), `label` (string, or an object keyed by i1
 
 ### Localization is per-FIELD, not per-document
 
-> *"Payload Localization works on a **field** level—not a document level."*
+> *"Payload Localization works on a **field** level, not a document level."*
 > ([source](https://payloadcms.com/docs/configuration/localization))
 
 ```js
@@ -258,7 +258,7 @@ const payload = await getPayload({ config })
 ```
 
 The docs note the Local API *"is incredibly powerful when used in React Server Components"* because
-there is no network hop — and that `overrideAccess` defaults to **true** in the Local API, i.e.
+there is no network hop, and that `overrideAccess` defaults to **true** in the Local API, i.e.
 access control is skipped by default. For a public landing page that's convenient but worth knowing.
 
 **REST** ([source](https://payloadcms.com/docs/configuration/localization)):
@@ -324,11 +324,11 @@ export const Articles: CollectionConfig = {
 }
 ```
 
-Note this is the *admin* language key (`i18n`), not the content locale — easy to confuse.
+Note this is the *admin* language key (`i18n`), not the content locale, easy to confuse.
 
 ### C. Also available
 
-**Globals** are the natural fit for a landing page's editable fields — *"the primary way to structure
+**Globals** are the natural fit for a landing page's editable fields, *"the primary way to structure
 singletons in Payload, such as a header navigation, site-wide banner alerts, or app-wide localized
 strings"* ([source](https://payloadcms.com/docs/configuration/globals)). Read via
 `payload.findGlobal({ slug, locale })`; REST is `GET /api/globals/{slug}`. Globals support
@@ -378,7 +378,7 @@ export const config = { matcher: ['/((?!_next).*)'] }
 
 3. **Nest everything under `app/[lang]/`**: *"ensure all special files inside `app/` are nested under `app/[lang]`."*
 
-4. **Dictionaries** — plain JSON + a `server-only` loader:
+4. **Dictionaries**, plain JSON + a `server-only` loader:
 
 ```ts
 // app/[lang]/dictionaries.ts
@@ -411,11 +411,11 @@ export async function generateStaticParams() {
 ```
 
 The guide lists `next-intl`, `next-international`, `next-i18n-router`, `paraglide-next`, `lingui`,
-`tolgee`, `next-intlayer`, `gt-next` under "Resources" — as options, not as a recommendation.
+`tolgee`, `next-intlayer`, `gt-next` under "Resources", as options, not as a recommendation.
 
 ### Two Next 16 changes that invalidate most tutorials
 
-**`middleware.ts` → `proxy.ts`.** Version history: *"`v16.0.0` — Middleware is deprecated and renamed
+**`middleware.ts` → `proxy.ts`.** Version history: *"`v16.0.0`, Middleware is deprecated and renamed
 to Proxy. Proxy defaults to the Node.js runtime"*
 ([source](https://nextjs.org/docs/app/api-reference/file-conventions/proxy)). The rationale, verbatim:
 *"the term 'middleware' can often be confused with Express.js middleware."* Codemod:
@@ -434,7 +434,7 @@ export default async function RootLayout(props: LayoutProps<'/[lang]'>) {
 
 Restrictions, all explicit in the docs: Server Components only (build error in Client Components);
 **not** in Server Actions; **not** in Route Handlers ("planned for a future release"); **not** inside
-`unstable_cache` (throws — use `"use cache"`); kebab-case segment names like `[post-slug]` are
+`unstable_cache` (throws, use `"use cache"`); kebab-case segment names like `[post-slug]` are
 unsupported and error.
 
 ### next-intl / next-international
@@ -444,8 +444,8 @@ unsupported and error.
 | `next-intl` | **4.14.2** | 2026-09-01 ([source](https://registry.npmjs.org/next-intl)) |
 | `next-international` | 1.3.1 | **2024-10-31** ([source](https://registry.npmjs.org/next-international)) |
 
-`next-intl@4.14.2` declares `next: "^12 || ^13 || ^14 || ^15 || ^16"` — Next 16 supported.
-`next-international` has not shipped in ~22 months; treat it as unmaintained for a Next 16 project. **INFERRED** from publish date alone — no deprecation notice was found.
+`next-intl@4.14.2` declares `next: "^12 || ^13 || ^14 || ^15 || ^16"`, Next 16 supported.
+`next-international` has not shipped in ~22 months; treat it as unmaintained for a Next 16 project. **INFERRED** from publish date alone, no deprecation notice was found.
 
 next-intl's current App Router setup ([source](https://next-intl.dev/docs/getting-started/app-router/with-i18n-routing)):
 
@@ -484,11 +484,11 @@ older `setRequestLocale` API that *"it is recommended to use `next/root-params` 
 
 ### Where the two systems overlap and could conflict
 
-**Overlap 1 — two locale lists.** Payload's `localization.locales` and next-intl's (or your
+**Overlap 1, two locale lists.** Payload's `localization.locales` and next-intl's (or your
 dictionary's) `locales` are separate registries. Nothing keeps them in sync. Adding a third language
-means editing both. **INFERRED** — no doc addresses cross-syncing; derive one from the other in code.
+means editing both. **INFERRED**, no doc addresses cross-syncing; derive one from the other in code.
 
-**Overlap 2 — proxy matcher vs `/admin` and `/api`.** Payload owns `/admin/**`, `/api/**`, and
+**Overlap 2, proxy matcher vs `/admin` and `/api`.** Payload owns `/admin/**`, `/api/**`, and
 `/api/graphql*`. A locale proxy with the naive matcher `'/((?!_next).*)'` from the Next.js guide will
 redirect `/admin` → `/en/admin` and break the admin panel and the REST API. next-intl's default
 matcher already excludes `api` and `_next` but **not** `admin`
@@ -507,22 +507,22 @@ handled as POST requests to the route where they are used, so a Proxy matcher th
 will also skip Proxy coverage"*
 ([source](https://nextjs.org/docs/app/api-reference/file-conventions/proxy)).
 
-**Overlap 3 — route groups + root layouts.** This is the one that looks like a blocker and isn't.
+**Overlap 3, route groups + root layouts.** This is the one that looks like a blocker and isn't.
 The layout becomes:
 
 ```
 src/app/
   (frontend)/
     [lang]/
-      layout.tsx      # root layout — <html lang>, dictionaries
+      layout.tsx      # root layout, <html lang>, dictionaries
       page.tsx
   (payload)/
-    layout.tsx        # root layout — Payload admin
+    layout.tsx        # root layout, Payload admin
     admin/…  api/…
 ```
 
 Route groups are not URL segments, so `[lang]` *is* the only path segment above
-`(frontend)/[lang]/layout.tsx` — it therefore qualifies as a root parameter. The docs cover exactly
+`(frontend)/[lang]/layout.tsx`, it therefore qualifies as a root parameter. The docs cover exactly
 this shape under "Multiple root layouts", using `app/dashboard/[id]/layout.tsx` +
 `app/marketing/layout.tsx`: *"When an application has multiple root layouts with different
 parameters, getter functions are typed to account for usage in any of all possible routes. A
@@ -530,11 +530,11 @@ parameter that does not exist in every root layout has the type `string | undefi
 ([source](https://nextjs.org/docs/app/api-reference/functions/next-root-params#multiple-root-layouts)).
 So `await lang()` types as `string | undefined` because `(payload)` has no `[lang]`. Handle the
 `undefined` branch; nothing else breaks. **INFERRED** that this composes cleanly with Payload
-specifically — Payload's docs do not discuss it, but the Next.js semantics are unambiguous.
+specifically, Payload's docs do not discuss it, but the Next.js semantics are unambiguous.
 
-**Overlap 4 — admin language vs site locale.** Payload's `i18n` picks the admin chrome language from
+**Overlap 4, admin language vs site locale.** Payload's `i18n` picks the admin chrome language from
 the request / user preference; your proxy picks the site locale from the URL prefix. They are
-independent and *should* stay independent — an editor can browse the FR site while using the EN
+independent and *should* stay independent, an editor can browse the FR site while using the EN
 admin. Community reports describe conflicts when people try to unify them
 ([source](https://github.com/payloadcms/payload/discussions/4004)). Don't.
 
@@ -585,7 +585,7 @@ db: sqliteAdapter({
 
 Uses *"Drizzle ORM and `libSQL`"*. Options: `push`, `migrationDir`, `idType` (`'number'` | `'uuid'`),
 `wal` (write-ahead logging), `blocksAsJSON`, `autoIncrement`. The docs do **not** explicitly document
-a local `file:` path form for `client.url` — that's a libSQL convention, not a Payload-documented one.
+a local `file:` path form for `client.url`, that's a libSQL convention, not a Payload-documented one.
 **INFERRED / verify before committing.**
 
 Also documented, less relevant here: Payload works with *"any Postgres database or MongoDB-compatible
@@ -600,7 +600,7 @@ Can be either an absolute path or relative to the directory that contains your c
 your collection slug"*
 ([source](https://github.com/payloadcms/payload/blob/v3.88.0/docs/upload/overview.mdx)).
 
-**What breaks on ephemeral containers** — the docs are blunt
+**What breaks on ephemeral containers**, the docs are blunt
 ([source](https://github.com/payloadcms/payload/blob/v3.88.0/docs/production/deployment.mdx)):
 
 > *"Some cloud app hosts such as Heroku use `ephemeral` file systems, which means that any files
@@ -612,7 +612,7 @@ your collection slug"*
 
 Providers listed as ephemeral: Heroku, DigitalOcean Apps. Persistent: DigitalOcean Droplets, Amazon
 EC2, "many other more traditional web hosts". **A Coolify container on a VPS is ephemeral per
-deploy unless you attach a volume** — the image is rebuilt and replaced on every push. **INFERRED**
+deploy unless you attach a volume**, the image is rebuilt and replaced on every push. **INFERRED**
 from Coolify's build model; see §5.
 
 **Storage adapters** ([source](https://payloadcms.com/docs/upload/storage-adapters)):
@@ -638,7 +638,7 @@ plugins: [
 ```
 
 The S3 adapter is S3-API based, so any S3-compatible endpoint (Hetzner, Scaleway, Backblaze B2,
-MinIO, DO Spaces) works via `config.endpoint` — that's the AWS SDK `S3ClientConfig`, which the docs
+MinIO, DO Spaces) works via `config.endpoint`, that's the AWS SDK `S3ClientConfig`, which the docs
 pass through, though they only show `credentials` and `region`. **INFERRED.**
 
 The docs also suggest the pragmatic split: *"For local development, it might be handy to simply store
@@ -669,7 +669,7 @@ attacks to crack. Make sure your Production `secret` is a long, complex string."
 
 `NEXT_PUBLIC_SERVER_URL` is **not** in the blank template's `.env.example`. Payload has a `serverURL`
 config option instead. If you need an absolute origin (sitemap, OG images, `Link` canonicals) you add
-that variable yourself — and because it is `NEXT_PUBLIC_`, it is inlined at **build** time, which
+that variable yourself, and because it is `NEXT_PUBLIC_`, it is inlined at **build** time, which
 matters for Coolify (§5). **INFERRED.**
 
 Other production notes from the deployment doc: enable secure cookies behind SSL; *"double and
@@ -679,7 +679,7 @@ without DB access ([source](https://github.com/payloadcms/payload/blob/v3.88.0/d
 
 ### Official Docker setup
 
-Yes — `templates/blank/Dockerfile` and `templates/blank/docker-compose.yml` ship in the repo, and the
+Yes, `templates/blank/Dockerfile` and `templates/blank/docker-compose.yml` ship in the repo, and the
 deployment doc reproduces the Dockerfile as *"an example of a multi-stage docker build of Payload for
 production."*
 
@@ -706,8 +706,7 @@ CMD HOSTNAME="0.0.0.0" node server.js
 ```
 
 > ⚠️ The template's own `next.config.ts` does **not** set `output: 'standalone'`
-> ([source](https://github.com/payloadcms/payload/blob/v3.88.0/templates/blank/next.config.ts)) —
-> the Dockerfile's leading comment says *"To use this Dockerfile, you have to set `output:
+> ([source](https://github.com/payloadcms/payload/blob/v3.88.0/templates/blank/next.config.ts)), > the Dockerfile's leading comment says *"To use this Dockerfile, you have to set `output:
 > 'standalone'` in your next.config.mjs file."* You must add it.
 
 The `docker-compose.yml` is dev-oriented (mounts the source, runs `pnpm dev`, ships a Mongo service
@@ -724,14 +723,14 @@ mongodb://mongo/my-db-name"*
 Four, and *"Coolify deploys every application as a Docker container"*
 ([source](https://coolify.io/docs/applications/build-packs)):
 
-- **Nixpacks** — auto-generates a Dockerfile from your repo. The default selection.
-- **Static** — Nginx-served static output.
-- **Dockerfile** — your own. *"complete control over how your application is built and deployed"* ([source](https://coolify.io/docs/applications/build-packs/dockerfile)).
-- **Docker Compose** — multi-service.
+- **Nixpacks**, auto-generates a Dockerfile from your repo. The default selection.
+- **Static**, Nginx-served static output.
+- **Dockerfile**, your own. *"complete control over how your application is built and deployed"* ([source](https://coolify.io/docs/applications/build-packs/dockerfile)).
+- **Docker Compose**, multi-service.
 
 The Next.js page documents both paths ([source](https://coolify.io/docs/applications/nextjs)):
 
-> **Deploy with Nixpacks — Server build (NodeJS):** *"Set `Build Pack` to `nixpacks`."* That is the
+> **Deploy with Nixpacks, Server build (NodeJS):** *"Set `Build Pack` to `nixpacks`."* That is the
 > entire instruction.
 >
 > **Deploy with Dockerfile:** *"If you are having problems with Nixpacks or want more control over the
@@ -744,7 +743,7 @@ and the default exposed port is 3000 ([source](https://coolify.io/docs/applicati
 
 **Recommendation for this project: Dockerfile.** Payload's own production Dockerfile already exists,
 it handles standalone output, and it sidesteps Nixpacks having to guess a Node version and a
-package manager for a pnpm + sharp + Payload build. **INFERRED** — Coolify's docs express no
+package manager for a pnpm + sharp + Payload build. **INFERRED**, Coolify's docs express no
 preference beyond "if you are having problems with Nixpacks."
 
 ### The standalone-output gotcha
@@ -758,9 +757,7 @@ repo contradicts itself: `nextjs/ssr/Dockerfile` is the standalone multi-stage b
 /** @type {import('next').NextConfig} */
 const nextConfig = {};
 export default nextConfig;
-```
-
-— no `output` key ([source](https://github.com/coollabsio/coolify-examples/tree/main/nextjs/ssr)).
+```, no `output` key ([source](https://github.com/coollabsio/coolify-examples/tree/main/nextjs/ssr)).
 Following that example verbatim produces a build where `.next/standalone` never exists and the
 `COPY` fails. Set `output: 'standalone'` in `next.config.ts` yourself.
 
@@ -768,7 +765,7 @@ Related: `HOSTNAME="0.0.0.0"` in the CMD is not optional in a container, and Coo
 `HOST` variable *"defaults to `0.0.0.0`"*
 ([source](https://coolify.io/docs/knowledge-base/environment-variables)).
 
-### Environment variables — build vs runtime
+### Environment variables, build vs runtime
 
 Coolify models this explicitly ([source](https://coolify.io/docs/knowledge-base/environment-variables)):
 
@@ -792,10 +789,10 @@ Practical mapping for this project:
 
 - `NEXT_PUBLIC_*` → must be **Build** enabled (Next inlines them at build time).
 - `PAYLOAD_SECRET`, `DATABASE_URL`, S3 keys → **Runtime**; disable Build unless the build genuinely needs a DB connection (and see Payload's `building-without-a-db-connection` guide if it does).
-- Secrets: *"By default, build variables are passed as `--build-arg` values. These values get recorded in the image metadata."* Enable **Use Docker Build Secrets** (BuildKit, Docker 18.09+) for anything sensitive that must exist at build time — Coolify rewrites `RUN` instructions with `--mount=type=secret` for you, and *"Secrets are never embedded in image layers and are not visible in `docker history`."*
+- Secrets: *"By default, build variables are passed as `--build-arg` values. These values get recorded in the image metadata."* Enable **Use Docker Build Secrets** (BuildKit, Docker 18.09+) for anything sensitive that must exist at build time, Coolify rewrites `RUN` instructions with `--mount=type=secret` for you, and *"Secrets are never embedded in image layers and are not visible in `docker history`."*
 - Shared variables exist at three tiers: `{{team.NODE_ENV}}`, `{{project.NODE_ENV}}`, `{{environment.NODE_ENV}}`.
 - Predefined: `SOURCE_COMMIT`, `COOLIFY_URL`, `COOLIFY_FQDN`, `PORT` (first exposed port), `HOST`.
-- A `Literal` checkbox disables `$VAR` interpolation — needed if `PAYLOAD_SECRET` or a DB password contains `$`.
+- A `Literal` checkbox disables `$VAR` interpolation, needed if `PAYLOAD_SECRET` or a DB password contains `$`.
 - A **Developer view** takes a pasted `.env` blob; locked secrets and multiline values can't be edited there.
 
 Note on caching: *"Coolify generates a `COOLIFY_BUILD_SECRETS_HASH` from all secret values. Docker
@@ -808,8 +805,8 @@ Needed only if media stays on local disk ([source](https://coolify.io/docs/knowl
 
 Two kinds on a Docker Engine destination:
 
-- **Volume** — define a `Name` and a `Destination Path`. *"To prevent storage overlapping between resources, Coolify automatically adds the resource's UUID to the volume name."*
-- **Bind Mount** — define `Name`, `Source Path` (on the host), `Destination Path`. *"No docker volume created in this case."*
+- **Volume**, define a `Name` and a `Destination Path`. *"To prevent storage overlapping between resources, Coolify automatically adds the resource's UUID to the volume name."*
+- **Bind Mount**, define `Name`, `Source Path` (on the host), `Destination Path`. *"No docker volume created in this case."*
 
 The caveat that decides your path layout:
 
@@ -823,7 +820,7 @@ implemented."*
 For a Payload media collection with `staticDir: 'media'` resolved relative to the config directory,
 the container path under the standalone Dockerfile's `WORKDIR /app` needs to line up with the mount
 point. Set `staticDir` to an absolute path (e.g. `/app/media`) and mount the volume there rather
-than relying on relative resolution through the standalone output tree. **INFERRED** — neither
+than relying on relative resolution through the standalone output tree. **INFERRED**, neither
 Payload nor Coolify documents this combination.
 
 ### Databases
@@ -835,9 +832,9 @@ over the internal Docker network. Not separately documented for the Payload case
 
 ## Decisions this forces
 
-1. **Postgres vs SQLite vs MongoDB.** Mongo needs no migrations and is what the template ships; Postgres/SQLite need a migration step in the deploy pipeline (`push` is dev-only). SQLite is a single file — cheapest, but then the *database itself* also needs the persistent volume, making the volume non-optional.
+1. **Postgres vs SQLite vs MongoDB.** Mongo needs no migrations and is what the template ships; Postgres/SQLite need a migration step in the deploy pipeline (`push` is dev-only). SQLite is a single file, cheapest, but then the *database itself* also needs the persistent volume, making the volume non-optional.
 2. **Payload locales vs a dictionary for static copy.** Everything through Payload (`localized: true` on every string, editor changes copy without a deploy) vs a `dictionaries/en.json` + `fr.json` pair for chrome and Payload only for the handful of real content fields. The second is smaller and matches "it's a landing page"; the first means no hardcoded English anywhere.
-3. **next-intl vs hand-rolled dictionaries.** next-intl@4.14.2 is maintained and Next-16-aware, but adds a second locale registry, a `proxy.ts`, and an `i18n/request.ts` to keep in sync with Payload. The Next.js docs' own dictionary pattern is ~30 lines. For two locales and one page, the library may not earn its keep. (`next-international` is out — 22 months stale.)
+3. **next-intl vs hand-rolled dictionaries.** next-intl@4.14.2 is maintained and Next-16-aware, but adds a second locale registry, a `proxy.ts`, and an `i18n/request.ts` to keep in sync with Payload. The Next.js docs' own dictionary pattern is ~30 lines. For two locales and one page, the library may not earn its keep. (`next-international` is out, 22 months stale.)
 4. **Locale codes: `en`/`fr` vs `en-US`/`fr-FR`.** Payload says codes can be anything; Next's `Accept-Language` matcher works better with proper BCP-47. Whatever you pick has to be identical in `localization.locales`, the `[lang]` values, and `generateStaticParams`.
 5. **Local disk + Coolify volume vs S3-compatible storage.** Volume = zero extra services, but the app is now pinned to one server and backups are your problem. S3 adapter = one more credential set and a bucket, but the container stays stateless and redeploys can't lose media. For a musician's landing page with maybe a dozen images, the volume is defensible.
 6. **Dockerfile vs Nixpacks build pack.** Dockerfile = Payload's own known-good multi-stage build, explicit Node version, explicit `output: 'standalone'`. Nixpacks = one dropdown, but Coolify's guidance for it is literally one sentence and you inherit its Node/pnpm detection.

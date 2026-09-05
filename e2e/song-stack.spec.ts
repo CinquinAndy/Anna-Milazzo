@@ -80,7 +80,7 @@ test.describe('the Folder stack', () => {
 		})
 
 		// The body is pulled up by exactly one keyline, and the tab has no bottom border
-		// of its own — that is what removes the seam.
+		// of its own, that is what removes the seam.
 		expect(geometry.pull).toBe(-geometry.keyline)
 		expect(geometry.tabBottomBorder).toBe(0)
 		expect(geometry.overlap).toBeCloseTo(geometry.keyline, 1)
@@ -129,7 +129,7 @@ test.describe('the Folder stack', () => {
 		for (const strip of strips) {
 			expect(strip.transform, 'a tape strip is unrotated').not.toBe('none')
 			expect(strip.blend, 'tape must let the surface below show through').toBe('multiply')
-			expect(strip.crossesEdge, 'a tape strip sits entirely inside the cover — that is a sticker').toBe(true)
+			expect(strip.crossesEdge, 'a tape strip sits entirely inside the cover, that is a sticker').toBe(true)
 		}
 
 		// Never the same angle twice: one shared value reads as a repeated component.

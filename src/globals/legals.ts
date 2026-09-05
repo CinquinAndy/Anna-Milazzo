@@ -2,7 +2,7 @@ import type { GlobalConfig } from 'payload'
 
 /**
  * The legals page. Its body is richText rather than textarea because it genuinely has
- * structure — headings, paragraphs, a list of who is behind the site.
+ * structure, headings, paragraphs, a list of who is behind the site.
  *
  * The trade is that Payload only falls an empty value back to Italian for `text` and
  * `textarea`; richText falls back on null alone. Both languages are therefore written at

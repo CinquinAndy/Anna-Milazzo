@@ -18,7 +18,7 @@ async function sleeveGeometry(page: Page, index = 0) {
 		const coverBox = cover.getBoundingClientRect()
 		// The PAINTED record, not the element's box. The record is a square SVG and it spins,
 		// and the axis-aligned box of a spinning square grows by up to 41% while the circle
-		// inside it does not move at all — measuring the box reports a collision that never
+		// inside it does not move at all, measuring the box reports a collision that never
 		// happens. The centre is invariant under a rotation about itself, and the record is
 		// drawn at r=98 of a 200-unit viewBox.
 		const layoutWidth = Number.parseFloat(getComputedStyle(disc).width)
@@ -57,7 +57,7 @@ test.describe('the record and its sleeve', () => {
 			return sleeve.getBoundingClientRect().height - cover.getBoundingClientRect().height
 		})
 		// Left to stretch, the wrapper fills a grid row the story makes far taller than the
-		// picture — 282px of blank paper under it, all of which brought the record out.
+		// picture, 282px of blank paper under it, all of which brought the record out.
 		expect(dead, 'the hover target extends past the artwork').toBeLessThan(8)
 	})
 
@@ -73,7 +73,7 @@ test.describe('the record and its sleeve', () => {
 		await page.goto('/')
 		const resting = await sleeveGeometry(page)
 
-		// Clicked, then the pointer is moved away, so nothing here depends on hover — a
+		// Clicked, then the pointer is moved away, so nothing here depends on hover, a
 		// portfolio gets opened on a phone, where there is no pointer to hover with.
 		await page.locator('[data-song-stack] .transport-play').first().click()
 		await page.mouse.move(0, 0)
@@ -94,7 +94,7 @@ test.describe('the record and its sleeve', () => {
 			const playing = await sleeveGeometry(page)
 			// Null means the story is not beside the cover at this width, so there is nothing
 			// to collide with. A previous disc position overlapped the text by 14px at every
-			// width — black under black, so the first character of every line lost contrast.
+			// width, black under black, so the first character of every line lost contrast.
 			if (playing?.clearance !== null && playing?.clearance !== undefined) {
 				expect(playing.clearance, `the record reaches the story at ${width}px`).toBeGreaterThan(0)
 			}
@@ -115,7 +115,7 @@ test.describe('the record and its sleeve', () => {
 			}
 		}
 		// A percentage `inset-block-start` resolves against the containing block's HEIGHT,
-		// which here is a grid row stretched by the story beside it — so the record hung at a
+		// which here is a grid row stretched by the story beside it, so the record hung at a
 		// different height on every Song. A percentage margin resolves against the width.
 		expect(Math.max(...tops) - Math.min(...tops), 'the record hangs at a different height per Song').toBeLessThan(3)
 	})

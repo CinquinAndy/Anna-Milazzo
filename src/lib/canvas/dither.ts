@@ -2,7 +2,7 @@
  * The shared vocabulary of the page's dithered canvases.
  *
  * Extracted when a second one appeared. Everything here is pure and has no opinion about
- * what is being drawn — the hero's field and the spectrum band each own their own loop and
+ * what is being drawn, the hero's field and the spectrum band each own their own loop and
  * their own geometry, and share only the parts that must not drift apart: the same matrix,
  * the same way of resolving a palette token, and the same pixel packing.
  */
@@ -36,7 +36,7 @@ export function threshold(x: number, y: number, offsetX = 0, offsetY = 0) {
  *
  * Painting it and reading the pixel back, rather than parsing the string: the palette is
  * authored in oklch and `getComputedStyle` hands back the computed value in its original
- * space — Chromium returns `lab(42.4292 0.830233 -40.9019)` here — so a regex for `rgb()`
+ * space, Chromium returns `lab(42.4292 0.830233 -40.9019)` here, so a regex for `rgb()`
  * matches nothing and falls through to whatever default it was given. A 2D context converts
  * any CSS colour to sRGB by definition, which makes this exact rather than hopeful.
  */
@@ -58,8 +58,7 @@ export function readColour(element: HTMLElement): Rgb {
  * Resolves a palette token to sRGB by borrowing the host's own cascade.
  *
  * A hidden span is attached inside the host, given `color: var(--token)`, read, and thrown
- * away. Custom properties are inherited, so the span sees the same values the page does —
- * and going through a real element is what makes the browser resolve the oklch rather than
+ * away. Custom properties are inherited, so the span sees the same values the page does, * and going through a real element is what makes the browser resolve the oklch rather than
  * handing back the literal `var(...)` a direct getPropertyValue would return.
  */
 export function resolveToken(host: HTMLElement, token: string): Rgb {

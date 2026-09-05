@@ -8,12 +8,12 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 const nextConfig: NextConfig = {
 	// The MP3 decoder that measures a waveform on upload. It reaches Node's worker threads
 	// through a dynamic `import()` the bundler cannot resolve, which fails the whole route
-	// rather than just the decode — so it is required natively at runtime instead. Server
+	// rather than just the decode, so it is required natively at runtime instead. Server
 	// only: it is never imported from a client component.
 	serverExternalPackages: ['mpg123-decoder'],
 	experimental: {
 		// The default is 10MB, and on overflow Next truncates the body silently, logs a
-		// warning and lets the request succeed — which would let Anna upload a corrupt
+		// warning and lets the request succeed, which would let Anna upload a corrupt
 		// track and believe it worked. Set above the largest expected track, and above
 		// Payload's own 50MB limit so the error Anna sees is Payload's, not a truncation.
 		proxyClientMaxBodySize: '64mb',
@@ -33,6 +33,6 @@ const nextConfig: NextConfig = {
 	},
 }
 
-// `output: 'standalone'` is deliberately not set — it is a Dockerfile requirement, and the
+// `output: 'standalone'` is deliberately not set, it is a Dockerfile requirement, and the
 // deployment shape (most likely Nixpacks on Coolify) has not been decided yet.
 export default withPayload(nextConfig, { devBundleServerPackages: false })

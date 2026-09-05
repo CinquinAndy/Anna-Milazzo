@@ -23,7 +23,7 @@ const FIXTURES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'fix
  * on the wrong database. That is also why this is its own script and is deliberately not
  * part of `validate`: routine validation must not write to shared infrastructure.
  *
- * Run it with `bun run seed`. Note the CLI goes through Node, not Bun — Payload's lexical
+ * Run it with `bun run seed`. Note the CLI goes through Node, not Bun, Payload's lexical
  * editor cannot be evaluated by Bun's runtime.
  */
 
@@ -50,7 +50,7 @@ async function upsertUpload(
 		}
 		// The fixture on disk may have been regenerated since it was uploaded. Size is a
 		// cheap and sufficient tell, and without this check the bucket keeps serving the old
-		// audio while the record carries an analysis of the new one — the visualiser would
+		// audio while the record carries an analysis of the new one, the visualiser would
 		// then be drawing a track nobody is hearing.
 		//
 		// The fixture is re-uploaded every run, unconditionally.
@@ -229,7 +229,7 @@ export async function seed(): Promise<void> {
 		payload.logger.info(`seeded song ${song.reference}`)
 	}
 
-	// Globals have no `create`, and `locale: 'all'` is a read-side feature only — a write
+	// Globals have no `create`, and `locale: 'all'` is a read-side feature only, a write
 	// with it silently discards every localized value. One call per locale, always.
 	//
 	// Array rows are shared across locales, and Payload matches an incoming row to a

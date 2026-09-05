@@ -9,7 +9,7 @@ import { BAR_FLOOR, resample } from '@/lib/player/peaks'
  * The rail inside a Folder: the track drawn as a histogram, built by the playhead.
  *
  * The horizontal axis is TIME, start to finish. Every bar says two measured things about
- * the moment it stands for — its HEIGHT is how loud the track is there, and its COLOUR is
+ * the moment it stands for, its HEIGHT is how loud the track is there, and its COLOUR is
  * where that sound sits in the spectrum, green for bass through to magenta for the bright
  * end. Both come from the file itself, measured once when it was uploaded; nothing here is
  * authored or random.
@@ -20,7 +20,7 @@ import { BAR_FLOOR, resample } from '@/lib/player/peaks'
  * so the histogram assembles itself while the music runs, and stays assembled when the
  * track ends.
  *
- * A canvas at one pixel per cell, scaled up with `image-rendering: pixelated` — the hero's
+ * A canvas at one pixel per cell, scaled up with `image-rendering: pixelated`, the hero's
  * field, drawn small. That is the only way to carry ordered dithering, and it costs one
  * 32-bit write per cell rather than a DOM node per bar restyled thirty times a second.
  *
@@ -36,7 +36,7 @@ const CELL = 4
  * Bar and gutter, in cells, at a comfortable width and at a cramped one.
  *
  * Below the threshold the bars halve rather than the COUNT halving. At a 6-cell pitch a
- * 768px layout had room for ten bars — ten columns is a bar chart, not a waveform, and it
+ * 768px layout had room for ten bars, ten columns is a bar chart, not a waveform, and it
  * throws away 92% of the 128 readings the record stores.
  */
 const WIDE = { bar: 4, gap: 2 }
@@ -89,7 +89,7 @@ const SMOOTH_BUCKETS = 2
  * The narrowest range of timbre a track is allowed to be stretched across.
  *
  * In raw centroid points. Without a floor, a piece that barely changes colour has its own
- * measurement noise amplified into the full ramp — the stretch divides by the span, and a
+ * measurement noise amplified into the full ramp, the stretch divides by the span, and a
  * span near zero turns a flat track into confetti.
  */
 const TONE_SPAN_FLOOR = 6
@@ -98,7 +98,7 @@ const TONE_SPAN_FLOOR = 6
  * A reading below this is silence, and has no timbre to report.
  *
  * A spectral centroid is undefined without signal. One track's stored tail is eight buckets
- * of `1`, and read as data they anchored the bottom of the whole ramp — so the only bars
+ * of `1`, and read as data they anchored the bottom of the whole ramp, so the only bars
  * that reached green were the ones where the music had stopped.
  */
 const AUDIBLE = 10
@@ -137,7 +137,7 @@ const FOOT_SHADE = 0.22
  * Steps in that shading.
  *
  * Two: one flat fill standing on one flat plinth. Eight steps across a tall bar drew eight
- * visible horizontal bands — a vertical gradient inside a design specified as flat fills,
+ * visible horizontal bands, a vertical gradient inside a design specified as flat fills,
  * and it made a tall bar's foot darker than a short bar's, so the baseline read ragged.
  */
 const SHADE_STEPS = 2
@@ -187,11 +187,11 @@ export function SongVisualiser({
 		// has to be legible without stealing the height that arriving at full size depends on,
 		// so presence comes from tone here and the growth keeps its whole range.
 		const ghostWord = pack(mix(back, ink, 0.42))
-		// Green, yellow, orange, magenta: bass to bright. Straight from the palette — over
+		// Green, yellow, orange, magenta: bass to bright. Straight from the palette, over
 		// paper these need their saturation, where over the hero's blue they were softened
 		// toward it. Four, not five: adding grape moved the middle of the ramp to magenta and
 		// half the rail came out purple, against a rule this project has held from the start
-		// — the loudest colour is rationed, and a bar only reaches it at a piece's brightest.
+		//the loudest colour is rationed, and a bar only reaches it at a piece's brightest.
 		const ANCHORS = (['--spring', '--lemon', '--accent', '--magenta'] as const).map(token => resolveToken(host, token))
 		/** The anchors expanded into a long ramp, each step flat with a plinth under it. */
 		const RAMP: Uint32Array[] = []
@@ -292,8 +292,8 @@ export function SongVisualiser({
 				return sum / Math.max(1, counted)
 			})
 
-			// Fitted between percentiles rather than extremes: two outlying buckets — one
-			// note's attack, one moment of near-silence — were setting the whole scale. The
+			// Fitted between percentiles rather than extremes: two outlying buckets, one
+			// note's attack, one moment of near-silence, were setting the whole scale. The
 			// span is floored so a track that barely changes colour is not amplified into
 			// confetti, and centred so a narrow track sits in the middle of the ramp rather
 			// than being pushed to one end.
@@ -393,7 +393,7 @@ export function SongVisualiser({
 							if (y < top) {
 								// Above the bar but inside its soft top: the matrix decides. Phased
 								// by bar, because a 6-cell pitch against an 8-periodic matrix gives
-								// only four phases — so bars of equal height wore an identical
+								// only four phases, so bars of equal height wore an identical
 								// two-notch cap and the row read as crenellation.
 								const fade = (top - y) / EDGE_SOFTNESS
 								if (fade >= 1 || fade > 1 - threshold(x + bar * 3, y)) {
@@ -405,7 +405,7 @@ export function SongVisualiser({
 								continue
 							}
 							// A second, OFFSET read of the matrix. Reusing the threshold that
-							// decided lit-or-not correlates the two — a lit cell is one with a low
+							// decided lit-or-not correlates the two, a lit cell is one with a low
 							// threshold, so every blend leans to the lower stop and the ramp bands.
 							const blend = threshold(x, y, 2, 4)
 							const hue = RAMP[stop - lower > blend ? upper : lower]
@@ -429,8 +429,7 @@ export function SongVisualiser({
 			// marker rather than as one more black bar or as a divider joining the borders.
 			//
 			// Not drawn at all before anything has played. Parked at the left edge it is ink
-			// at the head of the rail, which is the shape of the complaint that started this —
-			// "la première barre est toujours affichée" — and no marker is the honest answer
+			// at the head of the rail, which is the shape of the complaint that started this, // "la première barre est toujours affichée", and no marker is the honest answer
 			// when there is no position to mark. The bars are lit from the same coordinate
 			// either way, so this hides nothing.
 			if (progress > 0) {
@@ -509,7 +508,7 @@ export function SongVisualiser({
 			if (!running) {
 				// One final call arrives on pause, on end and on failure. The reducer resets the
 				// position to zero when a track ENDS, which would throw away every coloured cell
-				// at the exact moment the picture finished assembling — so a track that got to
+				// at the exact moment the picture finished assembling, so a track that got to
 				// the end keeps its finished histogram until something else is pressed.
 				if (lastProgress > COMPLETE && fraction === 0) {
 					advance(1, true)
@@ -524,7 +523,7 @@ export function SongVisualiser({
 
 			// The throttle covers reduced motion too. Skipping it there meant a visitor who
 			// asked for LESS motion got the paint work at the animation-frame rate instead of
-			// at thirty a second — measured, more than twice as many repaints.
+			// at thirty a second, measured, more than twice as many repaints.
 			const now = performance.now()
 			if (now - last < 1000 / FPS) {
 				return

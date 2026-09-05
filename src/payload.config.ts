@@ -32,7 +32,7 @@ export default buildConfig({
 		pool: {
 			connectionString: process.env.DATABASE_URL ?? '',
 		},
-		// Schema changes always travel as a committed migration, never as a push — mixing
+		// Schema changes always travel as a committed migration, never as a push, mixing
 		// the two is what leaves an environment half-applied.
 		push: false,
 	}),
@@ -63,7 +63,7 @@ export default buildConfig({
 	// is always the one that fires first.
 	//
 	// `abortOnLimit` is the load-bearing line, not `limits`. On its own, `limits.fileSize`
-	// TRUNCATES the upload at the limit and saves the record anyway — measured: a 60.2MB
+	// TRUNCATES the upload at the limit and saves the record anyway, measured: a 60.2MB
 	// track came back 201 Created at exactly 52428800 bytes. That is the silent corruption
 	// this ticket exists to prevent, arriving through a different door than the one the
 	// spec warned about.

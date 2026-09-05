@@ -114,7 +114,7 @@ describe('a message that cannot be answered', () => {
 	it('treats a missing token as something to fix, not as a rejection', async () => {
 		const fakes = collaborators()
 
-		// The widget never ran — usually JavaScript, not a bot.
+		// The widget never ran, usually JavaScript, not a bot.
 		const result = await sendContactMessage({ ...MESSAGE, token: '' }, fakes)
 
 		expect(result).toEqual({ outcome: 'invalid', fields: ['token'] })

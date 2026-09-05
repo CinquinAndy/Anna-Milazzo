@@ -23,14 +23,14 @@ Done. `bun run validate` green: 37 Vitest tests, 66 Playwright tests.
 
 **The form was losing what the Recruiter typed, and the test caught it.** React resets an
 uncontrolled form once its action completes, so a rejected submission handed back an empty
-box and asked them to write it again — precisely what the criterion forbids. The fields are
+box and asked them to write it again, precisely what the criterion forbids. The fields are
 controlled now. A *successful* send does clear them, deliberately: leaving the text sitting
 there invites someone to send it twice.
 
 **`sendContactMessage` is the seam the spec named.** Both collaborators arrive as
 parameters, so no test reaches the network and neither is intercepted from inside. Ten
 tests cover the rejected token, the failed delivery, the happy path, and the cases that
-are neither — a malformed address, an empty field, a missing token.
+are neither, a malformed address, an empty field, a missing token.
 
 **Verification fails closed.** A Turnstile check that throws is a rejection, not a pass,
 and a missing `TURNSTILE_SECRET_KEY` refuses every submission rather than waving them
@@ -40,7 +40,7 @@ delivery is never reached.
 **Turnstile is wired against Cloudflare's published test keys**, which are in `.env` and
 documented in `.env.example`. The always-passing pair means the e2e suite exercises real
 server-side verification against Cloudflare rather than a stub. **Real keys are still
-needed before launch** — this is configuration, not code.
+needed before launch**, this is configuration, not code.
 
 **No real mail is sent.** `CONTACT_DELIVERY=log` swaps the Resend transport for one that
 writes to the log, which is what local development and the suite use. Anything else sends
@@ -56,7 +56,7 @@ fall an empty value back to Italian; richText falls back only on a missing one, 
 page checks for an empty body rather than assuming. Preflight strips paragraph rhythm and
 list markers, so `.legal-prose` puts them back for that one page.
 
-**Shared chrome landed here too** — `SiteHeader` and `SiteFooter` — because the legals link
+**Shared chrome landed here too**, `SiteHeader` and `SiteFooter`, because the legals link
 has to be reachable from every page, and a test walks all three to check it. The landing
 page's route to contact went in at the same time: the copy was already seeded in ticket 04
 but a button to a 404 is worse than no button.
@@ -67,5 +67,5 @@ but a button to a 404 is worse than no button.
 the last outcome until the next submission, and the clear-on-sent block was conditioned on
 the field values, so it ran on every render: each keystroke set state, re-rendered,
 re-satisfied the condition and was wiped in the same pass. All three fields, no error, and
-a page reload the only way out — on the site's one conversion point. It clears once per
+a page reload the only way out, on the site's one conversion point. It clears once per
 result now, keyed on the result's identity.

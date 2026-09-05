@@ -15,7 +15,7 @@ const TAPE_ANGLES = [-44, -39, -47, -41, -45, -38] as const
 
 /**
  * Tape tints, cycled down the stack. Deterministic for the same reason as the angles, and
- * paired so the two strips on one cover are never the same colour — real tape comes off
+ * paired so the two strips on one cover are never the same colour, real tape comes off
  * whichever roll is nearest, and a matched pair reads as a printed graphic.
  */
 const TAPE_TINTS = [
@@ -40,7 +40,7 @@ function tapeAngle(index: number, side: 'start' | 'end'): number {
  * One Song, presented as a paper folder: a tabbed shape with the cover taped on and the
  * title, story and link beside it.
  *
- * An `<article>` inside a list item — never a tab interface. The shape is a filing
+ * An `<article>` inside a list item, never a tab interface. The shape is a filing
  * metaphor; the content is a body of work that is all visible at once. `role="tab"` would
  * promise arrow-key navigation between mutually exclusive panels and announce "tab 1 of
  * 5, selected" for something that is simply always there.
@@ -64,7 +64,7 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 	// id, and a record with no sleeve in front of it is a black circle sitting on the paper.
 	// Both or neither, decided from the same value.
 	const cover = song.cover !== null && song.cover !== undefined && typeof song.cover !== 'number' ? song.cover : null
-	// `reference` is a seed handle and a test selector, hidden from the admin — so every
+	// `reference` is a seed handle and a test selector, hidden from the admin, so every
 	// Song Anna creates herself has none. Falling back to the record id keeps the player
 	// present for those: gating on `reference` meant her own Songs arrived silently
 	// unplayable, with nothing to tell her why.

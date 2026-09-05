@@ -4,7 +4,7 @@ import { expect, type Page, test } from '@playwright/test'
  * The drawn height of every column of one Folder's rail, 0..1.
  *
  * Read back off the canvas rather than from markup, because the rail is a canvas: the
- * ground is whatever the top-left pixel is — always above every bar — and a column's height
+ * ground is whatever the top-left pixel is, always above every bar, and a column's height
  * is the first row that differs from it.
  */
 async function shapeOf(page: Page, index: number) {
@@ -57,7 +57,7 @@ async function shapeOf(page: Page, index: number) {
  *
  * The canvas is drawn from an effect, so `goto` can return before a single pixel exists.
  * Reading straight away is a flake that shows up as "nothing reaches the top of the rail"
- * in one run and passes in the next — which it did, before this.
+ * in one run and passes in the next, which it did, before this.
  */
 async function railPainted(page: Page) {
 	await page.waitForFunction(() => {
@@ -110,7 +110,7 @@ test.describe('the rail visualiser', () => {
 		// them at all.
 		expect(lit.length, 'the rail drew nothing before playing').toBeGreaterThan(20)
 		expect(tallest - shortest, 'every unplayed bar is the same height').toBeGreaterThan(0.15)
-		// And none of them is at full height yet — that is what playing is for.
+		// And none of them is at full height yet, that is what playing is for.
 		expect(tallest, 'a bar was already at full height before playing').toBeLessThan(0.82)
 	})
 
@@ -158,7 +158,7 @@ test.describe('the rail visualiser', () => {
 
 			const shape = await shapeOf(page, 0)
 			const lit = shape.filter(value => value > 0).length
-			// Bars folded onto fewer, wider columns when the rail is narrow — but never so few
+			// Bars folded onto fewer, wider columns when the rail is narrow, but never so few
 			// that the histogram stops being one, and never so thin that they vanish.
 			expect(lit, `the rail is nearly empty at ${width}px`).toBeGreaterThan(shape.length / 3)
 		}
@@ -181,7 +181,7 @@ test.describe('the rail visualiser', () => {
 		expect(await outlineOf('[data-song-stack] .folder .transport-play')).not.toBe('none')
 
 		// The seek input is deliberately transparent over the canvas, so the rail carries its
-		// indicator — it is the only one that control has.
+		// indicator, it is the only one that control has.
 		await page.locator('[data-song-stack] .folder .playhead-seek').first().focus()
 		expect(await outlineOf('[data-song-stack] .folder .transport-rail')).not.toBe('none')
 	})
@@ -192,7 +192,7 @@ test.describe('the rail visualiser', () => {
 
 		// Decoration must stay decoration: the canvas carries no information the transport
 		// does not also report in text, and it must not be announced. Asserted on the rail
-		// rather than on the canvas — the wrapper is what carries `aria-hidden`, and putting
+		// rather than on the canvas, the wrapper is what carries `aria-hidden`, and putting
 		// it on the canvas as well trips the rule against hiding a focusable element.
 		const hidden = await page.evaluate(() => {
 			const canvas = document.querySelector('[data-song-stack] .playhead-canvas')

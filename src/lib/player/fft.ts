@@ -16,7 +16,7 @@
  * Transforms `re` and `im` in place. Both arrays must be the same power-of-two length; for
  * real input, pass an `im` of zeros.
  *
- * In place because this runs once per analysis frame — a three-minute track is around two
+ * In place because this runs once per analysis frame, a three-minute track is around two
  * thousand windows, and allocating a fresh pair of arrays for each one is the difference
  * between an upload that feels instant and one that does not.
  */
@@ -83,7 +83,7 @@ export function transform(re: Float64Array, im: Float64Array) {
  * A Hann window of `size` points.
  *
  * Every analysis window is a rectangular slice of a longer signal, and a rectangle has
- * hard edges that the transform reads as broadband content — a single steady tone smears
+ * hard edges that the transform reads as broadband content, a single steady tone smears
  * across dozens of bins. Tapering the slice to zero at both ends is what keeps a tone in
  * the bin it belongs to. Hann rather than the alternatives because its side lobes fall
  * away fastest, and this is a picture rather than a measurement.

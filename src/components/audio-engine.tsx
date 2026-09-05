@@ -12,7 +12,7 @@ import {
 
 /**
  * Called on every animation frame while a Song runs, and once more on each transition away
- * from playing — so a subscriber's last value is always the true resting one and no separate
+ * from playing, so a subscriber's last value is always the true resting one and no separate
  * "it stopped" callback is needed.
  *
  * `running` is passed rather than read from `state`. The final call is made inside `send`,
@@ -130,7 +130,7 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 				void element.play().catch((error: unknown) => {
 					// Loading a new source interrupts a play() that has not resolved yet and
 					// rejects it with AbortError. That is the Recruiter starting another Song,
-					// not a failure — treating it as one puts the Folder they just pressed
+					// not a failure, treating it as one puts the Folder they just pressed
 					// straight back into a stopped state, and only when they press quickly.
 					if (error instanceof DOMException && error.name === 'AbortError') {
 						return
@@ -151,8 +151,8 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 	const send = useCallback(
 		(event: PlayerEvent) => {
 			// Read the playhead off the element before any transition. Nothing advances the
-			// position during playback — by design, since a state write per frame would
-			// re-render the whole stack — so without this a pause records position 0, the
+			// position during playback, by design, since a state write per frame would
+			// re-render the whole stack, so without this a pause records position 0, the
 			// progress blocks snap back to the start, and the seek control's next arrow key
 			// commits a seek backwards to one second.
 			let base = stateRef.current
@@ -264,7 +264,7 @@ export function AudioEngine({ children }: { children: ReactNode }) {
 				onPause={() => {
 					// Swapping `src` runs the media load algorithm, which can fire `pause` on
 					// its way out. That is the old Song being replaced, not the Recruiter
-					// stopping — and it is distinguishable without any bookkeeping, because a
+					// stopping, and it is distinguishable without any bookkeeping, because a
 					// load drops the element back to HAVE_NOTHING. Nothing that has nothing
 					// loaded can meaningfully pause.
 					if (audioRef.current === null || audioRef.current.readyState === 0) {

@@ -1,4 +1,4 @@
-# Anna Milazzo — landing page
+# Anna Milazzo, landing page
 
 Bilingual (EN/FR) landing page for Italian musician Anna Milazzo.
 Neo-brutalist visual direction. Self-hosted on Coolify.

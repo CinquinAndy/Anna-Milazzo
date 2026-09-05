@@ -4,7 +4,7 @@
  *
  * The first version was faders alone, which read as equipment but sat dead on the page.
  * Bars that move read as sound being made right now, and it is the one place on this site
- * where continuous motion is honest — everything else here moves only when pressed.
+ * where continuous motion is honest, everything else here moves only when pressed.
  *
  * The bars animate `transform: scaleY`, not `height`: scale is composited, so eleven bars
  * looping forever cost nothing per frame, where animating height would relayout the row
@@ -32,7 +32,7 @@ const BARS = [
 	{ id: 'b11', variant: 'd', tint: 'var(--spring)', duration: '1.28s', delay: '-0.44s' },
 ] as const
 
-/** Static. Rotation here is composition, not animation — a knob that turns by itself is a fault. */
+/** Static. Rotation here is composition, not animation, a knob that turns by itself is a fault. */
 const KNOBS = [
 	{ id: 'k1', turn: -38 },
 	{ id: 'k2', turn: 24 },

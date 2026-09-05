@@ -8,7 +8,7 @@ when it has one. The play control is present but does nothing yet.
 
 **Status:** resolved
 
-- [x] Each Folder is a tabbed paper shape with an unbroken keyline over the whole silhouette and no seam where the tab meets the body — built with the negative-margin technique, not `clip-path`, which clips the border
+- [x] Each Folder is a tabbed paper shape with an unbroken keyline over the whole silhouette and no seam where the tab meets the body, built with the negative-margin technique, not `clip-path`, which clips the border
 - [x] The Folder's shadow is a single filter on the wrapper, not a shadow per box, so the tab/body join has no notch
 - [x] Tab position alternates down the column
 - [x] The cover image is taped at its top two corners with mirrored, rotated, translucent strips that overlap both the image and the ground behind it; rotation varies between instances and is never animated
@@ -53,7 +53,7 @@ against. Angles come from a fixed table indexed by position, mirrored across the
 
 **The tape test checks the thing that makes it read as tape**, not that it exists: every
 strip is rotated, uses `mix-blend-mode: multiply` so the surface below shows through, and
-crosses the cover's edge. A strip wholly inside the image is a sticker, not tape — that is
+crosses the cover's edge. A strip wholly inside the image is a sticker, not tape, that is
 the failure the client references single out, and it is now a test.
 
 **Semantics over metaphor.** A `<ul>` of `<li>` each holding an `<article>`; the tab's
@@ -73,7 +73,7 @@ unbroken around tab and body, and the shadow is one silhouette.
 
 **A Song Anna creates herself rendered with no player at all.** `reference` is a seed
 handle, hidden from the admin and with no default, so every Song she adds through the
-admin has none — and the Folder was gating the whole transport on it. Cover, title and
+admin has none, and the Folder was gating the whole transport on it. Cover, title and
 story rendered; the play control, progress blocks and seek slider silently did not, with
 nothing to tell her why. It falls back to the record id now. The suite could not have
 caught this because every selector in it is a seeded literal; a test now walks every

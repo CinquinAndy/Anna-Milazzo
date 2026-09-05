@@ -1,7 +1,7 @@
 /**
  * The player's state, as a pure function.
  *
- * No React and no DOM in the interface — this module never touches an `<audio>` element.
+ * No React and no DOM in the interface, this module never touches an `<audio>` element.
  * It takes an event, returns the next state and a list of commands for whoever owns the
  * element to run. That separation is what makes the awkward cases testable: iOS permits
  * one audio stream at a time and refuses `play()` unless it is called synchronously
@@ -9,7 +9,7 @@
  */
 
 export type PlayableSong = {
-	/** Stable handle — the Song's `reference`. */
+	/** Stable handle, the Song's `reference`. */
 	id: string
 	/** Absolute URL on the bucket's public domain. */
 	source: string
@@ -104,7 +104,7 @@ export function reducePlayer(state: PlayerState, event: PlayerEvent): PlayerTran
 			const isCurrent = state.song?.id === event.song.id
 
 			// Scrubbing a Song that is not loaded selects it, at that position, without
-			// starting it — a Recruiter dragging a bar has not asked to hear anything yet.
+			// starting it, a Recruiter dragging a bar has not asked to hear anything yet.
 			if (!isCurrent) {
 				return {
 					state: { status: 'paused', song: event.song, positionSeconds: seconds, failed: false },

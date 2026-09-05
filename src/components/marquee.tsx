@@ -11,12 +11,12 @@ const BAND_TINTS = ['var(--cantaloupe)', 'var(--lemon)', 'var(--spring)', 'var(-
  * warm lights one step apart, and without something at zero lightness between them the
  * two smear into each other.
  *
- * The words are Anna's own skills rather than a new CMS field — they are already written
+ * The words are Anna's own skills rather than a new CMS field, they are already written
  * in both languages, already hers to edit, and a marquee of what she does is worth more
  * than a marquee of her name.
  *
  * Two lanes in one band, text above and amplitude bars below, rather than two full-bleed
- * strips — which would spend 180px of scroll on one idea. The bars do the contrast job the
+ * strips, which would spend 180px of scroll on one idea. The bars do the contrast job the
  * band was already doing and say music for free; everything clears on black, so there is
  * no pairing to check.
  */
@@ -27,7 +27,7 @@ export function Marquee({ skills }: { skills: Home['skills'] }) {
 	}
 
 	// Two identical passes. The animation travels exactly one pass width and resets, so the
-	// seam never arrives — with a single pass the strip would empty and snap back.
+	// seam never arrives, with a single pass the strip would empty and snap back.
 	const passes = [0, 1]
 
 	// Roughly 0.4s per character, which is a constant number of pixels per second whatever

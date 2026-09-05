@@ -4,7 +4,7 @@ import { payloadClient } from './client'
 /**
  * Every word on the landing page, in `locale`.
  *
- * No `fallbackLocale` is passed, so Payload uses the default — English falls back to
+ * No `fallbackLocale` is passed, so Payload uses the default, English falls back to
  * Italian rather than rendering blank (ADR-0003).
  */
 export async function getHome(locale: Locale) {

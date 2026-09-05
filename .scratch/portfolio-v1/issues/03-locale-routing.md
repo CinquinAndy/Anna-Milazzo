@@ -10,7 +10,7 @@ this breaks the Payload admin.
 
 - [x] `/` serves Italian and `/en` serves English; the locale codes are `it` and `en`, with `it` as default
 - [x] Unprefixed paths are rewritten onto the Italian tree; `/en/*` passes through untouched
-- [x] The rewrite explicitly excludes the admin panel, the API, framework internals and static assets — the admin panel still loads and functions
+- [x] The rewrite explicitly excludes the admin panel, the API, framework internals and static assets, the admin panel still loads and functions
 - [x] A language switch on any page lands on the same page in the other language, not on the home page
 - [x] URL segments are not translated
 - [x] The document language attribute matches the served locale
@@ -30,7 +30,7 @@ published at two addresses. 307 rather than 308 deliberately: ADR-0001 says the 
 is expensive to reverse once indexed, and a permanent redirect is cached by browsers
 indefinitely. Promote it to 308 when the shape has proven itself.
 
-**The matcher is the load-bearing part** — `/((?!api|admin|_next|.*\\..*).*)`. Payload
+**The matcher is the load-bearing part**, `/((?!api|admin|_next|.*\\..*).*)`. Payload
 owns `/admin` and `/api`, and the matcher in the Next.js i18n guide rewrites both onto the
 Italian tree, which takes the admin panel down. Two e2e tests exist purely to catch a
 regression here.
@@ -38,7 +38,7 @@ regression here.
 **The language switch is a Server Component that is told its path.** It does not call
 `usePathname`. Next's own docs warn that under a rewrite a prerendered page reads the
 *rewritten* pathname on the client, so a switch built on `usePathname` emits
-`/en/it/contact` — and the bug only appears once a page prerenders, which is exactly when
+`/en/it/contact`, and the bug only appears once a page prerenders, which is exactly when
 nobody is looking. Passing `path` costs one prop per page, of which there are three
 (ADR-0002), and removes the failure mode along with all client JavaScript.
 
@@ -48,13 +48,12 @@ typegen, and `validate` runs typecheck *before* build, so `await lang()` would s
 Worth revisiting only if Cache Components are ever enabled, which additionally makes
 `generateStaticParams` on `[lang]` a hard build requirement rather than an optimisation.
 
-**Locale arithmetic is a pure module**, `src/lib/locale.ts` — no React, no DOM, no request.
+**Locale arithmetic is a pure module**, `src/lib/locale.ts`, no React, no DOM, no request.
 It replaced the scaffold's placeholder unit test with seven real ones, including a
 round-trip across every page and locale, and the `/enquiries` case that a naive
 `startsWith('/en')` gets wrong.
 
 **Left for later, deliberately:** `robots.txt` and `sitemap.xml` must live at `src/app/`
 root rather than under `[lang]`, or the matcher's file-extension exclusion means the
-unprefixed ones 404. Nothing generates them yet. Likewise `metadata.alternates.languages`
-— the `hreflang` pair that tells a search engine the two URLs are one page in two
-languages — belongs with ticket 06, when pages gain real metadata.
+unprefixed ones 404. Nothing generates them yet. Likewise `metadata.alternates.languages`, the `hreflang` pair that tells a search engine the two URLs are one page in two
+languages, belongs with ticket 06, when pages gain real metadata.

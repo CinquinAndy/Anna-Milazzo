@@ -2,14 +2,14 @@
  * A section heading as a full-bleed band: the words set as large as the page allows,
  * inside a dark block that runs edge to edge.
  *
- * The client asked for this device by name from a record-label reference — the title that
+ * The client asked for this device by name from a record-label reference, the title that
  * takes the whole width in a very stylised face inside a dark block. It is what stops a
  * section reading as a column of content with a label on top: the heading stops being
  * a caption and becomes the thing you see.
  *
  * Sized from the character count rather than by a fixed clamp, so the words actually
  * reach both edges. A fixed clamp caps a short heading at the same size as a long one, and
- * "ASCOLTA" then sits in a third of the band with black to spare — which is the one thing
+ * "ASCOLTA" then sits in a third of the band with black to spare, which is the one thing
  * this device must not do.
  *
  * The alternative would be stretching the glyphs to the width with SVG `lengthAdjust`,
@@ -18,7 +18,7 @@
  * band of width W at roughly W / (kn), where k is the average advance per uppercase
  * character.
  *
- * k was MEASURED, not guessed — Bricolage Grotesque at font-stretch 74%, uppercase, gives
+ * k was MEASURED, not guessed, Bricolage Grotesque at font-stretch 74%, uppercase, gives
  * 0.284em for "COSA SO FARE", 0.303em for "ASCOLTA" and 0.328em for "PERCORSO". The value
  * below is the top of that range, because the cost of the two cases is not symmetric: a
  * heading that underfills by a tenth reads as measured, one that overflows is a bug. The

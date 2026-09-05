@@ -1,7 +1,7 @@
 /**
  * A keyboard along the foot of the hero, playing a phrase to itself.
  *
- * Not arbitrary decoration: piano is Anna's first instrument — it is in her skills and it
+ * Not arbitrary decoration: piano is Anna's first instrument, it is in her skills and it
  * is what her conservatory entry says. A keyboard is the one music object on this page
  * that is about *her* rather than about music in general.
  *
@@ -9,7 +9,7 @@
  * periodic and continuous, so graphics that are periodic and continuous read as audio,
  * where a one-shot ease-out reads as an interface. The phrase below is a fixed sequence of
  * offsets inside one bar, so the same keys fall in the same order every cycle instead of a
- * wave running along the keyboard — a wave reads as a loading state.
+ * wave running along the keyboard, a wave reads as a loading state.
  *
  * Decorative: hidden from assistive technology, and completely still under reduced motion.
  */

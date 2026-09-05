@@ -40,7 +40,7 @@ async function deliverByEmail(message: ContactMessage): Promise<boolean> {
 			from,
 			to: [to],
 			reply_to: message.email,
-			subject: `Portfolio — messaggio da ${message.name}`,
+			subject: `Portfolio, messaggio da ${message.name}`,
 			text: `${message.name} <${message.email}>\n\n${message.message}`,
 		}),
 	})
@@ -62,7 +62,7 @@ async function deliverToLog(message: ContactMessage): Promise<boolean> {
  * The real collaborators, wired from the environment.
  *
  * `CONTACT_DELIVERY=log` writes the message to the log rather than sending it, which is
- * what local development and the end-to-end tests use — the suite has to exercise the
+ * what local development and the end-to-end tests use, the suite has to exercise the
  * success path without putting real mail in a real inbox.
  */
 export function contactCollaborators(): ContactCollaborators {

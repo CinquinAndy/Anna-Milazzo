@@ -1,6 +1,6 @@
 # 11: The ornament layer
 
-**What to build:** The layer that makes the Portfolio hers rather than a template — tape,
+**What to build:** The layer that makes the Portfolio hers rather than a template, tape,
 stickers, doodled arrows, asterisks, hand-drawn underlines, placed across the landing page
 as composition.
 
@@ -9,12 +9,12 @@ as composition.
 **Status:** resolved
 
 - [x] Ornament is placed deliberately per section rather than applied by a repeating rule; no two instances share the same rotation
-- [x] Lime appears only here — never as a fill behind type, never on a control
+- [x] Lime appears only here, never as a fill behind type, never on a control
 - [x] Ornament elements are siblings that overflow their containers rather than children clipped by them
 - [x] Every decorative element is hidden from assistive technology and none of them carries meaning that exists nowhere else
 - [x] Rotation is static; nothing in this layer animates
 - [x] Ornament never overlaps a control or a tap target, and never reduces text contrast below its section's baseline
-- [x] The page still reads correctly with every ornament removed — the layer is additive, never load-bearing
+- [x] The page still reads correctly with every ornament removed, the layer is additive, never load-bearing
 
 **Note:** this is the least-researched part of the build. No shipped sites using this
 device were found, so the design notes are a hypothesis drawn from client references
@@ -28,7 +28,7 @@ Playwright, nine of them new here.
 **Six ornaments, placed one at a time.** An asterisk on the hero block, an arrow in the
 about margin, a hand-drawn underline below the skills heading, a cross beside the Folder
 stack, a blob at the head of the timeline, an asterisk by the route to contact. Each
-placement passes its own angle — `-13, 7, -2, 19, -24, 11` — and a test asserts they are
+placement passes its own angle, `-13, 7, -2, 19, -24, 11`, and a test asserts they are
 all distinct and none is zero. A shared angle is what makes an ornament layer read as a
 repeated component instead of composition.
 
@@ -52,12 +52,12 @@ migrates into it, the test fails.
 ornaments and failing on any that paints lime as a background or carries lime type.
 
 **Ornaments are `pointer-events: none` siblings that overflow their sections**, never
-children of a clipping container — a test checks no ornament's parent clips. They are kept
+children of a clipping container, a test checks no ornament's parent clips. They are kept
 out of Folders deliberately: `.folder` carries a `filter`, which creates a containing block
 and would drag the ornament into the Folder's own drop shadow.
 
 **Needs Andy's eye, and the ticket predicted it.** This is the least-researched part of the
-build — no shipped precedent was found, and the design notes are a hypothesis from two
+build, no shipped precedent was found, and the design notes are a hypothesis from two
 client reference images. What is here is defensible and correct against every stated rule,
 but "correct" and "right" are different questions for a decorative layer. The arrow beside
 the about text in particular points at nothing in particular. Expect at least one more

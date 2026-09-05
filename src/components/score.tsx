@@ -5,11 +5,11 @@
  * reasons the others failed are worth keeping. A cassette and a metronome were drawings of
  * objects, which read as clip-art whichever object you pick. A framed column of scrolling
  * Italian directions read as a widget dropped onto a page. A composition of abstract shapes
- * was closer but said nothing — it could have sat on any site.
+ * was closer but said nothing, it could have sat on any site.
  *
  * A score fragment is the one graphic here that is about HER: it is the thing a composer
- * produces. Prior research on this project drew the line exactly where this sits — "stave
- * lines yes, her own score yes, floating notes and clefs and rests no" — and the difference
+ * produces. Prior research on this project drew the line exactly where this sits, "stave
+ * lines yes, her own score yes, floating notes and clefs and rests no", and the difference
  * between the two is the beam. Three noteheads with stems are three symbols placed by hand;
  * join them with a beam and put bar lines around them and it is engraved music, because a
  * beam is a statement about rhythm that only holds if the notes belong together.
@@ -25,7 +25,7 @@
 const RULES = [110, 138, 166, 194, 222]
 
 /**
- * Three beamed quavers, then two on their own — a phrase with a shape rather than an even
+ * Three beamed quavers, then two on their own, a phrase with a shape rather than an even
  * row. `up` flips the stem, which real engraving does around the middle line.
  */
 const NOTES = [
@@ -55,7 +55,7 @@ export function Score({ className }: { className?: string }) {
 			<g stroke="var(--ink)" strokeWidth="5">
 				{NOTES.map(note => (
 					<g key={note.id}>
-						{/* Noteheads are tilted ellipses, not circles — an engraver's notehead is
+						{/* Noteheads are tilted ellipses, not circles, an engraver's notehead is
 						    an oval rotated off the horizontal, and a circle reads as a bullet. */}
 						<ellipse
 							cx={note.x}

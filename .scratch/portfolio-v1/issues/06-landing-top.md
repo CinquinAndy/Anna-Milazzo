@@ -1,7 +1,7 @@
 # 06: Hero, about and skills
 
 **What to build:** The top of the landing page. A Recruiter arriving cold learns whose
-site this is, sees Anna, reads what she does, and sees the skills she claims — in either
+site this is, sees Anna, reads what she does, and sees the skills she claims, in either
 language, all of it from the CMS.
 
 **Blocked by:** 02, 03, 04
@@ -29,7 +29,7 @@ test asserts the `src` contains neither `/api/` nor `/_next/image`.
 
 **Laid out to the Italian string.** The tagline is 74 characters in Italian against 62 in
 English, and the hero is composed at the longer one. The name is set at
-`font-stretch: 85%` — the `wdth` axis is what buys that back, and it is the reason
+`font-stretch: 85%`, the `wdth` axis is what buys that back, and it is the reason
 ADR-0008 picked Bricolage.
 
 **Three widths are tested, and the test is stricter than "no horizontal scroll".** A
@@ -43,8 +43,7 @@ add sections.
 
 **`hreflang` landed here** rather than in ticket 03, as flagged at the time.
 `metadata.alternates.languages` now publishes the `it` / `en` / `x-default` triple, which
-is the mechanism that tells a search engine the two URLs are one page in two languages —
-the other half of the argument for the `/it/*` redirect.
+is the mechanism that tells a search engine the two URLs are one page in two languages, the other half of the argument for the `/it/*` redirect.
 
 **The language switch became `inline-flex`.** As an inline box its padding and border did
 not contribute to its line box, so the focus ring's 2px offset was painted over whatever

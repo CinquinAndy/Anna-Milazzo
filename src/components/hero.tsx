@@ -41,8 +41,7 @@ export function Hero({
 		>
 			{/* First child, and absolutely positioned over the whole section: the bars are
 			    anchored to its foot and rise toward the middle, passing behind the keyboard so
-			    they read as coming out of it. First in the document is also what layers it —
-			    every positioned sibling after it paints on top, with no z-index to reason
+			    they read as coming out of it. First in the document is also what layers it, every positioned sibling after it paints on top, with no z-index to reason
 			    about, and no stacking context to be surprised by. */}
 			<DitherField />
 
@@ -64,8 +63,8 @@ export function Hero({
 						<p className="mt-7 max-w-[40ch] font-sans text-xl text-primary-foreground sm:text-2xl md:text-[1.75rem] md:leading-snug">
 							{hero?.tagline}
 						</p>
-						{/* Somewhere to go. Both labels are strings Anna already writes — the works
-					    heading and the contact button — so the hero cannot promise a word the rest
+						{/* Somewhere to go. Both labels are strings Anna already writes, the works
+					    heading and the contact button, so the hero cannot promise a word the rest
 					    of the page does not use. */}
 						<div className="mt-9 flex flex-wrap items-center gap-4">
 							{listenLabel ? (

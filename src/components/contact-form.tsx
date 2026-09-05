@@ -34,7 +34,7 @@ export function ContactForm({ copy, locale }: { copy: Contact; locale: string })
 	const outcome = copy.outcome
 
 	// Sent is the one outcome that should clear the box: leaving the text sitting there
-	// invites the Recruiter to send it twice. Once per result, though — `useActionState`
+	// invites the Recruiter to send it twice. Once per result, though, `useActionState`
 	// holds the last outcome until the next submission, so a condition on the field values
 	// instead would erase every keystroke they typed afterwards and read as a broken form.
 	if (result?.outcome === 'sent' && clearedFor.current !== result) {

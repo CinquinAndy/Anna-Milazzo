@@ -9,15 +9,15 @@ import { formatRunningTime, isPlaying, type PlayableSong } from '@/lib/player/co
  * The transport for one Song: a square play control, one progress rail, and the elapsed
  * and total times.
  *
- * The arrangement is lifted from a 21st.dev audio player the client asked for — icon,
+ * The arrangement is lifted from a 21st.dev audio player the client asked for, icon,
  * single slider, times at either end. The implementation is not: that component mounts an
  * `<audio>` per player (ADR-0007 allows exactly one on the page), seeks through a `<div>`
  * with an `onClick` (no keyboard, no ARIA), and ships shuffle/skip/repeat buttons whose
  * handlers only call `stopPropagation`.
  *
  * What it did fix, and what this keeps, is legibility: the previous transport had two
- * separate widgets for one idea — decorative blocks that could not be dragged, beside a
- * seek slider that carried no meaning — so nobody could tell which was the control. Here
+ * separate widgets for one idea, decorative blocks that could not be dragged, beside a
+ * seek slider that carried no meaning, so nobody could tell which was the control. Here
  * the blocks ARE the control: the native range sits transparent on top of them, so the
  * thing you see filling is the thing you drag.
  */
@@ -105,7 +105,7 @@ export function SongTransport({
 			<div className="transport-rail">
 				{/* The visualiser. It draws this track's waveform at rest and its spectrum while
 				    it plays, and it is registered with the engine below so `--playhead` still
-				    lands on this element — the progress fraction the canvas reads back. */}
+				    lands on this element, the progress fraction the canvas reads back. */}
 				<div
 					ref={registerProgress}
 					className="playhead-blocks"

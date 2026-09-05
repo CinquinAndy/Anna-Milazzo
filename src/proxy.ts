@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 /**
  * Locale routing. Italian is served unprefixed at `/`; English lives under `/en`
  * (ADR-0001). The `[lang]` segment is real, so an unprefixed request is rewritten onto
- * the Italian tree — rewritten, not redirected, so the Recruiter's URL stays clean.
+ * the Italian tree, rewritten, not redirected, so the Recruiter's URL stays clean.
  *
  * The matcher is the load-bearing part. Payload owns `/admin` and `/api`, and the naive
  * matcher in the Next.js i18n guide rewrites both onto `/it/...`, which takes the admin
@@ -28,17 +28,17 @@ export default function proxy(request: NextRequest) {
 	}
 
 	const url = request.nextUrl.clone()
-	// `/` must become `/it`, not `/it/` — the trailing slash is a different path.
+	// `/` must become `/it`, not `/it/`, the trailing slash is a different path.
 	url.pathname = pathname === '/' ? '/it' : `/it${pathname}`
 	return NextResponse.rewrite(url)
 }
 
 export const config = {
 	// Cannot be built from a variable: Next reads this statically at build time.
-	//   api      — Payload's REST API
-	//   admin    — the Payload admin panel
-	//   specimen — the theme proof sheet, which has no locale and its own root layout
-	//   _next    — framework internals, including /_next/static and /_next/image
-	//   .*\..*   — anything with a file extension: favicon.ico, robots.txt, images
+	//   api, Payload's REST API
+	//   admin, the Payload admin panel
+	//   specimen, the theme proof sheet, which has no locale and its own root layout
+	//   _next, framework internals, including /_next/static and /_next/image
+	//   .*\..*, anything with a file extension: favicon.ico, robots.txt, images
 	matcher: ['/((?!api|admin|specimen|_next|.*\\..*).*)'],
 }

@@ -4,8 +4,8 @@
  * Grooves are the part that goes wrong: drawn as many thin evenly-spaced rings they
  * moiré the moment the disc is scaled or the display is not at 1x. So there are six
  * widely-spaced strokes at partial opacity rather than forty hairlines, and the reading
- * comes from the anatomy — black field, off-centre highlight, a coloured label, a spindle
- * hole punched clean through — not from groove density.
+ * comes from the anatomy, black field, off-centre highlight, a coloured label, a spindle
+ * hole punched clean through, not from groove density.
  *
  * Decorative throughout: it carries nothing the text beside it does not say.
  */
@@ -40,7 +40,7 @@ export function Vinyl({
 			</g>
 			{/* The sheen, and the only thing on this record that is not concentric with it.
 			    Without it the disc is nine circles sharing one centre, and rotating that is a
-			    mathematical no-op — the spin the stylesheet calls the clearest "this is
+			    mathematical no-op, the spin the stylesheet calls the clearest "this is
 			    playing" signal there is rendered nothing at all. Measured across a full
 			    revolution before this existed: 0.11% of channels differed by more than 8/255,
 			    and that was antialiasing on two groove arcs.
@@ -61,7 +61,7 @@ export function Vinyl({
 }
 
 /**
- * A round sticker with its text set around the ring — the badge device from the client's
+ * A round sticker with its text set around the ring, the badge device from the client's
  * references. The word is her name, so it needs no translation and cannot fall out of
  * step with the CMS.
  */

@@ -7,13 +7,13 @@
 Anna Milazzo has just finished music school and has no professional presence on the web.
 When someone who might hire her asks to hear her work, she has nothing to send but files
 and platform links. She needs a place that presents who she is, lets a stranger listen to
-what she makes within seconds of arriving, and makes contacting her obvious — in Italian
+what she makes within seconds of arriving, and makes contacting her obvious, in Italian
 for her home market and English for everyone else. She also needs to keep it current
 herself, without asking a developer every time she finishes something.
 
 ## Solution
 
-A three-page Portfolio — landing, contact, legals — in a neo-brutalist visual language:
+A three-page Portfolio, landing, contact, legals, in a neo-brutalist visual language:
 black keylines, hard offset shadows, square corners, flat colour blocks on a warm paper
 ground, with taped-on photographs and scrapbook ornament.
 
@@ -89,16 +89,16 @@ Three, and no more. Everything else is tested through the first.
    here over introducing a new seam.
 2. **`sendContactMessage`.** One function at the outbound boundary. Turnstile
    verification and Resend delivery both sit behind it, so tests never reach the network.
-3. **The player controller.** A framework-free state module — current Song, playing,
-   position, seek — with no React and no DOM in its interface. Justified separately from
+3. **The player controller.** A framework-free state module, current Song, playing,
+   position, seek, with no React and no DOM in its interface. Justified separately from
    seam 1 because the iOS constraints make its state transitions subtle, and driving them
    through a browser is slow and indirect.
 
 ### Stack
 
 Next.js pinned to `16.3.4` exactly; Payload `3.88.x` with `payload` and `@payloadcms/*`
-moved in lockstep. The version window is narrow — `@payloadcms/next` excludes Next 15.5.x,
-16.0.x, 16.1.x and 16.2.0–16.2.5 — and everything below 16.3.3 carries two critical RCE
+moved in lockstep. The version window is narrow, `@payloadcms/next` excludes Next 15.5.x,
+16.0.x, 16.1.x and 16.2.0–16.2.5, and everything below 16.3.3 carries two critical RCE
 advisories. A routine dependency update can land outside the supported range, so `next` is
 pinned, not ranged. TypeScript strict, Biome for lint and format, Bun as package manager,
 Vitest and Playwright for tests, per the conventions in `docs/research/andy-stack.md`.
@@ -106,7 +106,7 @@ Vitest and Playwright for tests, per the conventions in `docs/research/andy-stac
 ### Routing and locales
 
 Payload runs inside the Next app under a `(payload)` route group. The frontend lives under
-a `(frontend)/[lang]/` tree. `proxy.ts` — Next 16's rename of `middleware.ts` — rewrites
+a `(frontend)/[lang]/` tree. `proxy.ts`, Next 16's rename of `middleware.ts`, rewrites
 unprefixed paths onto the Italian tree and passes `/en/*` through untouched.
 
 Its matcher **must** exclude `/admin`, `/api`, `/_next` and static assets. The naive
@@ -121,9 +121,9 @@ silently rather than rendering empty. URL segments are not translated: `/`, `/co
 
 Collections:
 
-- **`media`** — upload-enabled, images only. Cover images and Anna's portrait.
-- **`audio`** — upload-enabled, `audio/mpeg` only. One full track per record.
-- **`songs`** — title and story localized; relationships to one `media` cover and one
+- **`media`**, upload-enabled, images only. Cover images and Anna's portrait.
+- **`audio`**, upload-enabled, `audio/mpeg` only. One full track per record.
+- **`songs`**, title and story localized; relationships to one `media` cover and one
   `audio` track; an optional `platformUrl`; an explicit sort order; a duration in seconds
   stored on the record so the page never needs to load audio to render a running time.
 
@@ -135,8 +135,7 @@ field's existing data, so the schema has to be right the first time.
 
 ### Storage
 
-Postgres via `@payloadcms/db-postgres`, with migrations generated and run in deployment —
-`push` is dev-only. Media and audio go to Cloudflare R2 through `@payloadcms/storage-s3`,
+Postgres via `@payloadcms/db-postgres`, with migrations generated and run in deployment, `push` is dev-only. Media and audio go to Cloudflare R2 through `@payloadcms/storage-s3`,
 configured with `forcePathStyle: true`, `region: 'auto'`, no `acl` (R2 rejects
 `x-amz-acl`), and `requestChecksumCalculation: 'WHEN_REQUIRED'` (R2 does not support
 CRC32 full-object checksums).
@@ -146,7 +145,7 @@ proxied through Next: R2 egress is free, `Range` is supported on `GetObject`, an
 `r2.dev` domain is documented as rate-limited and not for production.
 
 `proxyClientMaxBodySize` is set explicitly above the largest expected track. Its 10 MB
-default does not error on overflow — it truncates the body silently, which would let Anna
+default does not error on overflow, it truncates the body silently, which would let Anna
 upload a corrupt track and believe it worked.
 
 ### Audio playback
@@ -155,7 +154,7 @@ One `<audio preload="none">` element mounted at layout level; Folders ask it to 
 ADR-0007 for why: iOS permits a single audio stream at a time, and twelve elements at
 `preload="metadata"` fire twelve requests before any interaction.
 
-`play()` and `src` assignment happen synchronously inside the gesture handler — nothing
+`play()` and `src` assignment happen synchronously inside the gesture handler, nothing
 awaited in between, or iOS blocks it. The playhead is written to a CSS custom property,
 never to React state; `timeupdate` has no specified frequency. The seek control is a
 native `<input type="range">`, styled, rather than a custom `role="slider"`. No volume
@@ -165,7 +164,7 @@ chunky decorative blocks, not a waveform.
 ### Contact
 
 A server action verifies the Turnstile token, then sends through Resend. Nothing is
-persisted — see ADR-0005. Sender and recipient are configuration, so re-pointing them at
+persisted, see ADR-0005. Sender and recipient are configuration, so re-pointing them at
 Anna's own domain later is an environment change, not a code change.
 
 ### Visual system
@@ -179,18 +178,18 @@ Folder tabs use the negative-margin technique: two boxes, tab with `border-botto
 `margin-block-end: -4px` and `z-index: 2` over an opaque body. Not `clip-path`, which
 clips the border. The Folder's shadow is one `filter: drop-shadow()` on the wrapper, never
 `box-shadow` per box, which notches the tab/body join. Tab position alternates down the
-column. The stack is not `role="tablist"` — it is a list of articles.
+column. The stack is not `role="tablist"`, it is a list of articles.
 
 Typography is Bricolage Grotesque, Instrument Sans and Azeret Mono, loaded with
 `subsets: ['latin', 'latin-ext']` and `axes: ['opsz', 'wdth']` (ADR-0008). Headings floor
 at `line-height: 0.9`: Italian all-caps carries diacritics above the cap height. Every
 heading is checked against `ÈÀÙ PERCHÉ PIÙ CITTÀ PERÒ` at final size, and laid out to the
-Italian string — short strings expand 200–300% from English.
+Italian string, short strings expand 200–300% from English.
 
 Motion is one signature move applied consistently: hover lifts and grows the shadow, press
 translates into the shadow and collapses it, around 90ms ease-out. Static rotation on tape
 and stickers, never animated. Marquees, entrances and loops sit inside a
-`prefers-reduced-motion: no-preference` query — declared there from the start, since the
+`prefers-reduced-motion: no-preference` query, declared there from the start, since the
 `0.001ms` override does not stop scroll-driven animation.
 
 ### Running it
@@ -234,7 +233,7 @@ There is no prior art: this is the first code in the repo. These tests set the c
 Dark mode. French. A page per Song. A downloadable CV. Real waveforms. Auto-advance
 between Songs. A volume control. Persisting contact submissions. Commission checkout or
 payments. A blog, a newsletter, or an events calendar. Analytics. Deployment of any
-kind — no Dockerfile, no CI, no Coolify configuration; the project runs locally until Andy
+kind, no Dockerfile, no CI, no Coolify configuration; the project runs locally until Andy
 takes it to production himself. A custom domain for the site itself.
 
 ## Further Notes
@@ -248,7 +247,7 @@ Four things are still needed from Anna and none of them can be invented:
 3. **Timeline material**: school, dates, performances, collaborations, competitions.
 4. **Real content**: Song titles, stories and platform links, in both languages.
 
-The riskiest part of the build is the ornament layer — tape, stickers, doodles. The
+The riskiest part of the build is the ornament layer, tape, stickers, doodles. The
 research found no shipped sites using it, so `docs/design/tape-and-stickers.md` is written
 from client references as a hypothesis, not an established technique. Build it early
 rather than last: it is what makes the site hers, and it is the part most likely to need

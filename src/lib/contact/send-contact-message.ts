@@ -6,8 +6,8 @@
  * at the edge rather than intercepted somewhere inside.
  *
  * Nothing is persisted (ADR-0005). Storing submissions would make the Portfolio a
- * controller of personal data — a retention period, an erasure path and a much longer
- * privacy notice — for a form that will see a few messages a month.
+ * controller of personal data, a retention period, an erasure path and a much longer
+ * privacy notice, for a form that will see a few messages a month.
  */
 
 export type ContactMessage = {

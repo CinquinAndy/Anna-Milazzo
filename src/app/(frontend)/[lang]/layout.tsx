@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 /**
  * Root layout for the Portfolio. The Payload admin has its own root layout under
- * `(payload)`, and neither the font variables nor the theme layer belong there — the
+ * `(payload)`, and neither the font variables nor the theme layer belong there, the
  * stylesheet's Preflight would zero the admin's own margins, padding and borders.
  *
  * `lang` is read from `params` rather than `next/root-params`: root-param types are

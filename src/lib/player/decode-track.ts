@@ -8,7 +8,7 @@ import { analyseSpectrum, toneOf } from '@/lib/player/spectrum'
  * rules out the two browser routes: `createMediaElementSource` can be called once per
  * element and permanently reroutes that element's output, and the page owns exactly one
  * `<audio>`; fetching each track a second time to decode it is blocked outright, because
- * the bucket's public domain sends no `access-control-allow-origin` — measured, not
+ * the bucket's public domain sends no `access-control-allow-origin`, measured, not
  * assumed. Even with CORS opened it would mean every visitor downloading every track
  * before hearing one.
  *
@@ -16,7 +16,7 @@ import { analyseSpectrum, toneOf } from '@/lib/player/spectrum'
  * waveform is correct on first paint rather than appearing a few seconds in.
  *
  * The decoder is a WASM build of mpg123 with no native binary behind it, so this adds
- * nothing to the deployment — which matters, because the client builds this himself
+ * nothing to the deployment, which matters, because the client builds this himself
  * without a Dockerfile.
  */
 export type TrackAnalysis = {
@@ -29,7 +29,7 @@ export type TrackAnalysis = {
 /**
  * Decodes once and measures twice.
  *
- * One decode for both, because decoding is by far the expensive half — measured on the real
+ * One decode for both, because decoding is by far the expensive half, measured on the real
  * tracks the spectral analysis itself takes 13 to 37 ms, which is nothing beside pulling a
  * few megabytes of MP3 through a WASM decoder.
  */
@@ -46,8 +46,8 @@ export async function readTrack(mp3: Uint8Array): Promise<TrackAnalysis | null> 
 			return null
 		}
 		// The full spectrum is computed and then folded away. Keeping it would be around
-		// 40 KB gzipped for a three-minute track — more than the rest of the landing page,
-		// and needing its own request — where one centroid per bucket costs what the
+		// 40 KB gzipped for a three-minute track, more than the rest of the landing page,
+		// and needing its own request, where one centroid per bucket costs what the
 		// waveform costs and travels with the page.
 		const spectrum = analyseSpectrum(channelData, samplesDecoded, sampleRate)
 		return {

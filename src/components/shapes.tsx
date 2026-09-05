@@ -3,7 +3,7 @@
  *
  * Everything here is built the same way the rest of the page is: flat fills inside black
  * keylines, no gradient, no radius that is not physically part of the object being drawn.
- * A record and a cassette reel are round because reels are round — that is the only reason
+ * A record and a cassette reel are round because reels are round, that is the only reason
  * anything on this site is.
  *
  * All of it is decoration: hidden from assistive technology, carrying nothing the text

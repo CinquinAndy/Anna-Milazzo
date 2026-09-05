@@ -203,7 +203,7 @@ test('pausing keeps the playhead where the audio stopped', async ({ page }) => {
 	expect(stopped).toBeGreaterThan(1.5)
 
 	// The controls must report where the Recruiter actually is, not snap back to the
-	// start — a seek slider reading 0 turns the next arrow key into a jump backwards.
+	// start, a seek slider reading 0 turns the next arrow key into a jump backwards.
 	await expect.poll(async () => Number(await seek.inputValue())).toBeGreaterThan(0)
 	await expect
 		.poll(async () =>

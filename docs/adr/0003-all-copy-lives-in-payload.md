@@ -1,7 +1,7 @@
 # All editorial copy lives in Payload, in both locales
 
-Every word on the Portfolio — section headings, the about text, button labels, the
-footer, not only Song content — is a localized Payload field. There are no JSON
+Every word on the Portfolio, section headings, the about text, button labels, the
+footer, not only Song content, is a localized Payload field. There are no JSON
 dictionaries. We write the first version of every string so the copy is good; Anna edits
 phrases and paragraphs afterwards, in Italian and English, without a deploy.
 

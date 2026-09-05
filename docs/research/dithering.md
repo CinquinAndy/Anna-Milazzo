@@ -1,8 +1,7 @@
 # Ordered dithering as a hero background
 
 Primary-source research for the hero background. The client asked for the *look* of
-`@paper-design/shaders-react`'s `DitheringShader` — chunky square pixels, ordered dithering —
-with the *behaviour* of a music-reactive canvas, in the portfolio's colours, discreet enough
+`@paper-design/shaders-react`'s `DitheringShader`, chunky square pixels, ordered dithering, with the *behaviour* of a music-reactive canvas, in the portfolio's colours, discreet enough
 to sit under white hero copy on the blue.
 
 Everything below was verified rather than recalled. Matrices were computed twice by
@@ -67,7 +66,7 @@ where `J_n` is the n x n matrix of ones. Starting from `M_2 = [[0,2],[3,1]]`:
 bit-twiddling identity `M(x,y) = bit_reverse(bit_interleave(x XOR y, y))` over log2(n) bits.
 The two agree for all three sizes, and each matrix is an exact permutation of `0..n^2-1`
 (checked). They were then compared byte-for-byte against the `bayer8x8` array in the shipped
-`@paper-design/shaders` build — **identical**. Three independent sources, one answer. Script:
+`@paper-design/shaders` build, **identical**. Three independent sources, one answer. Script:
 `scratchpad/bayer.js`.
 
 ### How the threshold quantises a field
@@ -83,11 +82,11 @@ The `+ 0.5` centres the threshold in its bucket, so a flat field of 0.0 is fully
 fully on, symmetrically. Without it a flat 0.0 field still lights the cell whose matrix entry
 is 0.
 
-Averaged over an 8x8 tile, the fraction of lit cells tracks the field value linearly — which
+Averaged over an 8x8 tile, the fraction of lit cells tracks the field value linearly, which
 is the whole trick. A continuous field becomes 65 perceptible grey levels (0/64 through
 64/64) using only two colours, and because the threshold depends on *position* rather than on
 neighbouring output, every pixel is independent. No conditionals, no serial dependency,
-trivially parallel — which is why it suits both a fragment shader and a tight JS loop.
+trivially parallel, which is why it suits both a fragment shader and a tight JS loop.
 
 For **more than two levels**, Wikipedia gives the general form:
 
@@ -107,12 +106,12 @@ The size sets how many grey levels you get and how large the repeating tile is:
 |---|---|---|---|
 | 2x2 | 5 | 2x2 cells | Very coarse. Reads as a hard checkerboard; gradients band into four visible steps. |
 | 4x4 | 17 | 4x4 cells | The usual compromise. Recognisably a dither pattern, still fairly smooth. |
-| 8x8 | 65 | 8x8 cells | Smoothest gradient, but the largest repeat — the "crosshatch" is most legible as a texture. |
+| 8x8 | 65 | 8x8 cells | Smoothest gradient, but the largest repeat, the "crosshatch" is most legible as a texture. |
 
 The counter-intuitive part: **a bigger matrix gives a smoother gradient but a more visible
 pattern**. More levels means finer tonal steps, but the tile it tiles with is 8 cells wide
 instead of 2, so the crosshatch structure becomes a texture you can actually see. Wikipedia
-notes results are "characterized by noticeable crosshatch patterns" — that artefact is the
+notes results are "characterized by noticeable crosshatch patterns", that artefact is the
 *point* here, not a defect.
 
 For this page, 8x8 is right: the field needs enough tonal resolution that a travelling wave
@@ -133,9 +132,9 @@ The differences that matter here:
 | | Ordered (Bayer) | Error diffusion (Floyd–Steinberg) |
 |---|---|---|
 | Look | Regular, geometric, obviously a grid | Organic, scattered, noise-like |
-| Dependency | Each pixel independent | Strictly serial — each pixel depends on its predecessors |
+| Dependency | Each pixel independent | Strictly serial, each pixel depends on its predecessors |
 | Parallel | Yes, per-pixel, GPU-native | No |
-| Under animation | Stable; the pattern sits still while the field moves through it | **Jitters** — a tiny change to one pixel re-routes error across the whole scanline |
+| Under animation | Stable; the pattern sits still while the field moves through it | **Jitters**, a tiny change to one pixel re-routes error across the whole scanline |
 
 Wikipedia states ordered dithering "has no conditional statements, it is very fast and
 suitable for real-time transformations", is "less prone to jitter than error-diffusion
@@ -144,7 +143,7 @@ methods, making it suitable for animations", and "compresses better".
 **Ordered dithering is the correct choice, and error diffusion is disqualified twice over.**
 
 Aesthetically: the client asked for chunky, regular, obviously-digital. That *is* ordered
-dithering. Floyd–Steinberg's whole virtue is hiding the grid — it produces a soft organic
+dithering. Floyd–Steinberg's whole virtue is hiding the grid, it produces a soft organic
 scatter that looks like film grain or newsprint. On a page built on zero radius, 4px
 keylines and `steps()` motion, an organic scatter is the wrong grammar. It is also, notably,
 the same shape of idea as the "concentric ripples" and "piano roll of rectangles" the client
@@ -194,8 +193,7 @@ void main() {
 }
 ```
 
-Two details are load-bearing. **Quantise to the cell before evaluating the field**, not after
-— otherwise you evaluate the wave per device pixel and then threshold, which produces a
+Two details are load-bearing. **Quantise to the cell before evaluating the field**, not after, otherwise you evaluate the wave per device pixel and then threshold, which produces a
 1-pixel dither, not a chunky one. And **index the Bayer table by the block coordinate**, not
 the fragment coordinate, so the matrix tiles across cells rather than within them. The
 library gets both right.
@@ -221,7 +219,7 @@ the 2D route.
   pages, laptops switching between integrated and discrete GPUs, another page stalling the
   GPU (which loses *every* context in the browser), and graphics driver updates. Recovery
   requires calling `preventDefault()` on `webglcontextlost`, then rebuilding every shader,
-  program, buffer and texture on `webglcontextrestored` — none of which survives the loss.
+  program, buffer and texture on `webglcontextrestored`, none of which survives the loss.
   **Correction to a common assumption:** the shipped `@paper-design/shaders` `ShaderMount`
   has **no `webglcontextlost` or `webglcontextrestored` handling at all**. On a laptop that
   switches GPUs, its background goes blank and stays blank until reload.
@@ -229,10 +227,10 @@ the 2D route.
   releases the context, you leak one per remount and walk toward the ~16 cap.
 - **Cleanup** needs `cancelAnimationFrame`, plus ideally
   `gl.getExtension('WEBGL_lose_context').loseContext()` to release the GPU allocation
-  eagerly rather than waiting for GC. Note this extension is **not universally present** — it
+  eagerly rather than waiting for GC. Note this extension is **not universally present**, it
   returned null in my test environment, so guard it.
 
-### (b) Canvas 2D at reduced resolution — **recommended**
+### (b) Canvas 2D at reduced resolution, **recommended**
 
 Render the field into a small buffer where **one buffer pixel is one dither cell**, then let
 the browser scale it up with `image-rendering: pixelated`. The upscale is what produces the
@@ -248,21 +246,21 @@ chunky square blocks; you never draw a block yourself.
 | Naive fill + put, 320x180 | 57,600 | **1.227** |
 | Naive fill + put, 640x360 | 230,400 | **5.251** |
 | Naive fill + put, 1600x900 | 1,440,000 | **33.44** |
-| `drawImage` 320x180 → 1600x900, smoothing **off** | — | **0.0015** |
-| `drawImage` 320x180 → 1600x900, smoothing **on** | — | **0.0010** |
+| `drawImage` 320x180 → 1600x900, smoothing **off** |, | **0.0015** |
+| `drawImage` 320x180 → 1600x900, smoothing **on** |, | **0.0010** |
 
 **The headline finding: `putImageData` is not the bottleneck. The JS fill loop is.** At
-320x180 the transfer is 0.103 ms of a 1.227 ms frame — 8%. The other 92% is the per-pixel
+320x180 the transfer is 0.103 ms of a 1.227 ms frame, 8%. The other 92% is the per-pixel
 arithmetic. Optimising the transfer is optimising the wrong thing.
 
 Scaling is close to linear in pixel count (25x the pixels costs 27x the time), so the
 budget is simply pixels-per-frame. **1600x900 at 33.4 ms/frame already misses 30fps on a
-fast desktop** — it is not a viable size on the main thread. 320x180 at 1.2 ms naive is
+fast desktop**, it is not a viable size on the main thread. 320x180 at 1.2 ms naive is
 comfortable, and leaves headroom for a phone at 4–8x slower.
 
 **Correction to the framing in the brief:** the honest comparison is not "320x180 vs
 1600x900". It is "one pixel per *cell* vs one pixel per *screen pixel*". With an 8px cell a
-1600x830 hero needs a **200x104** buffer — 20,800 pixels, about a third of even the 320x180
+1600x830 hero needs a **200x104** buffer, 20,800 pixels, about a third of even the 320x180
 figure. The chunkiness is free; you are rendering at 1/64th the area precisely *because* the
 output is chunky.
 
@@ -288,37 +286,36 @@ Measured on the shipped component's exact geometry (200x104, its real three-wave
 
 | Version | ms/frame |
 |---|---|
-| As shipped — 3 `Math.sin` per pixel, byte-at-a-time writes | **0.988** |
-| Separable — per-axis tables, `Uint32Array` writes | **0.137** |
+| As shipped, 3 `Math.sin` per pixel, byte-at-a-time writes | **0.988** |
+| Separable, per-axis tables, `Uint32Array` writes | **0.137** |
 
-**7.2x faster, and the output is bit-identical** — 0 differing cells out of 20,800, verified
+**7.2x faster, and the output is bit-identical**, 0 differing cells out of 20,800, verified
 by pixel comparison. Two independent changes:
 
 1. **Separability.** Every term is of the form `sin(f(x) + g(y))`, which expands to
    `sin(f) cos(g) + cos(f) sin(g)`. Precompute `sin`/`cos` per column and per row once, then
    the inner loop is multiply-add only. This turns `3 * W * H` transcendental calls into
-   `~2 * (W + H)` — for 200x104, from 62,400 down to about 600.
+   `~2 * (W + H)`, for 200x104, from 62,400 down to about 600.
 2. **`Uint32Array` writes.** Alias the `ImageData` buffer with a `Uint32Array` and write one
    packed word per pixel instead of four byte stores. Note the word is little-endian **ABGR**:
    `(255 << 24) | (b << 16) | (g << 8) | r`.
 
-### (c) Pure CSS — **a dead end, plainly**
+### (c) Pure CSS, **a dead end, plainly**
 
 You can *fake* a static dither in CSS. `repeating-linear-gradient` with hard colour stops
 tiles a checkerboard, and layering a few at different angles gets something crosshatch-ish.
 `background-position` animates cheaply on the compositor.
 
 But it cannot do the thing being asked for, for a structural reason: **CSS gradients cannot
-threshold one field against another.** Ordered dithering is `field(x,y) > threshold(x,y)` —
-a per-pixel comparison between a *moving continuous* field and a *static* matrix. CSS has no
-per-pixel conditional. `background-blend-mode` gets closest — `difference` or `exclusion`
-between a gradient and a Bayer tile — but blend modes interpolate, they do not threshold, so
+threshold one field against another.** Ordered dithering is `field(x,y) > threshold(x,y)`, a per-pixel comparison between a *moving continuous* field and a *static* matrix. CSS has no
+per-pixel conditional. `background-blend-mode` gets closest, `difference` or `exclusion`
+between a gradient and a Bayer tile, but blend modes interpolate, they do not threshold, so
 you get a soft moiré rather than hard two-colour cells. Everything in CSS is interpolation;
 dithering is quantisation.
 
 Animating `background-position` only *translates* a fixed pattern. It slides wallpaper past
 the window. It cannot make crests form and dissolve, which is the entire behaviour the client
-wants — and a translating texture is exactly the "wallpaper" failure mode prior research
+wants, and a translating texture is exactly the "wallpaper" failure mode prior research
 already flagged.
 
 There is one narrow honest use: a **static** Bayer tile as a base64 PNG in `background-image`
@@ -337,7 +334,7 @@ spend time on it.
 | New dependency | Optional | No | No |
 
 **Canvas 2D at cell resolution wins**, and not narrowly. WebGL's runtime advantage is real
-but irrelevant — it is 0.14 ms against a 50 ms budget at 20fps. You would be paying context
+but irrelevant, it is 0.14 ms against a 50 ms budget at 20fps. You would be paying context
 loss handling, a context cap, and Strict Mode remount hazards to reclaim a quarter of a
 percent of a frame. The GPU route is correct when you are shading a million pixels; here you
 are shading twenty thousand.
@@ -347,9 +344,9 @@ are shading twenty thousand.
 ## 3. `@paper-design/shaders-react`
 
 **It exists.** Current version **0.0.80**. Licence **Apache-2.0** (verified from the repo
-LICENSE — standard, permissive, no unusual clauses). Repo `paper-design/shaders`, monorepo
+LICENSE, standard, permissive, no unusual clauses). Repo `paper-design/shaders`, monorepo
 with a framework-agnostic `@paper-design/shaders` core and this React wrapper. Note the
-version number: **0.0.x**, and the published history is erratic — 0.0.47 through 0.0.55 all
+version number: **0.0.x**, and the published history is erratic, 0.0.47 through 0.0.55 all
 landed within days, then a jump straight to 0.0.80. There is no stability promise here.
 
 **Props of `Dithering`,** read from the shipped source:
@@ -370,7 +367,7 @@ interface DitheringParams {
 in favour of `size`. The pasted usage `pxSize={3}` is already writing against a deprecated
 prop on a 0.0.x package.
 
-**Does it support more than two colours? No — and this is decisive.** The final lines of the
+**Does it support more than two colours? No, and this is decisive.** The final lines of the
 fragment shader are:
 
 ```glsl
@@ -389,14 +386,14 @@ component cannot do it and the library offers no seam to extend it.
 **Does it expose a hook for external input such as playback state?** Partially, and better
 than expected:
 
-- `speed` scales time. Setting `speed={0}` **cancels the rAF loop entirely** — the source
+- `speed` scales time. Setting `speed={0}` **cancels the rAF loop entirely**, the source
   comments "If set to 0, rAF will stop entirely so static shaders have no recurring
   performance costs." So `speed={isPlaying ? 1 : 0}` is a legitimate, cheap playback gate.
 - `setFrame(n)` on the mount instance sets the time value directly and re-renders
-  synchronously — you *could* drive it per-frame from outside.
+  synchronously, you *could* drive it per-frame from outside.
 
 There is **no audio, analyser, or amplitude input of any kind.** You would be driving it
-through the time axis only. That happens to suit us — prior research already concluded a real
+through the time axis only. That happens to suit us, prior research already concluded a real
 `AnalyserNode` is a gimmick here, and ADR-0007's single shared `<audio>` makes
 `createMediaElementSource` actively dangerous, since it can be called only once per element
 and permanently reroutes that element's output. But it means the library gives you nothing
@@ -406,7 +403,7 @@ Credit where due: `ShaderMount` **does** ship `IntersectionObserver` viewport pa
 `visibilitychange` pausing, `ResizeObserver` sizing, and `devicePixelRatio` handling. That is
 genuinely more lifecycle care than most such libraries. Its one real gap is context loss.
 
-**Bundle size — measured, not estimated.** I downloaded both packages, bundled a single
+**Bundle size, measured, not estimated.** I downloaded both packages, bundled a single
 `import { Dithering }` with esbuild (minified, React external), and weighed the output:
 
 | | Bytes |
@@ -416,7 +413,7 @@ genuinely more lifecycle care than most such libraries. Its one real gap is cont
 | Brotli | **8,410** |
 
 Tree-shaking works as advertised: both packages set `sideEffects: false`, and the 23 KB noise
-texture module is correctly excluded. **~9.4 KB gzipped is a fair and honest number** — this
+texture module is correctly excluded. **~9.4 KB gzipped is a fair and honest number**, this
 is not a bloated library.
 
 ### Verdict: write our own
@@ -427,13 +424,12 @@ handles more lifecycle than I expected. The case against it is specific to this 
 1. **It cannot do the job in our colours.** Two hard-thresholded colours only. The palette has
    ten.
 2. **It brings a WebGL context with no context-loss handling.** A laptop switching GPUs
-   blanks the hero permanently until reload. We would have to fork or wrap it to fix that —
-   at which point we own it anyway.
+   blanks the hero permanently until reload. We would have to fork or wrap it to fix that, at which point we own it anyway.
 3. **It is 0.0.x with an erratic release history**, and the client's own snippet already uses
    a deprecated prop. Pinning a 0.0.x package for one decorative background on one page is a
    maintenance liability out of proportion to the decoration.
 4. **The dependency is culturally out of place.** `package.json` currently has eleven runtime
-   dependencies, all Payload, Next, React or Sharp. There is no motion library — all
+   dependencies, all Payload, Next, React or Sharp. There is no motion library, all
    animation is CSS by deliberate choice. Adding a shader library for one background would be
    the first dependency of its kind, and it would sit oddly beside a codebase that
    hand-writes its components and rejected shadcn.
@@ -441,7 +437,7 @@ handles more lifecycle than I expected. The case against it is specific to this 
    lines *including* a long explanatory header comment; the executable core is about 90. That
    compiles to well under 9.4 KB, has no GL context, and is fully ours to tune.
 
-The library is worth reading — its Bayer table is the same one, and its
+The library is worth reading, its Bayer table is the same one, and its
 "quantise-to-cell-then-threshold" ordering is worth copying. It is not worth depending on.
 
 ---
@@ -457,12 +453,12 @@ The library is worth reading — its Bayer table is the same one, and its
 | `smooth` | not supported | 93 | not supported | not supported |
 
 **Use `pixelated`. Do not use `crisp-edges`.** Unprefixed `crisp-edges` only reached Chrome
-in version **148** — released weeks ago at time of writing. Before that Chrome needed the
+in version **148**, released weeks ago at time of writing. Before that Chrome needed the
 `-webkit-optimize-contrast` alias, and Safari needs it below 7. `pixelated` has been in all
 four engines since Firefox 93 (Oct 2021) and is genuinely safe now. I confirmed both parse in
 Chromium 148 via `CSS.supports()`; `smooth` correctly reported false.
 
-**Interaction with `devicePixelRatio` and non-integer scale — measured.** The spec says
+**Interaction with `devicePixelRatio` and non-integer scale, measured.** The spec says
 `pixelated` scales by nearest-neighbour "to the nearest integer multiple of the original image
 size, then uses smooth interpolation to bring the image to the final desired size". I tested
 what actually happens by scaling a 1-pixel checker and reading back run lengths:
@@ -478,20 +474,20 @@ what actually happens by scaling a 1-pixel checker and reading back run lengths:
 **Does the chunky pixel stay square? Two different answers, and the distinction matters.**
 
 - **It stays *hard*.** In every case, including every non-integer scale, **not one blended
-  pixel appeared** — output was pure front or pure back throughout. The two-colour look
+  pixel appeared**, output was pure front or pure back throughout. The two-colour look
   survives arbitrary scaling intact. This is the important half, and it is good news.
 - **It does not stay *uniform*.** At non-integer scale the block widths beat between `floor`
-  and `ceil` of the scale — at 9.375x you get an irregular 9/10/9/10/9/9/10 rhythm. Blocks
+  and `ceil` of the scale, at 9.375x you get an irregular 9/10/9/10/9/9/10 rhythm. Blocks
   stay rectangular and axis-aligned, but neighbours differ by one device pixel.
 
 At `devicePixelRatio` 2 the backing store doubles, so a 320-wide buffer filling a 1600px CSS
-element scales by 10 rather than 5 — still integer, still uniform. **DPR 2 is harmless, and
+element scales by 10 rather than 5, still integer, still uniform. **DPR 2 is harmless, and
 in fact helps: it doubles the number of scale factors that land on integers.** The real
 hazard is fractional DPR (1.25, 1.5, common on Windows and Android) combined with a fluid
 width, which almost never lands on an integer.
 
 **The practical consequence is mild and there is a clean fix.** A ±1 device-pixel beat in an
-8px cell is a 12% width variation on a low-contrast background — invisible in practice, and
+8px cell is a 12% width variation on a low-contrast background, invisible in practice, and
 it is *not* the blurring people fear. If you want it exact, derive the buffer size from the
 element's real measured size rather than a fixed constant:
 
@@ -502,12 +498,12 @@ canvas.height = Math.max(1, Math.ceil(rect.height / CELL))
 ```
 
 This is what `DitherField` already does, and it keeps the scale factor at exactly `CELL`
-regardless of viewport width — the buffer flexes instead of the blocks. It is the right
+regardless of viewport width, the buffer flexes instead of the blocks. It is the right
 pattern and it sidesteps the whole problem.
 
 One more: `putImageData` is **not** affected by `imageSmoothingEnabled` (it is a raw byte
 transfer, per section 2b). Smoothing only matters if you upscale with `drawImage`. Scaling
-via CSS on the canvas element — which is what we do — is governed by `image-rendering` alone.
+via CSS on the canvas element, which is what we do, is governed by `image-rendering` alone.
 
 ---
 
@@ -520,8 +516,7 @@ Three separate costs, and they are usually conflated:
 1. **JS main-thread time.** Measured above. This is the one you control, and at cell
    resolution it is 0.14–1.0 ms/frame.
 2. **Compositing / fill rate.** The GPU must composite a full-viewport layer every frame.
-   Roughly proportional to on-screen area in device pixels, and *independent of buffer size* —
-   a 200x104 buffer displayed at 1600x830 costs the same to composite as a native-resolution
+   Roughly proportional to on-screen area in device pixels, and *independent of buffer size*, a 200x104 buffer displayed at 1600x830 costs the same to composite as a native-resolution
    one. On a phone at DPR 3 this is the dominant cost, not your fill.
 3. **Wakeups.** The most expensive thing about a continuous animation is that it prevents the
    CPU from reaching deep idle states. A loop doing almost nothing 60 times a second still
@@ -551,9 +546,9 @@ frame = requestAnimationFrame(tick)
 ```
 
 Two subtleties. Only update `last` on frames you actually draw, or you drift. And clamp the
-delta — after a background stall `now - last` can be seconds, which lurches the animation.
+delta, after a background stall `now - last` can be seconds, which lurches the animation.
 
-**2. Page Visibility API — pause in a hidden tab.**
+**2. Page Visibility API, pause in a hidden tab.**
 
 ```ts
 if (document.hidden) { last = now; return }
@@ -564,14 +559,13 @@ delta and jumps.
 
 **Correction to a common belief:** you often read that this is unnecessary because browsers
 stop rAF in background tabs. MDN confirms browsers do stop rAF callbacks for background
-tabs — but it also lists explicit **exemptions from throttling for tabs playing audio**,
+tabs, but it also lists explicit **exemptions from throttling for tabs playing audio**,
 along with WebSocket, WebRTC and IndexedDB. **This page plays audio by design.** Anna
 Milazzo's hero exists to play her music, and a listener who starts a track and switches tabs
-is the expected behaviour, not the edge case. Do not assume the browser will pause you here —
-check `document.hidden` explicitly. This is the single most valuable line in the section, and
+is the expected behaviour, not the edge case. Do not assume the browser will pause you here, check `document.hidden` explicitly. This is the single most valuable line in the section, and
 it is the one most likely to be omitted as redundant.
 
-**3. IntersectionObserver — pause when scrolled past.**
+**3. IntersectionObserver, pause when scrolled past.**
 
 ```ts
 let visible = true
@@ -587,9 +581,9 @@ observer.observe(canvas)
 `threshold: 0` fires the moment any part crosses the boundary, which is what you want for a
 pause gate. MDN notes the observer runs asynchronously off the main thread, so this is much
 cheaper than polling `getBoundingClientRect()`. For a hero this is the highest-value gate of
-the three — a visitor reading the biography has the hero fully off screen.
+the three, a visitor reading the biography has the hero fully off screen.
 
-**4. `prefers-reduced-motion` — never start.**
+**4. `prefers-reduced-motion`, never start.**
 
 ```ts
 const still = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -628,20 +622,20 @@ already implements route (b). Checked against everything above, it holds up well
 **Confirmed correct:**
 
 - Its `BAYER` table is byte-identical to the matrix verified three ways in section 1.
-- One buffer pixel per 8px cell — 200x104 at 1600x830, the right resolution by section 2b.
-- `image-rendering: pixelated` (`globals.css:724`), not `crisp-edges` — the right choice by
+- One buffer pixel per 8px cell, 200x104 at 1600x830, the right resolution by section 2b.
+- `image-rendering: pixelated` (`globals.css:724`), not `crisp-edges`, the right choice by
   section 4, and it derives buffer size from `getBoundingClientRect()`, which keeps the scale
   factor exactly `CELL` at any viewport width.
 - All five power gates present: 20fps throttle (correctly not updating `last` on skipped
   frames, and clamping the delta to 200 ms), `document.hidden`, `IntersectionObserver`,
   `prefers-reduced-motion` returning before scheduling, and playback-state easing.
-- Reads `state.status` from the reducer rather than an `AnalyserNode` — correct under
+- Reads `state.status` from the reducer rather than an `AnalyserNode`, correct under
   ADR-0007, and correct per prior research on FFT being a downgrade.
 - `alpha: false` with the background colour written into every pixel. This is *necessary*,
   not incidental: section 2b shows `putImageData` ignores `globalAlpha` entirely, so baking
   is the only way to control the layer's weight from inside the buffer.
 - `readColour` resolves the palette by painting and reading back a pixel rather than parsing
-  `getComputedStyle().color`. This is genuinely right and worth preserving — the palette is
+  `getComputedStyle().color`. This is genuinely right and worth preserving, the palette is
   authored in oklch and Chromium returns computed colours in `lab()`, so a regex for `rgb()`
   matches nothing.
 
@@ -653,13 +647,13 @@ already implements route (b). Checked against everything above, it holds up well
 | Bare blue `#3866A8` | 5.78:1 |
 | Dithered cell `#233F68` | **10.59:1** |
 
-**The worst cell in the field is 5.78:1 — the bare ground.** The field can only darken, never
+**The worst cell in the field is 5.78:1, the bare ground.** The field can only darken, never
 lift, so white copy is safe everywhere without a mask. The claim in the header comment is
 correct.
 
 This is worth stating as a general rule, because the framing in the brief invites the wrong
-conclusion. The brief's own figure checks out — sheet at 17% over blue composites to `#5980B6`
-at 4.05:1, failing 4.5 — but the real headroom is tighter than 17%:
+conclusion. The brief's own figure checks out, sheet at 17% over blue composites to `#5980B6`
+at 4.05:1, failing 4.5, but the real headroom is tighter than 17%:
 
 | Dither colour over the blue | Max opacity keeping white ≥ 4.5:1 |
 |---|---|
@@ -674,23 +668,23 @@ at 4.05:1, failing 4.5 — but the real headroom is tighter than 17%:
 
 And note the trap: **the average opacity of the field is irrelevant.** A dither is binary, so
 a patch where all 64 cells of a tile are lit has the full dither colour as its local
-background. The worst case is a saturated region, not the mean — which is exactly why a
+background. The worst case is a saturated region, not the mean, which is exactly why a
 lightening field is so constrained and a darkening one is unconditionally safe.
 
 **Two worthwhile improvements:**
 
-1. **Separable fill — 7.2x faster, bit-identical output.** Measured on this component's exact
+1. **Separable fill, 7.2x faster, bit-identical output.** Measured on this component's exact
    geometry and exact three-wave field: **0.988 ms → 0.137 ms per frame**, with 0 differing
    cells out of 20,800 verified by pixel comparison. All three wave terms are
-   `sin(f(x) + g(y))`, which expands to `sin(f)cos(g) + cos(f)sin(g)` — precompute `sin`/`cos`
+   `sin(f(x) + g(y))`, which expands to `sin(f)cos(g) + cos(f)sin(g)`, precompute `sin`/`cos`
    per column and per row, then the inner loop is multiply-add only. Combine with
    `Uint32Array` writes over the `ImageData` buffer (little-endian ABGR:
    `(255<<24)|(b<<16)|(g<<8)|r`). This is not needed on desktop, where 0.988 ms of a 50 ms
-   budget is already fine — it matters on a mid-range phone at 4–8x slower, where it is the
+   budget is already fine, it matters on a mid-range phone at 4–8x slower, where it is the
    difference between ~4–8 ms and well under 1 ms per frame.
 
 2. **`ResizeObserver` instead of `window.resize`.** The current listener misses hero height
-   changes that are not window resizes — web font loading reflowing the tagline, and mobile
+   changes that are not window resizes, web font loading reflowing the tagline, and mobile
    URL-bar show/hide, which changes viewport height without firing `resize` reliably on iOS.
    `ResizeObserver` on the canvas catches all of them and is a smaller amount of code.
 
@@ -702,16 +696,16 @@ reactive canvas, and write neither of them as a dependency.
 
 ## Sources
 
-- [Ordered dithering — Wikipedia](https://en.wikipedia.org/wiki/Ordered_dithering)
-- [Floyd–Steinberg dithering — Wikipedia](https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering)
-- [`@paper-design/shaders-react` — npm registry](https://registry.npmjs.org/@paper-design/shaders-react)
-- [`paper-design/shaders` LICENSE — Apache-2.0](https://github.com/paper-design/shaders/blob/main/LICENSE)
+- [Ordered dithering, Wikipedia](https://en.wikipedia.org/wiki/Ordered_dithering)
+- [Floyd–Steinberg dithering, Wikipedia](https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering)
+- [`@paper-design/shaders-react`, npm registry](https://registry.npmjs.org/@paper-design/shaders-react)
+- [`paper-design/shaders` LICENSE, Apache-2.0](https://github.com/paper-design/shaders/blob/main/LICENSE)
 - [`dithering.ts` shader source](https://github.com/paper-design/shaders/blob/main/packages/shaders/src/shaders/dithering.ts)
 - [`shader-mount.ts` source](https://github.com/paper-design/shaders/blob/main/packages/shaders/src/shader-mount.ts)
-- [MDN — `image-rendering`](https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering)
-- [MDN browser-compat-data — `image-rendering.json`](https://github.com/mdn/browser-compat-data/blob/main/css/properties/image-rendering.json)
-- [MDN — `putImageData`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/putImageData)
-- [MDN — `WebGLRenderingContext.isContextLost`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/isContextLost)
-- [MDN — Page Visibility API](https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API)
-- [MDN — Intersection Observer API](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
-- [WHATWG HTML — Canvas](https://html.spec.whatwg.org/multipage/canvas.html)
+- [MDN, `image-rendering`](https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering)
+- [MDN browser-compat-data, `image-rendering.json`](https://github.com/mdn/browser-compat-data/blob/main/css/properties/image-rendering.json)
+- [MDN, `putImageData`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/putImageData)
+- [MDN, `WebGLRenderingContext.isContextLost`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/isContextLost)
+- [MDN, Page Visibility API](https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API)
+- [MDN, Intersection Observer API](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
+- [WHATWG HTML, Canvas](https://html.spec.whatwg.org/multipage/canvas.html)

@@ -5,7 +5,7 @@ import config from '../payload.config'
  * Deletes every Song and every uploaded file, so `bun run seed` can rebuild from scratch.
  *
  * This exists because `bun run seed` is deliberately non-destructive and there are times
- * a clean slate is the only correct move — the switch from local disk to R2 in ticket 05
+ * a clean slate is the only correct move, the switch from local disk to R2 in ticket 05
  * being the first, since the records survive but the files they point at do not.
  *
  * `DATABASE_URL` points at shared infrastructure, so it refuses to run without
@@ -31,7 +31,7 @@ async function reset(): Promise<void> {
 		payload.logger.info(`deleted ${docs.length} from ${collection}`)
 	}
 
-	payload.logger.info('reset complete — run `bun run seed` to rebuild')
+	payload.logger.info('reset complete, run `bun run seed` to rebuild')
 }
 
 await reset()

@@ -161,7 +161,7 @@ test.describe('the theme layer', () => {
 			await expect(box, `${step} is missing from the specimen`).toHaveCount(1)
 
 			const shadow = await box.evaluate(el => getComputedStyle(el).boxShadow)
-			// `rgb(...) Xpx Ypx BLURpx SPREADpx` — the third length is the blur radius.
+			// `rgb(...) Xpx Ypx BLURpx SPREADpx`, the third length is the blur radius.
 			const lengths = shadow.match(/-?\d+(\.\d+)?px/g) ?? []
 			expect(lengths.length, `could not read lengths from "${shadow}"`).toBeGreaterThanOrEqual(3)
 			expect(lengths[2], `${step} has a blur radius: ${shadow}`).toBe('0px')
@@ -243,14 +243,14 @@ test.describe('the theme layer', () => {
 
 		// Accented capitals put the mark and the letter in separate bands, and at a
 		// line-height below 1 the second line's marks legitimately rise above its line
-		// box — so ink crossing the seam is expected. What must not happen is the two
+		// box, so ink crossing the seam is expected. What must not happen is the two
 		// lines running together: that shows up as an unbroken run of ink through the
 		// whole seam region.
 		const window = seam.lineHeight * 0.4
 		const daylight = blankRows(bands, seam.row - window, seam.row + window)
 		expect(daylight, `no daylight around row ${Math.round(seam.row)}: È À Ù have hit the line above`).toBe(true)
 
-		// Both lines actually rendered — otherwise the assertion above is vacuous.
+		// Both lines actually rendered, otherwise the assertion above is vacuous.
 		expect(
 			bands.some(([, end]) => end <= seam.row),
 			'no ink on the first line'
@@ -276,7 +276,7 @@ test.describe('the theme layer', () => {
 
 		// È À Ù carry their marks above the cap height, so the accented probe must have
 		// ink strictly higher than the bare capitals. Equal tops would mean the marks
-		// are missing — the subset failed to load — or clipped off.
+		// are missing, the subset failed to load, or clipped off.
 		expect(accentedTop, 'ÈÀÙ starts no higher than EAU: the marks are not being drawn').toBeLessThan(plainTop)
 	})
 
@@ -313,7 +313,7 @@ test.describe('the theme layer', () => {
 			expect(style.style, 'no focus outline').not.toBe('none')
 			expect(Number.parseFloat(style.width)).toBeGreaterThanOrEqual(3)
 
-			// The blue, not the black keyline — an offset black outline around an
+			// The blue, not the black keyline, an offset black outline around an
 			// element that already has a black keyline reads as a doubled border.
 			const outline = await resolveColour(page, style.colour)
 			const keyline = await resolveColour(page, style.keyline)

@@ -1,7 +1,7 @@
 /**
  * Turning a written period into a position on a time ruler.
  *
- * The CMS gives a free-text period — "2019–2022", "2024", "2022 - 2026" — because that is
+ * The CMS gives a free-text period, "2019–2022", "2024", "2022 - 2026", because that is
  * what Anna writes, not a pair of date pickers. Reading the years out of it is what lets a
  * clip's width mean its duration: a three-year conservatory really is three times the
  * width of a one-year commission. A layout that sizes every entry the same is a chart with
@@ -17,7 +17,7 @@ const LATEST_PLAUSIBLE_YEAR = 2200
 /**
  * Reads the first two four-digit years out of a period.
  *
- * One year means a span of one — an entry written "2024" occupied a year, not an instant,
+ * One year means a span of one, an entry written "2024" occupied a year, not an instant,
  * and giving it zero width would erase it from the arrangement. Reversed pairs are
  * swapped rather than rejected: "2026-2022" is a typo, not a reason to drop the entry off
  * the timeline entirely.
@@ -62,7 +62,7 @@ export type Arrangement<T> = {
 }
 
 /**
- * Lays entries out against a shared ruler that runs BACKWARDS — newest at bar one.
+ * Lays entries out against a shared ruler that runs BACKWARDS, newest at bar one.
  *
  * Both axes are reversed, and for the same reason. The CMS holds Anna's history in the
  * order she lived it, so left to right and top down the first thing a reader met was the
@@ -76,7 +76,7 @@ export type Arrangement<T> = {
  * edge, so the one thing a Recruiter most wants to see was the one thing they had to go
  * looking for. Counting down puts it against the left edge at rest.
  *
- * Entries whose period carries no year are kept, not dropped — losing a line of someone's
+ * Entries whose period carries no year are kept, not dropped, losing a line of someone's
  * history because they wrote "in corso" would be the worst possible failure here. They are
  * placed after the last known bar, which on a reversed ruler is before all of it: "ongoing"
  * is the most recent thing there is.
@@ -112,7 +112,7 @@ export function arrange<T>(entries: T[], periodOf: (entry: T) => string | null |
 	const span = Math.max(...lanes.map(lane => lane.offset + lane.length))
 
 	// Flipped end for end. A clip that ran from bar 7 to bar 8 on a forward ruler runs from
-	// bar 0 to bar 1 on a backward one, and its LENGTH is untouched — a three-year
+	// bar 0 to bar 1 on a backward one, and its LENGTH is untouched, a three-year
 	// conservatory is still three bars wide, which is the whole reason these are spans and
 	// not dots.
 	for (const lane of lanes) {
@@ -120,7 +120,7 @@ export function arrange<T>(entries: T[], periodOf: (entry: T) => string | null |
 	}
 
 	// Ascending on the reversed ruler, which is descending in time. Stable, so two entries
-	// from the same year keep the order Anna put them in — nothing here knows which of them
+	// from the same year keep the order Anna put them in, nothing here knows which of them
 	// she considers the more important.
 	lanes.sort((a, b) => a.offset - b.offset)
 

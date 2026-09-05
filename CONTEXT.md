@@ -1,4 +1,4 @@
-# Anna Milazzo — Portfolio
+# Anna Milazzo, Portfolio
 
 The public site of Anna Milazzo, a musician recently graduated from music school.
 It exists to get her hired.

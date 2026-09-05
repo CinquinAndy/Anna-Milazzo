@@ -1,4 +1,4 @@
-# Music visual language — a vocabulary of devices
+# Music visual language, a vocabulary of devices
 
 Status: design brief. Answers the client note "it doesn't feel like the world of music at
 all" (`docs/design/client-critique-v2.md`) with a set of drawable objects rather than a
@@ -19,7 +19,7 @@ This is the load-bearing decision and everything below inherits it.
 
 The reason is the keyline. A CSS box's `border: 4px solid` is exactly 4px at every
 viewport width, forever. An SVG's stroke is in user units and scales with the element, so
-the same shape rendered at two sizes produces two different keyline weights — and in this
+the same shape rendered at two sizes produces two different keyline weights, and in this
 design, keyline weight *is* the design. A page where the vinyl's outline is 6px and the
 Folder's is 4px looks broken in a way nobody can name.
 
@@ -43,7 +43,7 @@ scale the disc down and the keyline thins into a hairline; scale it up and it fa
 a band.
 
 Second rule, equally practical: **inline the SVG in the DOM.** `<img src="ribbon.svg">`
-cannot resolve `var(--lemon)` — an external SVG has no access to the page's custom
+cannot resolve `var(--lemon)`, an external SVG has no access to the page's custom
 properties. Inline SVG can, which also sidesteps the Tailwind naming trap noted in
 `palette-v2.md` §7: `--color-cantaloupe` is deliberately not exported as a utility, but the
 raw `--cantaloupe` custom property exists on `:root` and inline SVG reads it directly.
@@ -62,14 +62,14 @@ Five parts, in this order of importance. Cut from the bottom when small.
 
 1. **Black disc.** The silhouette does 60% of the work.
 2. **Coloured centre label at ~34% of the diameter.** This is where the palette lives and
-   it is the second-strongest cue — a black circle alone is a dot; a black circle with a
+   it is the second-strongest cue, a black circle alone is a dot; a black circle with a
    lemon core is a record. The label is also a real typographic slot: set the song title
    on it, or a curved sticker text like Ubay's badge.
 3. **Spindle hole**, ~5% diameter, filled with the section's own ground colour so it reads
    as a hole rather than a dot.
 4. **Grooves**, between ~42% and ~94% of the diameter. Never touching the label, never
-   reaching the rim — real records have a smooth lead-in edge and a run-out.
-5. **A hard-edged shine wedge.** Not a blur gradient — this design has none. A
+   reaching the rim, real records have a smooth lead-in edge and a run-out.
+5. **A hard-edged shine wedge.** Not a blur gradient, this design has none. A
    `conic-gradient` with two hard stops, or two thin quadrilaterals at 30° and 210°, in
    `color-mix(in oklch, var(--paper) 12%, transparent)`. Flat, straight-edged, on-genre.
 
@@ -80,7 +80,7 @@ set will beat against the display sooner or later, especially at half-integer DP
 a CSS transform. Three fixes, use all three:
 
 **Irregular radii.** Moiré needs a regular carrier. Real vinyl already has irregular
-spacing — the wide bright rings are the *gaps between tracks*, not grooves. Author them by
+spacing, the wide bright rings are the *gaps between tracks*, not grooves. Author them by
 hand and the artefact cannot form:
 
 ```html
@@ -95,7 +95,7 @@ hand and the artefact cannot form:
 </g>
 ```
 
-Gaps run 6, 3, 9, 4, 9, 5, 2, 9 — no repeating period anywhere.
+Gaps run 6, 3, 9, 4, 9, 5, 2, 9, no repeating period anywhere.
 
 **Non-scaling hairlines.** `stroke-width="1" vector-effect="non-scaling-stroke"` pins each
 groove at exactly one device pixel at every rendered size. A scaling 1-unit stroke is what
@@ -109,7 +109,7 @@ half-tones it.
 | ≥ 240px | all 9 |
 | 120–240px | 5 |
 | 64–120px | 3 |
-| < 64px | **none** — disc, label, hole only |
+| < 64px | **none**, disc, label, hole only |
 
 Below 64px a record reads from silhouette and label colour alone; grooves there are noise
 that costs contrast. Implement with a container query rather than props, so one component
@@ -127,11 +127,10 @@ is correct at every placement:
 record sitting behind the hero portrait cluster, 50–65% occluded, rotated a few degrees.
 Use a music object as pure composition. It needs no grooves at all when mostly hidden.
 Place it with `z-index` below the photo cards and give it its own
-`filter: drop-shadow(12px 12px 0 var(--border))` — note the Tailwind `drop-shadow-*` scale
+`filter: drop-shadow(12px 12px 0 var(--border))`, note the Tailwind `drop-shadow-*` scale
 is disabled in `globals.css`, so write the filter longhand or as an arbitrary value.
 
-**As a photo frame.** The trap version is a circular crop of Anna with a ring around it —
-that is a club flyer, and it wastes the face by shrinking it. The version that works puts
+**As a photo frame.** The trap version is a circular crop of Anna with a ring around it, that is a club flyer, and it wastes the face by shrinking it. The version that works puts
 the **photo in the label position**: a full record, grooves and all, whose 34% centre label
 is a black-and-white cut-out of her. That is literally what a picture-disc label is, and it
 fuses REF B's cut-out-on-colour with REF D's vinyl into one object. Mask with
@@ -157,7 +156,7 @@ ADR-0007 already rejected real waveforms on cost grounds (you would download and
 every track to draw one). The aesthetic argument is stronger and worth recording: **the
 waveform of a mastered track is a brick.** Modern masters are compressed flat, so the trace
 is a solid rectangle with two nibbled ends. It is visually inert, and it renders as thin
-grey linework — which is precisely the register this design rejects. A generated waveform
+grey linework, which is precisely the register this design rejects. A generated waveform
 would look *less* like music than a drawn one.
 
 So: few bars, wide bars, hand-authored heights.
@@ -166,7 +165,7 @@ So: few bars, wide bars, hand-authored heights.
   keyline swallows them.
 - **Bar width ≥ gap width.** 10–14px bars, 5–7px gaps.
 - **Mirrored around a centreline** reads as a waveform; **single-sided** reads as a
-  spectrum analyser. Mirrored is the more musical and the more symmetric — use it for
+  spectrum analyser. Mirrored is the more musical and the more symmetric, use it for
   dividers. Single-sided is fine inside a control where vertical space is short.
 - CSS boxes, per §0. A flex row of `<span>`s with `flex: 1` and
   `height: calc(var(--h) * 1%)` scales to any width with zero distortion and real 4px
@@ -176,7 +175,7 @@ So: few bars, wide bars, hand-authored heights.
 ### 2.2 Making it look drawn, not generated
 
 `Math.random()` is the tell. Random heights read as noise because they have no phrase
-structure — no build, no peak, no decay — and because they change on every render, so the
+structure, no build, no peak, no decay, and because they change on every render, so the
 same song looks different twice. Author the sequence:
 
 ```ts
@@ -196,7 +195,7 @@ Five moves separate authored from generated:
 4. **Cycle the fills through the hue lattice** rather than using one colour.
 5. **Bleed off both edges.** A perfectly centred, perfectly contained bar row is a chart.
 
-Author two or three phrases and choose by song index — different per Folder, but every one
+Author two or three phrases and choose by song index, different per Folder, but every one
 designed.
 
 ### 2.3 As a section divider
@@ -208,15 +207,14 @@ bars in lattice-order colours, ~80–96px tall, keylined top and bottom. It does
 job it was already doing and says music for free. Everything clears on black, so there is
 no palette constraint to check.
 
-If both a marquee and a bar strip are wanted, run them as two lanes of one black band —
-text above, bars below — rather than two separate full-bleed strips, which would eat 180px
+If both a marquee and a bar strip are wanted, run them as two lanes of one black band, text above, bars below, rather than two separate full-bleed strips, which would eat 180px
 of scroll for one idea.
 
 ### 2.4 As the progress indicator
 
 `song-transport.tsx` has already been rebuilt so that the blocks **are** the control, with a
 transparent native range on top. That is the right architecture and this changes nothing
-about it — it is a swap of the fill pattern inside `.playhead-blocks`, nothing more.
+about it, it is a swap of the fill pattern inside `.playhead-blocks`, nothing more.
 
 Today the rail is `repeating-linear-gradient` at a uniform 0.75rem pitch: even blocks, no
 shape, which is why it reads as a loading bar. Replace the uniform pitch with the authored
@@ -235,7 +233,7 @@ phrase and it becomes unmistakably audio:
 ```
 
 One custom property still drives it, still written from the animation frame, still no React
-re-render — the existing engine contract is untouched. `clip-path: inset()` is composited
+re-render, the existing engine contract is untouched. `clip-path: inset()` is composited
 and costs nothing per frame.
 
 ---
@@ -244,14 +242,14 @@ and costs nothing per frame.
 
 **Says music: 5 · Build: 3 · Looks expensive.** The client's verdict on `timeline.tsx` was
 "the concept is right, the execution is not". The concept is right. What is missing is not
-the blocks — it is the **chrome around them**. A row of blocks on a line is a Gantt chart.
+the blocks, it is the **chrome around them**. A row of blocks on a line is a Gantt chart.
 Seven additions turn it into a DAW, ranked by how much each one buys.
 
 1. **A dark ground.** `palette-v2.md` §5 already moves this section to grape (`#9B35D1`).
    DAWs are dark; this alone is close to half the read, and it is a one-class change.
 
 2. **A ruler with a tick *hierarchy*.** The single strongest tell, and the thing generic
-   charts never have. Not evenly spaced ticks — tall numbered ticks at bar lines, short
+   charts never have. Not evenly spaced ticks, tall numbered ticks at bar lines, short
    ticks at beats:
 
    ```css
@@ -269,7 +267,7 @@ Seven additions turn it into a DAW, ranked by how much each one buys.
    }
    ```
 
-   Number the bars in `--font-mono`, **from 1, not 0** — see §11 on details musicians check.
+   Number the bars in `--font-mono`, **from 1, not 0**, see §11 on details musicians check.
 
 3. **Track lanes with a sticky header column.** A Gantt has rows and dates; a DAW has named
    tracks down a fixed left gutter that stays put while the arrangement scrolls. The
@@ -278,7 +276,7 @@ Seven additions turn it into a DAW, ranked by how much each one buys.
    transparent sticky header shows the blocks sliding underneath). Second-strongest tell.
 
 4. **A playhead.** One vertical rule spanning all lanes, with a small triangle flag in the
-   ruler. Even completely static it is unmistakable. Put it at "now" — her most recent
+   ruler. Even completely static it is unmistakable. Put it at "now", her most recent
    entry. Colour: **lemon**, not magenta. Per `palette-v2.md` §6.2 the marks permitted on
    grape are ink 3.82, sheet 5.35, paper 5.06, lemon 3.84, spring 3.36; magenta on grape
    computes to 1.58:1 and would vanish.
@@ -291,17 +289,17 @@ Seven additions turn it into a DAW, ranked by how much each one buys.
    ```
 
 5. **Clips that start off-grid and have honest lengths.** Gantt bars begin at row starts.
-   Piano-roll clips begin at arbitrary grid positions and their *width means duration* — a
+   Piano-roll clips begin at arbitrary grid positions and their *width means duration*, a
    three-year conservatory block should be genuinely three times a one-year workshop. Do
    that and it is simultaneously a correct chart and a convincing arrangement.
 
 6. **A loop brace in the ruler.** Two small triangles and a bar between them, spanning
-   "available from —". Recognisable, and it does real recruiting work.
+   "available from, ". Recognisable, and it does real recruiting work.
 
 7. **Tiny S and M squares on each lane header.** Solo and mute, 20px, mono, black keyline.
    The deepest cut on the list: free to anyone who has opened a DAW, invisible to everyone
    else. That is the ideal ornament. **Draw them as `<span>` with `aria-hidden`, never as
-   `<button>`** — a control that looks pressable and does nothing is an accessibility trap
+   `<button>`**, a control that looks pressable and does nothing is an accessibility trap
    and an honesty problem.
 
 Do not add: fake automation curves (need explaining, read as a chart), a mixer strip (no
@@ -316,7 +314,7 @@ Keep the current `<ol>` semantics. The list is the content; the DAW is a layout 
 The test is: **can it be drawn in eight or fewer flat shapes, and is its silhouette unique
 at 120px?** Ranked by legibility-per-effort.
 
-### 1. Cassette tape — says music 5, build 2, looks expensive
+### 1. Cassette tape, says music 5, build 2, looks expensive
 
 The sleeper hit, and I would build it before anything except the record. A cassette is
 *already* neo-brutalist: a rectangle with a black keyline, two circles, and a window. It is
@@ -328,7 +326,7 @@ rect · two hubs · six spokes per hub · tape-path trapezoid at the bottom edge
 · four corner screw dots.
 
 Two things it gives you that nothing else does. First, **the label is a real typographic
-slot** — a cassette label is handwritten in life, which connects REF A's handwriting face
+slot**, a cassette label is handwritten in life, which connects REF A's handwriting face
 and taped polaroids to REF D's music objects. That is a genuine bridge between two of the
 client's four references, not a mashup. Second, **the reels turn** (§7).
 
@@ -336,26 +334,26 @@ Gotcha: to rotate a hub group inside a larger SVG you need
 `transform-box: fill-box; transform-origin: center` in CSS. Without `fill-box` the origin is
 the SVG's own origin and the reel flies off across the page.
 
-### 2. Cable and jack plug — says music 4, build 3
+### 2. Cable and jack plug, says music 4, build 3
 
 Split these. The **plug alone** (a shaft with two ring grooves and a rounded tip) reads only
-to musicians — 2/5. The **cable** — a thick black curve with a plug at each end — reads to
+to musicians, 2/5. The **cable**, a thick black curve with a plug at each end, reads to
 everybody as audio, and it is a superb *connector*: REF B's hand-drawn arrow sweeping from
 the CTA to the portrait, but audio-native. Build it as one stroked bezier at 10–14px with a
 2px lighter inner stroke on the same path, and a small plug group at each end rotated to the
 tangent. Same responsive problem as the ribbon; §6 solves it once for both.
 
-### 3. Knob — says music 4, build 1
+### 3. Knob, says music 4, build 1
 
 A circle, a pointer line, and an arc of tick marks. Trivially cheap. Two rules: **never
 without its tick arc** (a bare circle with a line is a clock, and this page will already
-have records), and **never alone** — one knob reads as nothing, a row of three to five
+have records), and **never alone**, one knob reads as nothing, a row of three to five
 reads as a panel.
 
-### 4. Fader — says music 4, build 2, looks expensive
+### 4. Fader, says music 4, build 2, looks expensive
 
 Reads instantly *only in a bank of four or more*. One fader is a slider, i.e. generic UI. A
-bank of eight at different heights is a mixer — and it is also a chart, which is the honest
+bank of eight at different heights is a mixer, and it is also a chart, which is the honest
 killer app: **her skills as a mixer**, one channel per skill, name plate at the bottom in
 mono. That is a direct answer to "About and skills reads as a CV line".
 
@@ -365,37 +363,36 @@ centre notch, positioned `bottom: calc(var(--level) * 1%)` · scale ticks down o
 
 One hard constraint, and it is a credibility issue rather than a technical one: **do not
 encode skill percentages.** "Piano 87%" is unverifiable, faintly absurd, and a classic toy
-tell. Let the fader positions be composition — varied because a mixer with all faders level
-looks dead — and keep the meaning entirely in the words beside them. The visual is
+tell. Let the fader positions be composition, varied because a mixer with all faders level
+looks dead, and keep the meaning entirely in the words beside them. The visual is
 `aria-hidden`; the list underneath is the content.
 
-### 5. Reel-to-reel — says music 3, build 4. **Cut.**
+### 5. Reel-to-reel, says music 3, build 4. **Cut.**
 
 Beautiful and expensive: two large spoked circles plus a threaded tape path plus a
-transport deck. At any size below 200px it is a cassette without the rectangle — it costs
+transport deck. At any size below 200px it is a cassette without the rectangle, it costs
 double and says less. Its one legitimate use is a single hero-scale ornament where the
 spokes actually resolve. The cassette does this job at half the price.
 
-### 6. VU meter — says music 3, build 2–4
+### 6. VU meter, says music 3, build 2–4
 
 Two versions, and they are not the same object. The **needle-on-arc** version is charming
-but is the most expensive drawing here — arc, scale, tick labels, red zone, needle, glass —
-and it says "vintage hi-fi", not "working musician". Skip it. The **LED ladder** — a column
-of stacked segments running green to amber to red — is cheap and instant. But note it is an
+but is the most expensive drawing here, arc, scale, tick labels, red zone, needle, glass, and it says "vintage hi-fi", not "working musician". Skip it. The **LED ladder**, a column
+of stacked segments running green to amber to red, is cheap and instant. But note it is an
 amplitude bar with a palette ramp, so if §2 is built, this is redundant. Build one, not
 both.
 
-### 7. EQ curve — says music 2, build 3. **Cut.**
+### 7. EQ curve, says music 2, build 3. **Cut.**
 
 A bell over a log grid needs explaining to everyone who is not an engineer, and to everyone
 else it is a line chart. Its only survivable form is as an abstract swooping underline
-beneath a headline, which happens to have the shape of a low shelf — at which point it is
+beneath a headline, which happens to have the shape of a low shelf, at which point it is
 REF A's hand-drawn underline and should be called that. `ornament.tsx` already ships it.
 
 ### Two that get named only to be refused
 
 **Headphones and the microphone.** Both score 5/5 on legibility, and both are wrong.
-Headphones at icon size are the single most-used stock music glyph on earth — drawing one is
+Headphones at icon size are the single most-used stock music glyph on earth, drawing one is
 the exact thing the brief forbids. (Drawn *large* and flat as an ornament, a black U with
 two rectangles, it is defensible; the 24px version never is.) A microphone says
 singer/podcaster, which mislabels a composer.
@@ -403,20 +400,20 @@ singer/podcaster, which mislabels a composer.
 ### One worth adding that was not asked for
 
 **The metronome.** Trapezoid, pendulum rod, bead, scale ticks. Five shapes, unique
-silhouette, instant read. And it means *practice and discipline* — which is the single most
+silhouette, instant read. And it means *practice and discipline*, which is the single most
 useful thing a fresh graduate's page can imply. Cheap, on-message, unclichéd. Says music 4,
 build 1.
 
 ---
 
-## 5. Notation — the verdict
+## 5. Notation, the verdict
 
 **It is the kitsch trap. Two narrow exceptions.** Plainly:
 
 A floating eighth note is the musical equivalent of a lightbulb for "idea". It tells a
 reader who already learned from the headline that this page is about music, and it tells a
 hiring musician that nobody could think of anything. A treble clef beside a young
-musician's name reads as a school recital programme — which is *precisely* the failure mode
+musician's name reads as a school recital programme, which is *precisely* the failure mode
 this page cannot afford, because she is in fact a recent graduate and the whole job is to
 not look like one.
 
@@ -424,16 +421,15 @@ Two arguments beyond taste:
 
 **It fails this design system's own test.** Notation is hairline curves and fine stems. A
 treble clef with a 4px black keyline is a blob; without one it is the only unkeylined object
-on the page. And notation is *already black*, so a black keyline on it is invisible — it
+on the page. And notation is *already black*, so a black keyline on it is invisible, it
 cannot participate in the one rule everything else obeys.
 
 **It fails in front of the actual audience.** Notation is dense with meaning to musicians,
-and musicians are exactly who is reading. Decorative notation is almost always wrong —
-notes that form no phrase, a clef on the wrong line, five beats in a 4/4 bar, beams that
+and musicians are exactly who is reading. Decorative notation is almost always wrong, notes that form no phrase, a clef on the wrong line, five beats in a 4/4 bar, beams that
 cross a barline. To Anna's judges that is legible as an error. It is a competence own-goal
 in the one place she can least afford one.
 
-### Exception 1 — the stave as a ruled ground. **Recommended.**
+### Exception 1, the stave as a ruled ground. **Recommended.**
 
 Five black lines with nothing on them. This is REF A's notebook rule, but it is music paper
 rather than school paper. It is structural, it survives at any width, it needs no glyphs,
@@ -453,14 +449,14 @@ and it says "this is where music gets written" without a single note.
 ```
 
 Repeat the five-line block down the section with `--stave-gap` between systems. Use it on
-the paper About section, where ink measures 19.35:1 — the one place on this page that
+the paper About section, where ink measures 19.35:1, the one place on this page that
 wants a quiet texture rather than a colour.
 
-### Exception 2 — real notation, as content. **Strongly recommended if the asset exists.**
+### Exception 2, real notation, as content. **Strongly recommended if the asset exists.**
 
 An excerpt of Anna's **actual manuscript or engraved score**, photographed or exported,
 tilted a few degrees and taped like REF A's polaroid. This is the exact opposite of kitsch,
-because it is not decoration — it is evidence. It says "I write music" in a way no amount of
+because it is not decoration, it is evidence. It says "I write music" in a way no amount of
 ornament can, and after her face it is the highest-credibility image available to this page.
 
 > Stave lines yes. Her own score yes. Floating notes, clefs and rests, no.
@@ -480,11 +476,11 @@ these, in the hero, and never a second.
 - **CSS `border-radius` gymnastics.** Cannot produce a flowing S.
 - **A raster export.** Cannot read the palette, cannot be recoloured per section, and blurs.
 
-### 6.2 The right way — the onion of strokes
+### 6.2 The right way, the onion of strokes
 
 **One path. Stroked many times, at decreasing widths, alternating black and colour.** The
 black strokes are wider by 8, so each colour band gets exactly 4 units of black on each
-edge — the keyline is not extra geometry, it *is* the stroke underneath. Ten elements
+edge, the keyline is not extra geometry, it *is* the stroke underneath. Ten elements
 sharing one `d`, edited by dragging four control points.
 
 ```html
@@ -514,10 +510,10 @@ sharing one `d`, edited by dragging four control points.
 ```
 
 Palette constraint, from `palette-v2.md` §6.2: **on the blue hero, omit the blue band**
-(1.00:1 — literally invisible) **and the magenta band** (1.662:1). The lattice order
+(1.00:1, literally invisible) **and the magenta band** (1.662:1). The lattice order
 cantaloupe → lemon → spring → grape above is already hero-safe.
 
-### 6.3 Responsiveness — crop, never stretch
+### 6.3 Responsiveness, crop, never stretch
 
 `preserveAspectRatio="xMidYMid slice"` is the whole answer. `slice` scales the viewBox
 uniformly to *cover* the element and clips the overflow, exactly like
@@ -529,10 +525,10 @@ positioned by eye at `(300, 150)` sits in the same place on the curve at 375px a
 1920px. With `preserveAspectRatio="none"` every embedded object drifts off the band and you
 end up maintaining per-breakpoint coordinates.
 
-Size the viewBox so **one user unit is one CSS pixel at the intended height** — here
+Size the viewBox so **one user unit is one CSS pixel at the intended height**, here
 `viewBox="0 0 1440 420"` against `width: 100%; height: 420px`. Then the 4-unit keylines land
 at exactly 4px, matching every border on the page. Below 1440px wide the height governs the
-scale, so the keyline stays exactly 4px and the ribbon crops horizontally — which is the
+scale, so the keyline stays exactly 4px and the ribbon crops horizontally, which is the
 common case. Above 1440px it scales up and the keyline fattens proportionally; if that
 matters at 4K, cap the wrapper with `max-width`.
 
@@ -553,10 +549,10 @@ The organising principle:
 So: loops, not transitions. And the loop must be *tied to playback state*, or it is
 wallpaper.
 
-### Cheap and excellent — build these
+### Cheap and excellent, build these
 
 **The record spins only while its track plays.** Two lines of CSS, and it is the clearest
-"this is playing" signal available — better than a label swap, and it speaks to the client's
+"this is playing" signal available, better than a label swap, and it speaks to the client's
 "you cannot tell it is a play control". The engine already writes `data-playing` on the
 button; hang the selector off that.
 
@@ -573,12 +569,12 @@ check, and it costs nothing to be right (45 rpm would be 1.333s). `transform: ro
 composited layer is free.
 
 **Cassette reels turn while playing.** Same mechanism, same gate. Both hubs rotate in the
-**same** direction — the left hub pays tape out, the right takes it up, and in a compact
+**same** direction, the left hub pays tape out, the right takes it up, and in a compact
 cassette both turn clockwise on side A. Do not counter-rotate them; a musician will notice.
-Do not model the take-up reel accelerating as its radius grows — correct, invisible, and a
+Do not model the take-up reel accelerating as its radius grows, correct, invisible, and a
 gimmick.
 
-**Amplitude bars react to playback — the canned version.** Each bar gets its own
+**Amplitude bars react to playback, the canned version.** Each bar gets its own
 `animation-duration` between 0.6s and 1.1s and a negative `animation-delay`, so they desync
 into something that looks alive. Zero JS, zero audio analysis, runs only while playing. The
 mismatch with the actual audio is imperceptible, because nobody cross-checks a bar against
@@ -588,11 +584,10 @@ what they are hearing.
 `animation-timeline: view()`). Make the stagger interval *even* rather than arbitrary and it
 reads as a beat rather than as a transition. Costs nothing.
 
-### Gimmicks — do not build these
+### Gimmicks, do not build these
 
 **A real `AnalyserNode` driving the bars.** Ties the visual to a Web Audio graph the player
-may not have, forces a `requestAnimationFrame` loop and a per-frame DOM write per bar, and
-— the decisive part — **on a mastered track every bar moves together**, so the honest FFT
+may not have, forces a `requestAnimationFrame` loop and a per-frame DOM write per bar, and, the decisive part, **on a mastered track every bar moves together**, so the honest FFT
 version looks *worse* than the canned one. It is more work for a downgrade.
 
 **A marquee that scrolls at the tempo.** A marquee's speed is judged by legibility, not by
@@ -600,7 +595,7 @@ BPM, and no viewer can perceive that a strip is moving at 120 rather than 96. It
 data field and buys nothing. There *is* a real version of this idea, though, and this site
 needs it: derive `animation-duration` from the strip's own **content width** so the linear
 speed is constant. Without that, the Italian marquee and the English marquee scroll at
-different speeds from the same duration — a live bug on a bilingual page, given ADR-0008's
+different speeds from the same duration, a live bug on a bilingual page, given ADR-0008's
 note that Italian strings run 200–300% longer.
 
 **A playhead sweeping across the timeline on entry.** Implies the sequencer is playing,
@@ -617,7 +612,7 @@ instant.
 ### What `prefers-reduced-motion` must gate
 
 Everything looping or unattended: the spin, the reels, the bar loop, the marquee, the
-section entrances. Not gated: sub-100ms state changes triggered by direct input — the
+section entrances. Not gated: sub-100ms state changes triggered by direct input, the
 `.control` press already documents this correctly in `globals.css`.
 
 Keep the pattern the codebase already got right: **declare loops inside
@@ -629,10 +624,10 @@ Two rules that are easy to miss:
 
 **Motion may amplify a state, never carry it alone.** With motion off, "playing" must still
 be visible: the pause glyph, a filled label on the disc, the bars frozen at a non-flat
-shape. Anything whose only signal is movement is invisible to a reduced-motion reader — and
+shape. Anything whose only signal is movement is invisible to a reduced-motion reader, and
 this is also, not coincidentally, the fix for "you cannot tell it is a play control".
 
-**A frozen marquee looks broken.** Do not merely pause it — it stops mid-word. Under reduced
+**A frozen marquee looks broken.** Do not merely pause it, it stops mid-word. Under reduced
 motion, render the strip as a static, complete, non-repeating line.
 
 ---
@@ -641,27 +636,27 @@ motion, render the strip as a static, complete, non-repeating line.
 
 | device | says music | build | expensive or cheap here | verdict |
 |---|---|---|---|---|
-| Vinyl — disc, label-portrait, sleeve peek | 5 | 2 | expensive | **build first** |
+| Vinyl, disc, label-portrait, sleeve peek | 5 | 2 | expensive | **build first** |
 | Cassette | 5 | 2 | expensive | **build** |
 | Sequencer chrome on the timeline | 5 | 3 | expensive | **build** |
 | Spinning record tied to playback | 5 | 1 | expensive | **build** |
-| Amplitude bars — authored phrase | 4 | 2 | expensive authored, cheap random | **build** |
+| Amplitude bars, authored phrase | 4 | 2 | expensive authored, cheap random | **build** |
 | Multicolour ribbon with records | 4 | 3 | very expensive | **build, once** |
 | Fader bank as the skills section | 4 | 2 | expensive | **build** |
 | Metronome | 4 | 1 | expensive | keep in reserve |
 | Cable with jack plugs | 4 | 3 | expensive | substitute |
 | Knob (in a bank, with ticks) | 4 | 1 | cheap if alone | reserve |
 | Stave lines as ground texture | 3 | 1 | expensive | **build** (free) |
-| VU ladder | 3 | 2 | cheap — duplicates the bars | skip |
+| VU ladder | 3 | 2 | cheap, duplicates the bars | skip |
 | Reel-to-reel | 3 | 4 | expensive but redundant | cut |
 | Jack plug alone | 2 | 2 | cheap | cut |
 | EQ curve | 2 | 3 | cheap | cut |
-| Notes, clefs, rests | 1 | 2 | **cheap — actively harmful** | cut |
+| Notes, clefs, rests | 1 | 2 | **cheap, actively harmful** | cut |
 | Headphone / note icon | 1 | 1 | cheap | cut |
 
 ---
 
-## 9. The shortlist — seven to actually build
+## 9. The shortlist, seven to actually build
 
 In build order. Each one is mapped to a complaint from `client-critique-v2.md`, because
 decoration that does not fix a named problem is how a page gets cluttered.
@@ -672,7 +667,7 @@ decoration that does not fix a named problem is how a page gets cluttered.
 
 2. **The transport: spinning disc plus authored amplitude rail.** The disc spins while its
    track plays; `.playhead-blocks` swaps its uniform gradient for the hand-authored phrase.
-   The rebuilt transport architecture is untouched — this is a fill swap and a data
+   The rebuilt transport architecture is untouched, this is a fill swap and a data
    attribute.
    *Fixes: "the transport is a catastrophe, you cannot tell it is a play control".*
 
@@ -693,35 +688,35 @@ decoration that does not fix a named problem is how a page gets cluttered.
    *Fixes: "not memorable", and bridges REF A's handwriting to REF D's music objects.*
 
 7. **The ribbon with embedded records.** One, full-bleed, in the hero.
-   *Fixes: hero catastrophic — and it is the client's own strongest reference.*
+   *Fixes: hero catastrophic, and it is the client's own strongest reference.*
 
 Free extra, no budget line: **stave ruling on the About ground.**
 
 First substitute if one drops: **the cable**, replacing REF B's hand-drawn arrow on the
-contact CTA — which the client also flagged as not working.
+contact CTA, which the client also flagged as not working.
 
 ---
 
 ## 10. Rejected, with reasons
 
-- **Notes, clefs, rests, staves *with* notes on them** — the kitsch trap; cannot carry a 4px
+- **Notes, clefs, rests, staves *with* notes on them**, the kitsch trap; cannot carry a 4px
   black keyline; wrong notation reads as incompetence to the exact audience being addressed.
-- **Headphone and eighth-note icons** — the definitive stock music glyphs.
-- **Microphone** — legible, but labels her a singer or podcaster.
-- **EQ curve** — needs explaining; reads as a line chart.
-- **Reel-to-reel** — twice the cost of the cassette for a weaker read below 200px.
-- **VU needle meter** — most expensive drawing on the list; says vintage hi-fi, not working
+- **Headphone and eighth-note icons**, the definitive stock music glyphs.
+- **Microphone**, legible, but labels her a singer or podcaster.
+- **EQ curve**, needs explaining; reads as a line chart.
+- **Reel-to-reel**, twice the cost of the cassette for a weaker read below 200px.
+- **VU needle meter**, most expensive drawing on the list; says vintage hi-fi, not working
   musician.
-- **Real FFT-driven bars** — more work than the canned loop and looks worse on mastered
+- **Real FFT-driven bars**, more work than the canned loop and looks worse on mastered
   audio.
-- **BPM-locked marquee** — imperceptible; the real problem is constant speed across
+- **BPM-locked marquee**, imperceptible; the real problem is constant speed across
   languages.
-- **Animated timeline playhead** — implies the arrangement is playing.
-- **Hover-to-scrub** — fires audio without consent and re-introduces a complained-about
+- **Animated timeline playhead**, implies the arrangement is playing.
+- **Hover-to-scrub**, fires audio without consent and re-introduces a complained-about
   hover shift.
-- **Needle-drop animation** — delays the response to a press.
-- **Skill percentages on the faders** — unverifiable and a toy tell.
-- **Inline emoji in the headline** (REF A) — works for a Chicago product designer; costs a
+- **Needle-drop animation**, delays the response to a press.
+- **Skill percentages on the faders**, unverifiable and a toy tell.
+- **Inline emoji in the headline** (REF A), works for a Chicago product designer; costs a
   young Italian composer authority and buys nothing. Keep the stickers, drop the emoji.
 
 ---
@@ -729,7 +724,7 @@ contact CTA — which the client also flagged as not working.
 ## 11. How this looks like a serious portfolio and not a toy
 
 The purpose is employment. These are ordered by how much each one moves that needle, and
-the top three are not visual — which is itself the answer.
+the top three are not visual, which is itself the answer.
 
 1. **The work is playable within one scroll of the top.** A recruiter gives roughly twenty
    seconds. If the first thing you can press is at 60% scroll depth, the page has failed and
@@ -741,13 +736,13 @@ the top three are not visual — which is itself the answer.
    *is* the portfolio; everything here is a frame around it.
 
 3. **Specific copy.** "Composer and sound designer" is a toy. "Wrote and produced the score
-   for *[title]* — twelve minutes for string quartet and modular synth, recorded at
+   for *[title]*, twelve minutes for string quartet and modular synth, recorded at
    *[studio]*, 2025" is a professional. Vague copy is the single biggest reason a page reads
    as a student's, and no ornament rescues it.
 
 4. **Named, checkable facts.** The conservatory by name, the years, the instruments, the
    DAWs, real credits, a real city. The sequencer in §3 is only credible if its clip labels
-   are specific — a timeline of "Studies", "Growth", "Projects" is worse than no timeline.
+   are specific, a timeline of "Studies", "Growth", "Projects" is worse than no timeline.
 
 5. **Ration the loudest colour.** `palette-v2.md` already encodes this: magenta never gets a
    section. That mechanism is exactly what separates colourful-and-authored from
@@ -772,7 +767,7 @@ the top three are not visual — which is itself the answer.
    reads as a bluff, and one right detail buys trust that no amount of polish can.
 
 10. **Type discipline.** One display face at three sizes, mono for labels only, and the
-    handwriting face — if REF A's is adopted — used once or twice, on a cassette label or a
+    handwriting face, if REF A's is adopted, used once or twice, on a cassette label or a
     tape sticker. **Handwriting as body copy is the number-one toy tell.**
 
 11. **Every link goes somewhere real.** A dead "Listen on Spotify" is worse than no button.
@@ -784,7 +779,7 @@ the top three are not visual — which is itself the answer.
 13. **Accessibility as a craft signal.** Keyboard-operable player, real contrast, visible
     focus, a scrollable timeline that can be reached without a pointer. Invisible to most
     readers, but a page that collapses under a keyboard reads as amateur to the one recruiter
-    who tries it — and this codebase is already doing this well. Do not lose it while making
+    who tries it, and this codebase is already doing this well. Do not lose it while making
     the page louder.
 
 The compressed version: **be loud in the ornament, precise in the facts, and instant in the

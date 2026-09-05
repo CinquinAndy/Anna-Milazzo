@@ -22,7 +22,7 @@ Done. `bun run validate` green; nineteen Playwright tests across this ticket and
 
 **The specimen found a real bug, and it is the most valuable thing here.** A
 `line-height` below 1 makes a heading's inline content area taller than its line box, so
-the glyphs — and the heading's hit area with them — spill above and below its block box.
+the glyphs, and the heading's hit area with them, spill above and below its block box.
 On the landing page the hero was silently swallowing clicks on the language switch above
 it: `elementFromPoint` at the link's centre returned the `h1`. Every heading now carries
 `padding-block: 0.16em`, which reserves the shortfall. This is also §4.2(c)'s own
@@ -30,14 +30,14 @@ mitigation for Italian capitals carrying accents above the cap height, arrived a
 opposite direction.
 
 **Tailwind v4.3.3**, pinned exactly, plus `postcss.config.mjs`. Biome needed
-`css.parser.tailwindDirectives` or it cannot parse `@theme`, `@utility` or `@apply` — the
+`css.parser.tailwindDirectives` or it cannot parse `@theme`, `@utility` or `@apply`, the
 whole `validate` gate fails on the stylesheet without it.
 
 **Two corrections to the theme layer as designed**, both from reading Tailwind's own
 default theme rather than trusting the file's comments:
 
 - `--radius-*: initial` clears the whole namespace before the steps are redeclared.
-  Overriding only `sm`/`md`/`lg`/`xl` — which is what the design file did — leaves
+  Overriding only `sm`/`md`/`lg`/`xl`, which is what the design file did, leaves
   `rounded`, `rounded-xs`, `rounded-2xl`, `rounded-3xl` and `rounded-4xl` still rounding,
   against the file's own "every corner is square". A test asserts a Tailwind radius
   utility computes to `0px`.
@@ -71,13 +71,13 @@ ink:
 1. `ÈÀÙ` and `EAU` are rendered at the same size in identical frames; the accented one
    must have ink strictly higher. Equal tops would mean the marks are missing or cut.
 2. The two-line hero must keep daylight around the seam between its line boxes. Ink
-   crossing the seam is expected and fine — at a line-height below 1 the second line's
-   marks legitimately rise above its own line box — but an unbroken run of ink through
+   crossing the seam is expected and fine, at a line-height below 1 the second line's
+   marks legitimately rise above its own line box, but an unbroken run of ink through
    the whole seam region means the lines have run together. Measured: 5px of clearance.
 
 **The specimen is a third root layout** at `(specimen)/`, outside `[lang]`, excluded from
-the proxy matcher and marked `noindex`. It is not part of the Portfolio — ADR-0002 says
-three pages — and it has no locale.
+the proxy matcher and marked `noindex`. It is not part of the Portfolio, ADR-0002 says
+three pages, and it has no locale.
 
 **Known limit, not fixed:** the blue focus ring measures 2.78:1 against a cantaloupe
 block, short of 3:1. Every focusable on the specimen therefore sits on the paper ground,

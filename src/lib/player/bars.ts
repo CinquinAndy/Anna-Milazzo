@@ -13,8 +13,8 @@ function withIds(heights: readonly number[]): readonly Bar[] {
  * An authored amplitude phrase, in percentages of the rail height.
  *
  * Not generated and not uniform. A uniform pitch is what made the first transport read as
- * a loading bar rather than as audio: the eye needs a phrase — quiet openings, a swell, a
- * couple of transients, a decay — before it accepts a row of bars as sound. These values
+ * a loading bar rather than as audio: the eye needs a phrase, quiet openings, a swell, a
+ * couple of transients, a decay, before it accepts a row of bars as sound. These values
  * were shaped by hand for that reading, so do not sort them or smooth them.
  *
  * This is now the fallback rather than the default. Every track carries its own waveform,

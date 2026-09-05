@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { readTrack } from '@/lib/player/decode-track'
 
-/** One full track per record. Anna holds the masters — see ADR-0006. */
+/** One full track per record. Anna holds the masters, see ADR-0006. */
 export const Audio: CollectionConfig = {
 	slug: 'audio',
 	access: {

@@ -59,7 +59,7 @@ describe('resample', () => {
 	})
 
 	it('is not flattened by a single transient', () => {
-		// One bucket four times louder than the rest — a downbeat, a click, a cymbal. Read
+		// One bucket four times louder than the rest, a downbeat, a click, a cymbal. Read
 		// against the maximum this put the body of the track under a quarter height and the
 		// waveform looked empty with a spike in it. This is that case, from a real file.
 		const peaks = [100, 27, 13, 7, 4, 16, 8, 5, 3, ...Array.from({ length: 119 }, (_, i) => 20 + (i % 11) * 2)]

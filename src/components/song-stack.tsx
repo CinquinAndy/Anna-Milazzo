@@ -7,7 +7,7 @@ import type { Home, Song } from '@/payload-types'
  * Every Song, each in its own Folder, stacked down the page in the order Anna set.
  *
  * A list of articles. Every Folder is fully visible with nothing to open or expand, so a
- * Recruiter sees the whole body of work at a glance — which is also why the stack does
+ * Recruiter sees the whole body of work at a glance, which is also why the stack does
  * not overlap: an overlapping card puts one tap target under another, and at 375px the
  * top one wins in ways nobody can predict.
  */

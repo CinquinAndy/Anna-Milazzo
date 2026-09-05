@@ -1,4 +1,4 @@
-/* Anna Milazzo — theme layer.
+/* Anna Milazzo, theme layer.
  *
  * Derived from the tweakcn "neo-brutalism" theme, rewritten for this project:
  *   - Anna's palette replaces the stock red / acid-yellow / electric-blue.
@@ -26,11 +26,11 @@
   --popover-foreground: oklch(0 0 0);
 
   /* ---- Anna's two colours ------------------------------------------ */
-  /* #3866A8 — the only fill that may carry light type (5.78:1 on white). */
+  /* #3866A8, the only fill that may carry light type (5.78:1 on white). */
   --primary: oklch(0.5104 0.1169 257.59);
   --primary-foreground: oklch(1 0 0);
 
-  /* #F79E76 Pantone 15-1239 Cantaloupe — BLACK TYPE ONLY (2.08:1 on white). */
+  /* #F79E76 Pantone 15-1239 Cantaloupe, BLACK TYPE ONLY (2.08:1 on white). */
   --accent: oklch(0.7803 0.1196 44.76);
   --accent-foreground: oklch(0 0 0);
 
@@ -85,7 +85,7 @@
 
   /* ---- shadows: hard offsets, zero blur -----------------------------
    * On a composite silhouette (the Folder: tab + body) do NOT use these as
-   * box-shadow per box — it puts a black notch at the tab/body join. Use one
+   * box-shadow per box, it puts a black notch at the tab/body join. Use one
    * filter: drop-shadow(8px 8px 0 var(--border)) on the wrapper instead. */
   --shadow-2xs: 1px 1px 0 0 var(--border);
   --shadow-xs:  2px 2px 0 0 var(--border);
@@ -160,7 +160,7 @@
 
   body {
     @apply bg-background text-foreground;
-    /* The paper grain goes here at build time — see the folder-ui research. */
+    /* The paper grain goes here at build time, see the folder-ui research. */
   }
 
   /* Focus is an offset black outline, not a ring: a ring the same colour as

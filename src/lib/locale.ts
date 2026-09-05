@@ -20,7 +20,7 @@ export function isLocale(value: string | undefined): value is Locale {
 /**
  * The public URL of `path` in `locale`.
  *
- * `path` is the locale-free canonical path — `/`, `/contact`, `/legal`. URL segments
+ * `path` is the locale-free canonical path, `/`, `/contact`, `/legal`. URL segments
  * are not translated, so the locale only ever adds or removes a leading prefix.
  */
 export function localeHref(path: string, locale: Locale): string {
@@ -29,7 +29,7 @@ export function localeHref(path: string, locale: Locale): string {
 }
 
 /**
- * The locale-free canonical path behind a public URL — the inverse of `localeHref`.
+ * The locale-free canonical path behind a public URL, the inverse of `localeHref`.
  * An unprefixed path is already canonical, because Italian carries no prefix.
  */
 export function canonicalPath(pathname: string): string {

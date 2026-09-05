@@ -8,8 +8,7 @@ export type NavLink = { label: string; href: string }
  * The chrome at the top of every page: the wordmark, a way into the two sections worth
  * jumping to, a way to contact, and a way to the other language.
  *
- * The labels are not new CMS fields. They are the section headings Anna already writes —
- * so the nav cannot drift out of step with what it points at, and it is already bilingual.
+ * The labels are not new CMS fields. They are the section headings Anna already writes, * so the nav cannot drift out of step with what it points at, and it is already bilingual.
  *
  * Sticky, because on a page this tall a nav that scrolls away is decoration. Every anchor
  * target carries scroll-margin so the bar never lands on top of the heading it jumped to.
@@ -50,7 +49,7 @@ export function SiteHeader({
 				) : null}
 
 				{/* Its own row below 640px. Pushed right by ms-auto with nowrap pills it overflowed
-				    the viewport by 66px at 375px — the contact label is long in Italian and the
+				    the viewport by 66px at 375px, the contact label is long in Italian and the
 				    language switch sits after it. */}
 				<div className="flex w-full flex-wrap items-center gap-2 sm:ms-auto sm:w-auto sm:gap-3">
 					{contact ? (

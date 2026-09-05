@@ -20,8 +20,7 @@ function sourceFiles(dir: string): string[] {
 
 /**
  * ADR-0004: the Portfolio ships one theme. The `.dark` block from the source tweakcn
- * theme was deleted rather than left half-correct, and this is what keeps it deleted —
- * a dark block reappears the moment anyone copies a fresh shadcn component in.
+ * theme was deleted rather than left half-correct, and this is what keeps it deleted, * a dark block reappears the moment anyone copies a fresh shadcn component in.
  */
 describe('no dark mode', () => {
 	const files = sourceFiles(SOURCE)

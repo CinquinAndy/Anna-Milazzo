@@ -8,7 +8,7 @@ import type { CollectionConfig } from 'payload'
  * `title` and `story` are `text`/`textarea` rather than richText on purpose. Payload
  * falls back an empty string to the default locale only for those two types; every other
  * type, richText included, falls back only on null. A Song Anna has not translated yet
- * has to render its Italian story in English rather than a blank — that is an acceptance
+ * has to render its Italian story in English rather than a blank, that is an acceptance
  * criterion, so the field types are chosen to make it true.
  */
 export const Songs: CollectionConfig = {

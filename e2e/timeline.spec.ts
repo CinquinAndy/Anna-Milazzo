@@ -25,7 +25,7 @@ test.describe('the timeline', () => {
 			.locator('[data-timeline] ol > li')
 			.evaluateAll(nodes => nodes.map(n => n.textContent?.match(/\d{4}(–\d{4})?/)?.[0] ?? ''))
 		// The CMS holds these in the order she lived them. Ordered by the year a clip ENDS,
-		// which is the same quantity that positions it on the reversed ruler — so the lanes
+		// which is the same quantity that positions it on the reversed ruler, so the lanes
 		// and the columns agree and the blocks step down and to the right.
 		expect(periods).toEqual(['2026', '2022–2026', '2025', '2024', '2019–2022'])
 	})
@@ -36,7 +36,7 @@ test.describe('the timeline', () => {
 		const entries = page.locator('[data-timeline] ol > li')
 		await expect(entries).toHaveCount(5)
 		await expect(entries.last()).toContainText('Music high school, principal study piano')
-		// The period is not localized — it is the same fact in both languages.
+		// The period is not localized, it is the same fact in both languages.
 		await expect(entries.last()).toContainText('2019–2022')
 	})
 

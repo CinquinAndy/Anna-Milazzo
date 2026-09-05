@@ -7,9 +7,9 @@ import { endianPacker, mix, resolveToken, threshold } from '@/lib/canvas/dither'
  * A slow warped field, dithered, filling whatever box it is dropped into.
  *
  * The client asked for the look of a shader card he found: a dithered pattern drifting
- * behind a call to action. The card itself could not be used — it wants a WebGL shader
+ * behind a call to action. The card itself could not be used, it wants a WebGL shader
  * package this project already evaluated and turned down, a `dark:` variant of every class,
- * blurs, gradients and a 48px radius — but the LOOK is the hero's own field, which is
+ * blurs, gradients and a 48px radius, but the LOOK is the hero's own field, which is
  * already here and already ordered-dithered.
  *
  * Warped rather than banded: the horizontal phase is displaced by a slow vertical wave, so
@@ -80,7 +80,7 @@ export function DitherPanel() {
 			}
 			for (let y = 0; y < height; y++) {
 				// The displacement is a function of the row alone, so it is computed once per
-				// row rather than once per cell — the warp costs one sine per row, not one per
+				// row rather than once per cell, the warp costs one sine per row, not one per
 				// pixel, which is what keeps a full-width panel cheap enough to animate.
 				const warp = Math.sin(y * 0.09 + time * 0.7) * 2.6 + Math.sin(y * 0.031 - time * 0.41) * 4.2
 				const row = y * width
@@ -120,7 +120,7 @@ export function DitherPanel() {
 			}
 		}
 
-		// One frame regardless, so the panel is never blank — the motion is the decoration,
+		// One frame regardless, so the panel is never blank, the motion is the decoration,
 		// the texture is not.
 		draw(0)
 		start()

@@ -12,7 +12,7 @@ Recorded because each part looks like a limitation and each is deliberate:
   any interaction. Sharing one element makes "only one plays at once" structural rather
   than something to coordinate.
 - **No real waveform.** Precomputed peaks via `bbc/audiowaveform` would work, but it puts
-  a binary in the Docker image and ffmpeg in an upload hook — and a true waveform renders
+  a binary in the Docker image and ffmpeg in an upload hook, and a true waveform renders
   thin and grey, which is exactly what this visual language rejects. wavesurfer.js without
   supplied peaks downloads and decodes each file in full: roughly 70 MB across a dozen
   tracks. The component interface is shaped so real peaks can replace the decoration later.

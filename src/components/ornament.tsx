@@ -5,14 +5,14 @@ import type { CSSProperties } from 'react'
  *
  * Every one of these is decoration and nothing else. They are hidden from assistive
  * technology, they carry no meaning that does not exist in the text beside them, and the
- * page reads correctly with all of them deleted — which is the test that keeps this layer
+ * page reads correctly with all of them deleted, which is the test that keeps this layer
  * additive rather than load-bearing.
  *
- * Ornament colour is ink by default — the only value that clears 3:1 against all six
+ * Ornament colour is ink by default, the only value that clears 3:1 against all six
  * section grounds. The other tones exist for the two grounds where ink would be dull.
  *
  * Rotation is composition, not animation. Each placement passes its own angle, and no two
- * are the same — a shared value reads as a repeated component, which is the tell this
+ * are the same, a shared value reads as a repeated component, which is the tell this
  * whole layer is trying to avoid.
  */
 

@@ -2,8 +2,8 @@
  * The first version of every word on the Portfolio, in both languages.
  *
  * ADR-0003: we write this so the copy is good, and Anna edits from there without a
- * deploy. It is placeholder in the sense that none of it is true yet — Anna's real
- * titles, stories, timeline and platform links are still outstanding — but it is
+ * deploy. It is placeholder in the sense that none of it is true yet, Anna's real
+ * titles, stories, timeline and platform links are still outstanding, but it is
  * deliberately written at realistic length, because Italian short strings expand
  * 200–300% from English and the layout has to be judged against the longer text.
  */
@@ -54,7 +54,7 @@ export const SEED_SONGS: readonly SeedSong[] = [
 			story:
 				'Un esercizio diventato un brano. Dovevo studiare la modulazione e ho scelto come vincolo ' +
 				'un temporale registrato dalla finestra di casa: ogni tuono impone un cambio di tonalità, ' +
-				'e la pioggia detta il tempo. Il risultato non è programmatico, è quasi il contrario — ' +
+				'e la pioggia detta il tempo. Il risultato non è programmatico, è quasi il contrario: ' +
 				'la struttura è arrivata da fuori e io ho solo dovuto starle dietro.',
 		},
 		// No English story: the fallback case. English must show the Italian rather than
@@ -142,7 +142,7 @@ type HomeCopy = {
 		scrollLabel: string
 		entries: readonly { period: string; label: string; detail: string }[]
 	}
-	contactCta: { badge: string; heading: string; body: string; buttonLabel: string }
+	contactCta: { heading: string; body: string; buttonLabel: string }
 }
 
 export const SEED_HOME: Record<Locale, HomeCopy> = {
@@ -211,9 +211,8 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 			],
 		},
 		contactCta: {
-			badge: 'Disponibile per commissioni',
 			heading: 'Lavoriamo insieme',
-			body: 'Se avete un progetto che ha bisogno di suono — un film, uno spazio, un podcast — scrivetemi.',
+			body: 'Se avete un progetto che ha bisogno di suono, per un film, uno spazio o un podcast, scrivetemi.',
 			buttonLabel: 'Mettiamoci in contatto',
 		},
 	},
@@ -243,7 +242,7 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 		},
 		songs: {
 			heading: 'Listen',
-			intro: 'Five pieces, most recent first. They play here — you do not have to go anywhere else.',
+			intro: 'Five pieces, most recent first. They play here. You do not have to go anywhere else.',
 			listenLabel: 'Play',
 			platformLabel: 'Listen on the platform',
 			pauseLabel: 'Pause',
@@ -281,9 +280,8 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 			],
 		},
 		contactCta: {
-			badge: 'Available for commissions',
 			heading: 'Let’s work together',
-			body: 'If you have a project that needs sound — a film, a space, a podcast — write to me.',
+			body: 'If you have a project that needs sound, for a film, a space or a podcast, write to me.',
 			buttonLabel: 'Get in touch',
 		},
 	},
@@ -308,7 +306,7 @@ export const SEED_CONTACT: Record<Locale, ContactCopy> = {
 			sendingLabel: 'Invio in corso…',
 		},
 		outcome: {
-			success: 'Messaggio inviato. Grazie — vi rispondo presto.',
+			success: 'Messaggio inviato. Grazie, vi rispondo presto.',
 			failure: 'Il messaggio non è partito. Riprovate fra poco, oppure scrivetemi direttamente via email.',
 			invalid: 'Controllate i campi segnalati: manca qualcosa o l’indirizzo non è valido.',
 		},
@@ -324,7 +322,7 @@ export const SEED_CONTACT: Record<Locale, ContactCopy> = {
 			sendingLabel: 'Sending…',
 		},
 		outcome: {
-			success: 'Message sent. Thank you — I will get back to you shortly.',
+			success: 'Message sent. Thank you, I will get back to you shortly.',
 			failure: 'The message did not go through. Try again shortly, or email me directly.',
 			invalid: 'Check the fields marked below: something is missing or the address is not valid.',
 		},

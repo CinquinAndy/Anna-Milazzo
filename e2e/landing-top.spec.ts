@@ -78,7 +78,7 @@ test.describe('the top of the landing page', () => {
 
 			// Nothing is VISIBLE outside the viewport either. An element can overflow without
 			// making the document scrollable, and the page-level assertion above already
-			// proves the page is not the thing scrolling — so what is left to check is
+			// proves the page is not the thing scrolling, so what is left to check is
 			// whether anything actually shows past the edge.
 			//
 			// Being clipped is the exemption, not being inside a scroller specifically. This
@@ -86,7 +86,7 @@ test.describe('the top of the landing page', () => {
 			// is wider than the viewport by design, and the ornament layer has its own test
 			// named "overflows its container rather than being clipped by it". Both are cut by
 			// an ancestor with `overflow: hidden`, which is invisible and cannot scroll
-			// anything — so the old rule, which exempted only `auto` and `scroll`, was failing
+			// anything, so the old rule, which exempted only `auto` and `scroll`, was failing
 			// the page for doing what the rest of the suite requires of it.
 			const wide = await page.evaluate(() => {
 				const limit = document.documentElement.clientWidth

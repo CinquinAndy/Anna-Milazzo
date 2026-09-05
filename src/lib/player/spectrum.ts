@@ -7,12 +7,12 @@ import { hannWindow, transform } from '@/lib/player/fft'
  * obvious way to build a visualiser: it cannot be done here, and that was established by
  * measurement rather than by reading. The audio is served from a bucket domain that sends
  * no `access-control-allow-origin`, and a cross-origin media element that is not
- * CORS-approved taints the Web Audio graph — `getByteFrequencyData` returned all zeros for
+ * CORS-approved taints the Web Audio graph, `getByteFrequencyData` returned all zeros for
  * a full second while the element was demonstrably playing. Adding `crossorigin="anonymous"`
  * does not fix it; the fetch is then rejected outright and there is no audio at all. On top
  * of that ADR-0007 gives the page exactly one `<audio>` element, and
  * `createMediaElementSource` can be called once per element and permanently reroutes its
- * output — so the live route would put all playback behind a graph that returns silence.
+ * output, so the live route would put all playback behind a graph that returns silence.
  *
  * Measuring on upload costs one analysis per track and nothing per visit, works on iOS,
  * and gives the visualiser real data before the first frame instead of a second in.
@@ -24,8 +24,8 @@ export const SPECTRUM_BANDS = 20
 /**
  * Frames stored per second of audio.
  *
- * Well under the screen refresh on purpose. A real analyser smooths heavily anyway — the
- * Web Audio default is a 0.8 smoothing constant, roughly a 100 ms time constant — so
+ * Well under the screen refresh on purpose. A real analyser smooths heavily anyway, the
+ * Web Audio default is a 0.8 smoothing constant, roughly a 100 ms time constant, so
  * twelve measurements a second carry every motion the eye can follow, and the player
  * interpolates between them. Raising this multiplies the stored size for movement nobody
  * can see.
@@ -59,7 +59,7 @@ const BAND_WINDOW_DB = 45
  *
  * This guard is the difference between a visualiser and a fabrication. Normalising each
  * band against its own peak is what lets a quiet band show its shape, but applied without
- * a floor it would take a digitally empty band — whose peak is its own noise — and stretch
+ * a floor it would take a digitally empty band, whose peak is its own noise, and stretch
  * that noise to full height, drawing a busy bar for a frequency the track does not contain.
  * Below −90 dBFS, under the noise floor of 16-bit audio, nothing is drawn.
  */
@@ -193,7 +193,7 @@ export function analyseSpectrum(
  * This is what survives of the full analysis. Storing every frame of every band is around
  * 40 KB gzipped for a three-minute track, which is more than the rest of the landing page
  * and would have to be fetched separately; folding it to one number per slice costs the
- * same as the waveform beside it — a few hundred bytes — and travels with the page.
+ * same as the waveform beside it, a few hundred bytes, and travels with the page.
  *
  * The number is the energy-weighted mean band index, the spectral centroid. It is what
  * separates a bass passage from a bright one, so a waveform drawn with height for loudness
@@ -223,7 +223,7 @@ export function toneOf(spectrum: Spectrum, buckets: number) {
 			}
 		}
 		// Silence has no centroid at all. Left as null here and filled in below, because any
-		// fixed answer is a colour the track does not have — reporting the middle put a
+		// fixed answer is a colour the track does not have, reporting the middle put a
 		// magenta bar at the head of every file whose first moment was quiet.
 		out.push(total <= 0 ? null : Math.round((weighted / total / (bands - 1)) * 100))
 	}
@@ -254,7 +254,7 @@ export function toneOf(spectrum: Spectrum, buckets: number) {
  * The reading for every band at a moment in the track, interpolated between stored frames.
  *
  * Linear rather than nearest, because twelve frames a second shown at sixty would otherwise
- * step visibly — the bars would move in five-frame jumps, which reads as a dropped frame
+ * step visibly, the bars would move in five-frame jumps, which reads as a dropped frame
  * rather than as a decision.
  */
 export function sampleAt(spectrum: Spectrum, seconds: number) {

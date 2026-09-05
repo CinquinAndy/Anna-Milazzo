@@ -11,19 +11,18 @@ import { useAudioEngine } from '@/components/audio-engine'
  *
  * The reactive one drove itself from an `AnalyserNode` fed by `createMediaElementSource`.
  * That call can be made only once per element and permanently routes that element's output
- * through the Web Audio graph — applied to the single shared `<audio>` of ADR-0007 it would
+ * through the Web Audio graph, applied to the single shared `<audio>` of ADR-0007 it would
  * break playback for every Song, irreversibly without a reload. So this reads the reducer's
  * own status instead. Prior research also found a real FFT to be a downgrade here: on a
  * mastered track every band moves together, so the honest version looks worse than an
  * authored one. What matters is whether music is playing, not what its spectrum is.
  *
- * The dithering one was never actually supplied — the pasted file was an unrelated counter —
- * and the real component belongs to a WebGL shader library. A dependency and a GL context
+ * The dithering one was never actually supplied, the pasted file was an unrelated counter, * and the real component belongs to a WebGL shader library. A dependency and a GL context
  * for one background on one page is not a trade worth making, so this is about 90 lines of
  * canvas.
  *
  * Cheap by construction: the buffer holds one pixel per dither cell, not one per screen
- * pixel. At 1600x830 with an 8px cell that is 200x104 — twenty-one thousand pixels a frame
+ * pixel. At 1600x830 with an 8px cell that is 200x104, twenty-one thousand pixels a frame
  * at twenty frames a second, where the source component walked five point seven million.
  * The browser scales it up with `image-rendering: pixelated`, which is also what makes the
  * cells perfectly square with no filtering.
@@ -34,7 +33,7 @@ import { useAudioEngine } from '@/components/audio-engine'
  * at least the 5.78:1 it has over bare blue.
  *
  * The bar heights are authored rather than measured. Prior research on this project was
- * explicit that a real FFT is a downgrade here — on a mastered track every band moves
+ * explicit that a real FFT is a downgrade here, on a mastered track every band moves
  * together, so the honest version reads as one lump rising and falling, where a few sines at
  * different rates read as a spectrum. What the audio actually contributes is whether it is
  * playing at all, which is the only thing a viewer can check.
@@ -56,8 +55,7 @@ const BAYER = [
 
 /** CSS pixels per cell. Twice the 4px keyline, so the grid agrees with every border. */
 const CELL = 8
-/** Cells across one bar and its gap: 3 lit, 1 empty. At an 8px cell that is a 32px pitch —
- *  eight keylines — so the bars land on the same rhythm as every border on the page. */
+/** Cells across one bar and its gap: 3 lit, 1 empty. At an 8px cell that is a 32px pitch, *  eight keylines, so the bars land on the same rhythm as every border on the page. */
 const BAR_CELLS = 3
 const BAR_PITCH = 4
 /** How many cells the top of a bar takes to dissolve. This is the whole difference between
@@ -73,7 +71,7 @@ const BAR_CEILING = 0.42
  *  neutral, so the softened colours stay related to everything else on the page. */
 const RAMP_PASTEL = 0.36
 /** And how opaque the result then sits over the blue. Not real alpha: the context is
- *  opaque, so this is pre-multiplied at pack time and costs nothing per frame — the pixels
+ *  opaque, so this is pre-multiplied at pack time and costs nothing per frame, the pixels
  *  are exactly what a translucent layer would have composited to. */
 const RAMP_ALPHA = 0.76
 
@@ -85,7 +83,7 @@ type Rgb = { r: number; g: number; b: number }
  *
  * Painting it and reading the pixel back, rather than parsing the string: the palette is
  * authored in oklch and `getComputedStyle` hands back the computed value in its original
- * space — Chromium returns `lab(42.4292 0.830233 -40.9019)` here — so a regex for `rgb()`
+ * space, Chromium returns `lab(42.4292 0.830233 -40.9019)` here, so a regex for `rgb()`
  * matches nothing and falls through to whatever default it was given. A 2D context converts
  * any CSS colour to sRGB by definition, which makes this exact rather than hopeful.
  */
@@ -107,8 +105,7 @@ function readColour(element: HTMLElement): Rgb {
  * Resolves a palette token to sRGB by borrowing the host's own cascade.
  *
  * A hidden span is attached inside the field, given `color: var(--token)`, read, and thrown
- * away. Custom properties are inherited, so the span sees the same values the page does —
- * and going through a real element is what makes the browser resolve the oklch rather than
+ * away. Custom properties are inherited, so the span sees the same values the page does, * and going through a real element is what makes the browser resolve the oklch rather than
  * handing back the literal `var(...)` a direct getPropertyValue would return.
  */
 function resolveToken(host: HTMLElement, token: string): Rgb {
@@ -152,7 +149,7 @@ export function DitherField() {
 
 		// The entire contrast argument rests on this colour being dark. If --primary is ever
 		// repointed at something light, the field would paint a pale wash straight across the
-		// white copy and quietly break it — so the assumption is enforced rather than trusted.
+		// white copy and quietly break it, so the assumption is enforced rather than trusted.
 		// 0.1833 is the relative luminance at which white text falls to 4.5:1.
 		//
 		// The channels are LINEARISED first. Weighting the raw sRGB bytes is not relative
@@ -162,7 +159,7 @@ export function DitherField() {
 			return
 		}
 
-		// Darker, never lighter — this is what keeps the copy above its contrast floor
+		// Darker, never lighter, this is what keeps the copy above its contrast floor
 		// without a mask.
 		const front: Rgb = { r: Math.round(back.r * 0.62), g: Math.round(back.g * 0.62), b: Math.round(back.b * 0.62) }
 
@@ -181,13 +178,13 @@ export function DitherField() {
 		 * The hovered bar lights like a level meter: green at the foot, through yellow, to
 		 * orange as it climbs.
 		 *
-		 * None of those three can carry white text — 1.64:1, 1.43:1 and 2.08:1 — so the ramp
+		 * None of those three can carry white text, 1.64:1, 1.43:1 and 2.08:1, so the ramp
 		 * is confined to the bottom of the field, below where any copy sits. Above that
 		 * ceiling a hovered bar keeps the ordinary dark fill, which is also what a real meter
 		 * looks like above its level.
 		 */
 		const host = canvas.parentElement ?? canvas
-		// Green, yellow, orange, red — the order every level meter has used since they had needles.
+		// Green, yellow, orange, red, the order every level meter has used since they had needles.
 		const paper = resolveToken(host, '--paper')
 		const mix = (a: Rgb, b: Rgb, amount: number): Rgb => ({
 			r: Math.round(a.r + (b.r - a.r) * amount),
@@ -229,7 +226,7 @@ export function DitherField() {
 		/**
 		 * Three sines per bar at unrelated rates, offset by the bar's own index so neighbours
 		 * never rise together. A single shared curve would give a wave travelling along the
-		 * row — which is what this replaced.
+		 * row, which is what this replaced.
 		 */
 		const heightOf = (bar: number, time: number, energy: number) => {
 			const swing =
@@ -244,14 +241,14 @@ export function DitherField() {
 			// Clamped, not merely tuned. The meter ramp runs to the top of every bar, and none
 			// of its colours can carry white text, so a bar that reached the copy would break
 			// it. Measured across nine viewports, the lowest type sitting directly on the blue
-			// is at 46.0% of the field height from its foot — 1600x900 is the worst case — so
+			// is at 46.0% of the field height from its foot, 1600x900 is the worst case, so
 			// the ceiling is 42% and the invariant survives anyone re-tuning the sines above.
 			return Math.max(0, Math.min(raw, height * BAR_CEILING))
 		}
 
 		/**
 		 * Cheap because a bar's height depends on its column and the clock, never on the row:
-		 * the sines run once per bar per frame — fifty of them at 200 cells wide — and the
+		 * the sines run once per bar per frame, fifty of them at 200 cells wide, and the
 		 * inner loop is a subtraction and a compare. The wave field this replaced needed three
 		 * transcendentals per cell until it was rewritten separably; this needs none at all.
 		 */
@@ -297,13 +294,13 @@ export function DitherField() {
 					const lower = Math.min(RAMP.length - 1, stop | 0)
 					// The step between two ramp colours is DITHERED, not interpolated. Blending
 					// in RGB would smooth the ramp by inventing hundreds of colours, inside a
-					// component whose whole premise is that there are only a few — the gradient
+					// component whose whole premise is that there are only a few, the gradient
 					// would come out smooth and the image would stop being dithered. Letting the
 					// matrix choose between the two neighbouring stops reads just as smooth and
 					// adds no colour at all, which is what ordered dithering exists to do.
 					//
 					// A second, offset read of the matrix. Reusing the threshold that decided
-					// on/off would correlate the two — a lit cell is one with a low threshold, so
+					// on/off would correlate the two, a lit cell is one with a low threshold, so
 					// every blend would lean toward the lower stop and the ramp would band.
 					const blend = ((BAYER[(y + 4) & 7] as unknown as number[])[(x + 2) & 7] ?? 0) / 64
 					const pick = stop - lower > blend ? Math.min(RAMP.length - 1, lower + 1) : lower
@@ -315,7 +312,7 @@ export function DitherField() {
 
 		// Drawn straight after sizing, every time. getContext('2d', { alpha: false })
 		// initialises the backing store to opaque BLACK, and assigning canvas.width resets it
-		// — so any path that reaches the screen before a draw shows a black hero.
+		//so any path that reaches the screen before a draw shows a black hero.
 		measure()
 		draw(0, 0)
 
@@ -354,7 +351,7 @@ export function DitherField() {
 		frame = requestAnimationFrame(tick)
 
 		// Listened for on the window rather than on the canvas: the field is pointer-events
-		// none — it has to be, or it would swallow clicks meant for the buttons over it — so
+		// none, it has to be, or it would swallow clicks meant for the buttons over it, so
 		// it never receives a pointer event of its own. The rect test does the hit detection
 		// that pointer-events would otherwise have done.
 		const onPointer = (event: PointerEvent) => {
@@ -380,7 +377,7 @@ export function DitherField() {
 
 		// ResizeObserver, not window.resize: the hero's height also changes when fonts load,
 		// when the sticky header wraps to a second row, and when the copy reflows between
-		// locales — none of which fire a window resize.
+		// locales, none of which fire a window resize.
 		const resizer = new ResizeObserver(() => {
 			measure()
 			draw(clock, energy, hovered)

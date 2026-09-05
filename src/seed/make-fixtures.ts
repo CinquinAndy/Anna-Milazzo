@@ -1,14 +1,14 @@
 /**
  * Generates the placeholder tracks in `fixtures/`.
  *
- * Run by hand — `bun run src/seed/make-fixtures.ts` — and needs `ffmpeg` on PATH for the
+ * Run by hand, `bun run src/seed/make-fixtures.ts`, and needs `ffmpeg` on PATH for the
  * MP3 encode. Deliberately not a project dependency and not part of any build: the output
  * is committed, and the two MP3 encoders on npm are both LGPL and unmaintained since 2023.
  *
  * WHY THESE EXIST AT ALL. The first placeholders were pairs of pure sine tones. That was
  * fine while the page only drew an authored bar phrase, and it became a problem the moment
  * anything measured the audio. Measured on those files, 0.00% of the energy sat above
- * 1 kHz, and the mean correlation between frequency bands was 0.87 — every band of a
+ * 1 kHz, and the mean correlation between frequency bands was 0.87, every band of a
  * spectrum analysis was the same line, so the visualiser would have drawn one shape
  * pulsing rather than a spectrum. These replacements carry a harmonic series, a bass, and
  * a hi-hat, which puts real and DIFFERENT content in each band: the same measurement gives
@@ -88,7 +88,7 @@ function render(track: (typeof TRACKS)[number]) {
 	 *
 	 * This is the whole reason these files exist. A single sine puts all its energy in one
 	 * band; sixteen partials at 1/n^1.3, each decaying faster than the last, put energy
-	 * right across the spectrum and take it away again at different speeds — which is what
+	 * right across the spectrum and take it away again at different speeds, which is what
 	 * makes the bands of an analysis move independently.
 	 */
 	const pluck = (start: number, midi: number, duration: number, gain: number, pan: number) => {
@@ -156,8 +156,8 @@ function render(track: (typeof TRACKS)[number]) {
 	/**
 	 * A scale degree, wrapped into octaves.
 	 *
-	 * `step` has to stay bounded. Feeding it a running counter — which the first version did,
-	 * as `bar * 3 + eighth` — climbs an octave every five notes and never comes back, so the
+	 * `step` has to stay bounded. Feeding it a running counter, which the first version did,
+	 * as `bar * 3 + eighth`, climbs an octave every five notes and never comes back, so the
 	 * piece is a rising scale rather than a phrase. Measured, that made the spectral centroid
 	 * correlate 0.88 with elapsed time on one track: the colour of the visualiser drawn from
 	 * it was a left-to-right gradient wearing the costume of a measurement.
@@ -172,7 +172,7 @@ function render(track: (typeof TRACKS)[number]) {
 	}
 
 	// A short lead-in before anything sounds. Starting on the downbeat put every instrument
-	// on sample zero at once, which is a click rather than a chord — measured, the first
+	// on sample zero at once, which is a click rather than a chord, measured, the first
 	// analysis bucket came out four times louder than anything after it.
 	const LEAD_IN = 0.06
 	const bars = Math.floor((track.seconds - LEAD_IN) / (beat * 4))
