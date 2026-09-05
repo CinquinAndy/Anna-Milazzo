@@ -9,6 +9,7 @@ import { Skills } from '@/components/skills'
 import { SongStack } from '@/components/song-stack'
 import { Timeline } from '@/components/timeline'
 import { isLocale, type Locale, localeHref } from '@/lib/locale'
+import { siteNav } from '@/lib/nav'
 import { getHome } from '@/lib/payload/get-home'
 import { getSettings } from '@/lib/payload/get-settings'
 import { getSongs } from '@/lib/payload/get-songs'
@@ -40,6 +41,7 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 	const { lang } = await params
 	const locale = localeOf(lang)
 	const [home, songs, settings] = await Promise.all([getHome(locale), getSongs(locale), getSettings(locale)])
+	const siteName = home.hero?.name ?? ''
 
 	return (
 		<>
@@ -72,7 +74,7 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 
 				<ContactCta cta={home.contactCta} locale={locale} />
 			</main>
-			<SiteFooter settings={settings} locale={locale} />
+			<SiteFooter settings={settings} locale={locale} nav={siteNav(home, locale, siteName)} siteName={siteName} />
 		</>
 	)
 }

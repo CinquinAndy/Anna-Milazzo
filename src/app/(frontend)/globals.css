@@ -1566,6 +1566,100 @@
 		font-size: 0.8125rem;
 	}
 
+	/* ---- the foot of every page ----------------------------------------
+	 * Ink, and the last black on the page after the section bands. Sheet on ink measures
+	 * 18.7:1, so everything here can be small without being faint. */
+	.site-footer {
+		border-block-start: var(--border-brutal) solid var(--border);
+		background-color: var(--ink);
+		color: var(--sheet);
+		padding: calc(var(--spacing) * 12) calc(var(--spacing) * 5);
+	}
+	@media (width >= 40rem) {
+		.site-footer {
+			padding-inline: calc(var(--spacing) * 8);
+		}
+	}
+	.footer-columns {
+		display: grid;
+		gap: calc(var(--spacing) * 10);
+		align-items: start;
+	}
+	@media (width >= 48rem) {
+		.footer-columns {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+	/* The voice every machine string on this site uses: mono, small, tracked. */
+	.footer-heading {
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		/* Half the field colours would vanish here, so the headings are dust rather than
+		 * sheet: 9.4:1, plainly a heading and plainly not a link. */
+		color: var(--dust);
+	}
+	.footer-list {
+		display: grid;
+		gap: calc(var(--spacing) * 3);
+		margin-block-start: calc(var(--spacing) * 4);
+		list-style: none;
+		padding: 0;
+	}
+	/* Underlined at rest, not on hover: on a black ground with no colour to spare, the
+	 * underline is what says "link" before anyone points at anything. */
+	.footer-link {
+		font-family: var(--font-sans);
+		text-decoration-line: underline;
+		text-decoration-thickness: 2px;
+		text-underline-offset: 4px;
+	}
+	/* Pushed down to where the other two columns' first links start, since this one has no
+	 * heading above it to do that. The value is the heading's line box plus the gap under it,
+	 * which is what the lists get. */
+	.footer-mail-row {
+		margin: 0;
+	}
+	@media (width >= 48rem) {
+		.footer-mail-row {
+			margin-block-start: calc(var(--spacing) * 8);
+		}
+	}
+	/* The rule across the bottom, and the two things that sit under it. */
+	.footer-foot {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: calc(var(--spacing) * 4);
+		margin-block-start: calc(var(--spacing) * 10);
+		border-block-start: 2px solid color-mix(in oklch, var(--sheet) 30%, transparent);
+		padding-block-start: calc(var(--spacing) * 6);
+	}
+	.footer-credit {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: calc(var(--spacing) * 1.5);
+		margin: 0;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		color: var(--dust);
+	}
+	.footer-sep {
+		opacity: 0.6;
+	}
+	/* Drawn rather than set as an emoji: an emoji is a font the visitor may not have, it
+	 * renders differently on every platform, and a screen reader announces it as "red heart"
+	 * in the middle of a sentence. This is decoration and says so. */
+	.footer-heart {
+		inline-size: 0.9em;
+		block-size: 0.9em;
+		flex: none;
+		color: var(--magenta);
+	}
+
 	.playhead-blocks {
 		--playhead: 0;
 		position: absolute;

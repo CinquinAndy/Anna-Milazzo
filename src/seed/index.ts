@@ -246,6 +246,8 @@ function settingsData(
 ) {
 	return {
 		contactEmail: SEED_SETTINGS.contactEmail,
+		navHeading: copy.navHeading,
+		elsewhereHeading: copy.elsewhereHeading,
 		legalsLinkLabel: copy.legalsLinkLabel,
 		socialLinks: withRowIds(copy.socialLinks, stored),
 	}

@@ -5,6 +5,7 @@ import { ContactFacts } from '@/components/contact-facts'
 import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
 import { isLocale, type Locale, localeHref } from '@/lib/locale'
+import { siteNav } from '@/lib/nav'
 import { getContact } from '@/lib/payload/get-contact'
 import { getHome } from '@/lib/payload/get-home'
 import { getSettings } from '@/lib/payload/get-settings'
@@ -37,6 +38,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
 	const locale = localeOf(lang)
 	const [copy, settings, home] = await Promise.all([getContact(locale), getSettings(locale), getHome(locale)])
 	const contactEmail = settings.contactEmail
+	const siteName = home.hero?.name ?? ''
 
 	return (
 		<>
@@ -57,7 +59,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
 				<ContactDesk copy={copy} locale={locale} contactEmail={contactEmail} />
 				<ContactFacts copy={copy} settings={settings} />
 			</main>
-			<SiteFooter settings={settings} locale={locale} />
+			<SiteFooter settings={settings} locale={locale} nav={siteNav(home, locale, siteName)} siteName={siteName} />
 		</>
 	)
 }

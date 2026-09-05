@@ -617,6 +617,14 @@ export interface Setting {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Heads the list of pages in the footer. Left empty, the list is still there and simply has no heading.
+   */
+  navHeading?: string | null;
+  /**
+   * Heads the links above. Same word as on the contact page, kept separate so the two can differ.
+   */
+  elsewhereHeading?: string | null;
   legalsLinkLabel?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -774,6 +782,8 @@ export interface SettingsSelect<T extends boolean = true> {
         url?: T;
         id?: T;
       };
+  navHeading?: T;
+  elsewhereHeading?: T;
   legalsLinkLabel?: T;
   updatedAt?: T;
   createdAt?: T;

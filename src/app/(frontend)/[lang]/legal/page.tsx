@@ -3,6 +3,8 @@ import type { Metadata } from 'next'
 import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
 import { isLocale, type Locale, localeHref } from '@/lib/locale'
+import { siteNav } from '@/lib/nav'
+import { getHome } from '@/lib/payload/get-home'
 import { getLegals } from '@/lib/payload/get-legals'
 import { getSettings } from '@/lib/payload/get-settings'
 
@@ -32,7 +34,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export default async function LegalPage({ params }: { params: Promise<{ lang: string }> }) {
 	const { lang } = await params
 	const locale = localeOf(lang)
-	const [copy, settings] = await Promise.all([getLegals(locale), getSettings(locale)])
+	const [copy, settings, home] = await Promise.all([getLegals(locale), getSettings(locale), getHome(locale)])
+	const siteName = home.hero?.name ?? ''
 
 	return (
 		<>
@@ -49,7 +52,7 @@ export default async function LegalPage({ params }: { params: Promise<{ lang: st
 					) : null}
 				</div>
 			</main>
-			<SiteFooter settings={settings} locale={locale} />
+			<SiteFooter settings={settings} locale={locale} nav={siteNav(home, locale, siteName)} siteName={siteName} />
 		</>
 	)
 }

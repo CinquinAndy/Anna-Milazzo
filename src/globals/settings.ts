@@ -25,6 +25,30 @@ export const Settings: GlobalConfig = {
 			],
 		},
 		{
+			name: 'navHeading',
+			type: 'text',
+			localized: true,
+			label: { en: 'Footer nav heading', it: 'Titolo della navigazione a piè di pagina' },
+			admin: {
+				description: {
+					en: 'Heads the list of pages in the footer. Left empty, the list is still there and simply has no heading.',
+					it: 'Intesta l’elenco delle pagine a piè di pagina. Se vuoto, l’elenco resta ma senza titolo.',
+				},
+			},
+		},
+		{
+			name: 'elsewhereHeading',
+			type: 'text',
+			localized: true,
+			label: { en: 'Footer links heading', it: 'Titolo dei link a piè di pagina' },
+			admin: {
+				description: {
+					en: 'Heads the links above. Same word as on the contact page, kept separate so the two can differ.',
+					it: 'Intesta i link qui sopra. La stessa parola della pagina contatti, tenuta separata perché le due possano differire.',
+				},
+			},
+		},
+		{
 			name: 'legalsLinkLabel',
 			type: 'text',
 			localized: true,

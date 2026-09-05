@@ -488,11 +488,18 @@ export const SEED_LEGALS: Record<Locale, LegalsCopy> = {
 	},
 } as const
 
-type SettingsCopy = { legalsLinkLabel: string; socialLinks: readonly { label: string; url: string }[] }
+type SettingsCopy = {
+	navHeading: string
+	elsewhereHeading: string
+	legalsLinkLabel: string
+	socialLinks: readonly { label: string; url: string }[]
+}
 
 export const SEED_SETTINGS: { contactEmail: string } & Record<Locale, SettingsCopy> = {
 	contactEmail: 'anna@example.com',
 	it: {
+		navHeading: 'Pagine',
+		elsewhereHeading: 'Altrove',
 		legalsLinkLabel: 'Note legali',
 		socialLinks: [
 			{ label: 'Ascolta su Spotify', url: 'https://open.spotify.com/artist/placeholder' },
@@ -501,6 +508,8 @@ export const SEED_SETTINGS: { contactEmail: string } & Record<Locale, SettingsCo
 		],
 	},
 	en: {
+		navHeading: 'Pages',
+		elsewhereHeading: 'Elsewhere',
 		legalsLinkLabel: 'Legal notice',
 		socialLinks: [
 			{ label: 'Listen on Spotify', url: 'https://open.spotify.com/artist/placeholder' },

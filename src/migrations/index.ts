@@ -10,6 +10,7 @@ import * as migration_20260904_232630_tone from './20260904_232630_tone';
 import * as migration_20260905_091533_cta_badge from './20260905_091533_cta_badge';
 import * as migration_20260905_202229_drop_cta_badge from './20260905_202229_drop_cta_badge';
 import * as migration_20260905_213339_contact_page from './20260905_213339_contact_page';
+import * as migration_20260905_220003_footer_headings from './20260905_220003_footer_headings';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20260905_213339_contact_page.up,
     down: migration_20260905_213339_contact_page.down,
-    name: '20260905_213339_contact_page'
+    name: '20260905_213339_contact_page',
+  },
+  {
+    up: migration_20260905_220003_footer_headings.up,
+    down: migration_20260905_220003_footer_headings.down,
+    name: '20260905_220003_footer_headings'
   },
 ];
