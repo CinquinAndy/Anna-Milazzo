@@ -20,7 +20,6 @@ const RENDERED = [
 	'form.messageLabel',
 	'form.submitLabel',
 	'form.sendingLabel',
-	'form.checkLabel',
 	'form.checkNote',
 	'form.missingNote',
 	'form.emailNote',

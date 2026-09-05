@@ -1416,44 +1416,19 @@
 	 * Below roughly 364px even the full-bleed panel cannot clear the widget's 300px floor, so
 	 * the frame scrolls rather than the page: a sideways scrollbar on the document is a
 	 * defect, one inside a box the width of a phone is a widget. */
-	/* A fieldset, so the caption over the check is a real legend rather than a paragraph
-	 * pretending. The browser default border, padding and margin are all removed: the frame
-	 * this compartment shows is the well below, not the fieldset itself. */
-	.check-field {
-		min-inline-size: 0;
-		margin: 0;
-		border: 0;
-		padding: 0;
-	}
-	.check-field > legend {
-		padding: 0;
-	}
-
-	.check-well {
-		display: flex;
-		align-items: center;
-		inline-size: 100%;
-		min-block-size: 5.75rem;
-		border: var(--border-brutal) solid var(--input);
-		background-color: var(--card);
-		box-shadow: var(--shadow-md);
-		padding: calc(var(--spacing) * 2);
+	/* ---- the check -----------------------------------------------------
+	 * Cloudflare's own card, standing on the form with nothing around it. It was framed and
+	 * captioned, which made a compartment out of the one object here that already explains
+	 * itself.
+	 *
+	 * The height is reserved rather than discovered: the widget arrives after hydration, and
+	 * an unreserved box drops the send button 65px down the page under the cursor. It scrolls
+	 * inside itself below the width its 300px floor needs, because a sideways scrollbar on
+	 * the document is a defect and one inside a box the width of a phone is a widget. */
+	.check-slot {
+		min-block-size: 4.5rem;
 		overflow-x: auto;
 		overscroll-behavior-inline: contain;
-	}
-
-	@media (width < 23rem) {
-		.check-well {
-			padding: 0;
-		}
-	}
-
-	/* Same marking as a field, and the compartment nobody wired: validate() pushes 'token'
-	 * when the widget never ran, and until now that produced "check the fields marked" with
-	 * nothing marked anywhere on the page. */
-	.check-well[data-invalid="true"] {
-		border-width: calc(var(--border-brutal) * 2);
-		padding: calc(var(--spacing) * 2 - var(--border-brutal));
 	}
 
 	/* ---- the foot -------------------------------------------------------
@@ -1564,6 +1539,40 @@
 		color: var(--sheet);
 		font-family: var(--font-mono);
 		font-size: 0.8125rem;
+	}
+
+	/* ---- the legal notice ----------------------------------------------
+	 * The class was on the page and had no rule behind it, which with this stylesheet's reset
+	 * meant no margins at all: every paragraph ran into the next and the whole notice was one
+	 * block nobody could find anything in.
+	 *
+	 * Set as a document rather than as a page of this site: the type is the reading face, the
+	 * measure is short, and the headings are the only thing carrying the house voice, because
+	 * a legal notice that performs is a legal notice nobody trusts. */
+	.legal-prose {
+		font-size: 1.0625rem;
+		line-height: 1.65;
+	}
+	.legal-prose p {
+		margin-block: 0 calc(var(--spacing) * 4);
+	}
+	.legal-prose h2 {
+		margin-block: calc(var(--spacing) * 10) calc(var(--spacing) * 4);
+		border-block-end: var(--border-brutal) solid var(--border);
+		padding-block-end: calc(var(--spacing) * 2);
+		font-family: var(--font-display);
+		font-size: 1.5rem;
+		font-stretch: 92%;
+		line-height: 1.1;
+		text-transform: uppercase;
+	}
+	.legal-prose h2:first-child {
+		margin-block-start: 0;
+	}
+	/* The addresses and the registration numbers are a block of facts, not prose, so they sit
+	 * tight to each other rather than a paragraph apart. */
+	.legal-prose p + p {
+		margin-block-start: 0;
 	}
 
 	/* ---- the foot of every page ----------------------------------------

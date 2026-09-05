@@ -39,7 +39,17 @@ export default async function LegalPage({ params }: { params: Promise<{ lang: st
 
 	return (
 		<>
-			<SiteHeader path={PATH} locale={locale} />
+			{/* The same route back into the work the other two pages have. This was the last
+			    page you could reach and then be stuck on. */}
+			<SiteHeader
+				path={PATH}
+				locale={locale}
+				nav={[
+					{ label: home.songs?.heading ?? '', href: `${localeHref('/', locale)}#ascolta` },
+					{ label: home.timeline?.heading ?? '', href: `${localeHref('/', locale)}#percorso` },
+				]}
+				contact={{ label: home.contactCta?.buttonLabel ?? '', href: localeHref('/contact', locale) }}
+			/>
 			<main className="px-5 py-14 sm:px-8 md:py-20">
 				<div className="shell">
 					<h1 className="font-display uppercase [font-stretch:88%]">{copy.heading}</h1>

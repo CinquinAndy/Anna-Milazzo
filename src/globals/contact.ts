@@ -45,18 +45,6 @@ export const Contact: GlobalConfig = {
 				{ name: 'submitLabel', type: 'text', localized: true, label: { en: 'Send button', it: 'Pulsante invia' } },
 				{ name: 'sendingLabel', type: 'text', localized: true, label: { en: 'While sending', it: 'Durante l’invio' } },
 				{
-					name: 'checkLabel',
-					type: 'text',
-					localized: true,
-					label: { en: 'Anti-bot check label', it: 'Etichetta del controllo anti-bot' },
-					admin: {
-						description: {
-							en: 'Names the Cloudflare box, which is the one object on this site drawn by somebody else.',
-							it: 'Dà un nome al riquadro di Cloudflare, l’unico oggetto di questo sito disegnato da qualcun altro.',
-						},
-					},
-				},
-				{
 					name: 'checkNote',
 					type: 'text',
 					localized: true,

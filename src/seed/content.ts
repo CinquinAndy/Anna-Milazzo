@@ -298,7 +298,6 @@ type ContactCopy = {
 		messageLabel: string
 		submitLabel: string
 		sendingLabel: string
-		checkLabel: string
 		checkNote: string
 		missingNote: string
 		emailNote: string
@@ -326,7 +325,6 @@ export const SEED_CONTACT: Record<Locale, ContactCopy> = {
 			messageLabel: 'Il messaggio',
 			submitLabel: 'Invia',
 			sendingLabel: 'Invio in corso…',
-			checkLabel: 'Controllo anti-bot',
 			checkNote:
 				'Il controllo non è stato completato. Riprovate: se il riquadro resta vuoto, è probabile che il ' +
 				'browser lo stia bloccando, e in quel caso scrivetemi via email.',
@@ -396,7 +394,6 @@ export const SEED_CONTACT: Record<Locale, ContactCopy> = {
 			messageLabel: 'Your message',
 			submitLabel: 'Send',
 			sendingLabel: 'Sending…',
-			checkLabel: 'Anti-bot check',
 			checkNote:
 				'The check did not complete. Try again: if the box stays empty your browser is probably blocking ' +
 				'it, and in that case write to me by email instead.',
@@ -456,34 +453,81 @@ export const SEED_CONTACT: Record<Locale, ContactCopy> = {
 	},
 } as const
 
-type LegalsCopy = { heading: string; paragraphs: readonly string[] }
+type LegalsCopy = { heading: string; paragraphs: readonly (string | { heading: string })[] }
 
+/**
+ * The legal notice.
+ *
+ * Two people stand behind this site and the notice says so, which is the one thing the
+ * template it started from could not: the works are Anna's, and the site around them was
+ * built and is hosted by somebody else. Assigning her recordings to the developer would
+ * have been the easiest mistake to make here and the hardest to notice.
+ */
 export const SEED_LEGALS: Record<Locale, LegalsCopy> = {
 	it: {
 		heading: 'Note legali',
 		paragraphs: [
-			'Questo sito è di Anna Milazzo, compositrice e sound designer.',
-			'Tutte le registrazioni pubblicate qui sono opera sua e sono ospitate con il suo consenso. ' +
-				'Nessuna di esse può essere riutilizzata senza permesso scritto.',
-			'Il modulo di contatto invia il vostro messaggio per email e non conserva nulla: nome, ' +
-				'indirizzo e testo non vengono salvati su questo sito. Il modulo è protetto da un ' +
-				'controllo anti-bot fornito da Cloudflare.',
-			'I caratteri tipografici sono ospitati su questo sito e non vengono richiesti a terzi, ' +
-				'quindi la loro visualizzazione non comporta alcun trasferimento di dati.',
-			'Per qualsiasi domanda, usate la pagina contatti.',
+			{ heading: 'Chi siamo' },
+			'Indirizzo del sito: https://anna-milazzo.com',
+			'Il sito raccoglie e presenta il lavoro di Anna Milazzo, compositrice e sound designer. È stato realizzato e viene ospitato da Cinquin Andy, i cui recapiti sono qui sotto.',
+
+			{ heading: 'Diritto d’autore' },
+			'Le opere pubblicate qui, registrazioni, testi e immagini, sono di Anna Milazzo e sono ospitate con il suo consenso. Nessuna di esse può essere riprodotta, rappresentata o riutilizzata, in tutto o in parte e con qualsiasi procedimento, senza la sua autorizzazione scritta.',
+			'La grafica, il codice e la struttura del sito sono protetti ai sensi degli articoli L335-2 e seguenti del Codice della proprietà intellettuale francese. Qualsiasi riproduzione o rappresentazione, totale o parziale, con qualsiasi procedimento e senza la previa autorizzazione di Cinquin Andy, è vietata. Ogni violazione è sanzionabile e sarà perseguita.',
+
+			{ heading: 'Editore e realizzazione' },
+			'Creazione del tema su misura, identità visiva, SEO e hosting: servizio completo.',
+			'Cinquin Andy',
+			'SIRET: 880 505 276 00035',
+			'1250 Chemin de la renouillère, 74140 Sciez, Francia',
+			'Tel: 06 21 58 26 84',
+			'https://andy-cinquin.com',
+
+			{ heading: 'Hosting' },
+			'netcup GmbH',
+			'Daimlerstraße 25, 76185 Karlsruhe, Germania',
+
+			{ heading: 'Dati personali' },
+			'Il trattamento dei dati personali su questo sito è soggetto al Regolamento (UE) 2016/679, il GDPR.',
+			'Titolare del trattamento: Cinquin Andy, ai recapiti indicati sopra.',
+			'Il modulo di contatto raccoglie soltanto quello che scrivete: nome, indirizzo email e messaggio. Questi dati non vengono salvati su questo sito né in alcun database: il messaggio viene inoltrato per email tramite Resend e conservato solo per il tempo della conversazione. La base giuridica è il vostro consenso, dato nel momento in cui inviate il modulo.',
+			'Il modulo è protetto da Cloudflare Turnstile, che tratta dati tecnici del vostro browser al solo scopo di distinguere una persona da un programma automatico.',
+			'Questo sito non usa cookie pubblicitari, non usa strumenti di analisi e non profila nessuno. I caratteri tipografici sono ospitati qui e non vengono richiesti a terzi, quindi visualizzarli non comporta alcun trasferimento di dati.',
+			'Avete diritto di accedere ai vostri dati, di rettificarli, di chiederne la cancellazione, di limitarne il trattamento e di opporvi. Per esercitarli, scrivete dalla pagina contatti o all’indirizzo indicato sopra.',
+			'Se ritenete che i vostri diritti non siano rispettati, potete presentare reclamo all’autorità di controllo competente: il Garante per la protezione dei dati personali in Italia, o la CNIL in Francia.',
 		],
 	},
 	en: {
 		heading: 'Legal notice',
 		paragraphs: [
-			'This site belongs to Anna Milazzo, composer and sound designer.',
-			'Every recording published here is her own work and is hosted with her consent. None of it ' +
-				'may be reused without written permission.',
-			'The contact form sends your message by email and keeps nothing: your name, address and text ' +
-				'are not stored on this site. The form is protected by an anti-bot check provided by Cloudflare.',
-			'The typefaces are hosted on this site and are not requested from a third party, so displaying ' +
-				'them involves no data transfer.',
-			'For any question, use the contact page.',
+			{ heading: 'Who we are' },
+			'Website address: https://anna-milazzo.com',
+			'The site gathers and presents the work of Anna Milazzo, composer and sound designer. It was built and is hosted by Cinquin Andy, whose details are below.',
+
+			{ heading: 'Copyright' },
+			'The works published here, the recordings, the texts and the images, belong to Anna Milazzo and are hosted with her consent. None of them may be reproduced, represented or reused, in whole or in part and by any process, without her written authorisation.',
+			'The design, the code and the structure of the site are protected under Articles L335-2 and following of the French Intellectual Property Code. Any reproduction or representation, total or partial, by any process and without the prior authorisation of Cinquin Andy, is forbidden. Any violation is a sanctionable offence and will be prosecuted.',
+
+			{ heading: 'Publisher and creation' },
+			'Custom theme creation, branding, SEO and hosting: turnkey service.',
+			'Cinquin Andy',
+			'SIRET: 880 505 276 00035',
+			'1250 Chemin de la renouillère, 74140 Sciez, France',
+			'Tel: 06 21 58 26 84',
+			'https://andy-cinquin.com',
+
+			{ heading: 'Hosting' },
+			'netcup GmbH',
+			'Daimlerstraße 25, 76185 Karlsruhe, Germany',
+
+			{ heading: 'Personal data' },
+			'The processing of personal data on this site is subject to Regulation (EU) 2016/679, the GDPR.',
+			'Data controller: Cinquin Andy, at the details given above.',
+			'The contact form collects only what you write: your name, your email address and your message. None of it is saved on this site or in any database. The message is forwarded by email through Resend and kept only for as long as the conversation lasts. The legal basis is your consent, given when you send the form.',
+			'The form is protected by Cloudflare Turnstile, which processes technical data from your browser for the sole purpose of telling a person from an automated program.',
+			'This site uses no advertising cookies, no analytics and profiles nobody. The typefaces are hosted here and are not requested from a third party, so displaying them transfers no data.',
+			'You have the right to access your data, to correct it, to ask for it to be erased, to restrict its processing and to object. To exercise those rights, write from the contact page or to the address above.',
+			'If you believe your rights are not being respected, you may lodge a complaint with the competent supervisory authority: the Garante per la protezione dei dati personali in Italy, or the CNIL in France.',
 		],
 	},
 } as const

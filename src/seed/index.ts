@@ -138,7 +138,14 @@ async function upsertSong(payload: Payload, song: SeedSong): Promise<void> {
 }
 
 /** A minimal Lexical document: one paragraph per string. */
-function paragraphs(lines: readonly string[]) {
+/**
+ * Lexical's shape for a run of prose.
+ *
+ * A plain string is a paragraph; `{ heading }` is an h2. The legals page genuinely has
+ * sections now, and a wall of paragraphs is not a legal notice anybody can find anything in.
+ */
+function paragraphs(lines: readonly (string | { heading: string })[]) {
+	const line = (text: string) => [{ type: 'text', text, format: 0, style: '', mode: 'normal', detail: 0, version: 1 }]
 	return {
 		root: {
 			type: 'root',
@@ -146,15 +153,27 @@ function paragraphs(lines: readonly string[]) {
 			indent: 0,
 			version: 1,
 			direction: 'ltr' as const,
-			children: lines.map(text => ({
-				type: 'paragraph',
-				format: '' as const,
-				indent: 0,
-				version: 1,
-				direction: 'ltr' as const,
-				textFormat: 0,
-				children: [{ type: 'text', text, format: 0, style: '', mode: 'normal', detail: 0, version: 1 }],
-			})),
+			children: lines.map(entry =>
+				typeof entry === 'string'
+					? {
+							type: 'paragraph',
+							format: '' as const,
+							indent: 0,
+							version: 1,
+							direction: 'ltr' as const,
+							textFormat: 0,
+							children: line(entry),
+						}
+					: {
+							type: 'heading',
+							tag: 'h2',
+							format: '' as const,
+							indent: 0,
+							version: 1,
+							direction: 'ltr' as const,
+							children: line(entry.heading),
+						}
+			),
 		},
 	}
 }

@@ -510,10 +510,6 @@ export interface Contact {
     submitLabel?: string | null;
     sendingLabel?: string | null;
     /**
-     * Names the Cloudflare box, which is the one object on this site drawn by somebody else.
-     */
-    checkLabel?: string | null;
-    /**
      * Shown when the check is what stopped the message. Without it the form says "check the fields marked" with nothing marked.
      */
     checkNote?: string | null;
@@ -710,7 +706,6 @@ export interface ContactSelect<T extends boolean = true> {
         messageLabel?: T;
         submitLabel?: T;
         sendingLabel?: T;
-        checkLabel?: T;
         checkNote?: T;
         missingNote?: T;
         emailNote?: T;

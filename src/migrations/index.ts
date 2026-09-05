@@ -11,6 +11,7 @@ import * as migration_20260905_091533_cta_badge from './20260905_091533_cta_badg
 import * as migration_20260905_202229_drop_cta_badge from './20260905_202229_drop_cta_badge';
 import * as migration_20260905_213339_contact_page from './20260905_213339_contact_page';
 import * as migration_20260905_220003_footer_headings from './20260905_220003_footer_headings';
+import * as migration_20260905_221112_drop_check_label from './20260905_221112_drop_check_label';
 
 export const migrations = [
   {
@@ -76,6 +77,11 @@ export const migrations = [
   {
     up: migration_20260905_220003_footer_headings.up,
     down: migration_20260905_220003_footer_headings.down,
-    name: '20260905_220003_footer_headings'
+    name: '20260905_220003_footer_headings',
+  },
+  {
+    up: migration_20260905_221112_drop_check_label.up,
+    down: migration_20260905_221112_drop_check_label.down,
+    name: '20260905_221112_drop_check_label'
   },
 ];

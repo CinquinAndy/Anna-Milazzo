@@ -223,40 +223,40 @@ export function ContactForm({
 						) : null}
 					</div>
 
-					{/* A fieldset, because a caption over a control is exactly what one is for, and
-					    the iframe cannot take a `<label>`. `tabIndex -1` on the well so focus can be
-					    moved there when the check itself is what failed, which is the one rejection
-					    with no box of its own. */}
-					<fieldset className="field check-field">
-						<legend className="field-label">{form?.checkLabel}</legend>
+					{/* The check, with no frame and no caption around it. It is Cloudflare's own card
+					    and it already says what it is; a box and a heading around it made a
+					    compartment out of something that needs no explaining, which is the one place
+					    this form was decorating rather than helping.
+
+					    The height is still reserved: the widget arrives after hydration, and an
+					    unreserved box drops the send button down the page under the cursor. The
+					    element keeps `tabIndex -1` so focus can land here when the check is what
+					    failed, which is the one rejection with no field of its own. */}
+					<div
+						ref={checkRef}
+						tabIndex={-1}
+						className="check-slot"
+						data-check-well
+						data-invalid={fieldInvalid(result, 'token') ? 'true' : undefined}
+						aria-describedby={fieldInvalid(result, 'token') ? `${ids}-check-note` : undefined}
+					>
+						{/* Cloudflare replaces this with the widget and puts the token in a hidden
+						    `cf-turnstile-response` field inside the form. `light` because the widget
+						    otherwise follows the operating system and goes black on a site that has
+						    no dark mode. */}
 						<div
-							ref={checkRef}
-							tabIndex={-1}
-							className="check-well"
-							data-check-well
-							data-invalid={fieldInvalid(result, 'token') ? 'true' : undefined}
-							aria-describedby={fieldInvalid(result, 'token') ? `${ids}-check-note` : undefined}
-						>
-							{/* Cloudflare replaces this with the widget and puts the token in a hidden
-							    `cf-turnstile-response` field inside the form. `light` because the widget
-							    otherwise follows the operating system and goes black on a site that has
-							    no dark mode; `flexible` because a 300px card adrift in a wide well is
-							    the one place this page looked unfinished. */}
-							<div
-								className="cf-turnstile"
-								data-sitekey={siteKey}
-								data-language={locale}
-								data-theme="light"
-								data-size="flexible"
-								data-turnstile
-							/>
-						</div>
+							className="cf-turnstile"
+							data-sitekey={siteKey}
+							data-language={locale}
+							data-theme="light"
+							data-turnstile
+						/>
 						{fieldInvalid(result, 'token') ? (
-							<p id={`${ids}-check-note`} className="field-note">
+							<p id={`${ids}-check-note`} className="field-note mt-3">
 								{form?.checkNote}
 							</p>
 						) : null}
-					</fieldset>
+					</div>
 
 					<div className="form-foot">
 						{form?.privacyNote ? <p className="form-note">{form.privacyNote}</p> : null}
