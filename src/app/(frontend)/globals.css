@@ -834,19 +834,59 @@
 	 *
 	 * 1.8s is not arbitrary: 33 1/3 rpm is 60 / 33.333 = 1.8 seconds per revolution. */
 	.folder-disc {
+		/* Below 128px the grooves merge and the spindle collapses; 62% of the 256px column
+		 * is 159px. */
+		--disc-size: 62%;
+		--disc-tuck: -2px;
+		/* Half of `--disc-out`, so the hint reads as the same move, unfinished. */
+		--disc-peek: 0.75rem;
+		/* The gap between the cover and the story is 2rem. In rem like the gap, so the
+		 * clearance holds at any root font size, and measured to leave paper between the
+		 * rim and the story's first glyph. */
+		--disc-out: 1.5rem;
 		position: absolute;
 		/* Zero, not -1: the cover's parent creates no stacking context, so a negative index
 		 * would put the disc behind the Folder body's own background and out of sight. The
 		 * cover sits above it on z-10 instead. */
 		z-index: 0;
-		inset-block-start: 8%;
-		/* Far enough out to be seen, not so far it reaches the story. At -18% the disc's
-		 * right edge landed 14px past the text's left edge at every width — black under black,
-		 * so the first character of every line lost its contrast. The gap between the cover and
-		 * the text is 2rem, and this leaves about half of it clear. */
-		inset-inline-end: -8%;
-		inline-size: 62%;
+		inline-size: var(--disc-size);
+		/* A MARGIN, not `inset-block-start`. A percentage inset resolves against the
+		 * containing block's HEIGHT in the block axis, and that box is a stretched grid row
+		 * whose height is set by the story beside it — so the disc sat 20px below the cover
+		 * on one Song and 38px below on another. A percentage margin resolves against the
+		 * WIDTH, which is the same 256px column for every Song. */
+		inset-block-start: 0;
+		margin-block-start: calc((100% - var(--disc-size)) / 2);
+		inset-inline-end: 0;
+		/* Tucked all the way in, and two pixels further, so the rim's antialiasing hides
+		 * under the cover's own keyline and no seam shows against the paper. */
+		translate: var(--disc-tuck) 0;
 		pointer-events: none;
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		.folder-disc {
+			/* Out is slower than home, and eased the other way. A record leaving a paper
+			 * sleeve is quickest at the start and then meets friction; pausing should get out
+			 * of the way rather than perform, which is the reason `.control` already gives for
+			 * its own asymmetry. */
+			transition: translate 180ms cubic-bezier(0.4, 0, 1, 1);
+		}
+		.folder:has(.folder-sleeve:hover) .folder-disc,
+		.folder:has([data-playing="true"]) .folder-disc {
+			transition: translate 240ms cubic-bezier(0.16, 0.84, 0.44, 1);
+		}
+	}
+	/* The record comes out when the music starts. This is the signal, not the hover: a
+	 * portfolio gets opened on a phone, where there is no pointer to hover with. */
+	.folder:has([data-playing="true"]) .folder-disc {
+		translate: var(--disc-out) 0;
+	}
+	/* A hint on pointer devices that there is something behind the sleeve: the same property,
+	 * the same axis, the same direction, half the distance. Written so it CANNOT match while
+	 * the Song is playing — the two triggers are made mutually exclusive in the selector
+	 * rather than ranked by specificity, so "playing and hovered" is exactly "playing". */
+	.folder:not(:has([data-playing="true"])):has(.folder-sleeve:hover) .folder-disc {
+		translate: var(--disc-peek) 0;
 	}
 	@media (prefers-reduced-motion: no-preference) {
 		.folder-disc {

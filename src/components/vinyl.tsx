@@ -38,6 +38,20 @@ export function Vinyl({
 				<circle cx="100" cy="100" r="52" />
 				<circle cx="100" cy="100" r="43" />
 			</g>
+			{/* The sheen, and the only thing on this record that is not concentric with it.
+			    Without it the disc is nine circles sharing one centre, and rotating that is a
+			    mathematical no-op — the spin the stylesheet calls the clearest "this is
+			    playing" signal there is rendered nothing at all. Measured across a full
+			    revolution before this existed: 0.11% of channels differed by more than 8/255,
+			    and that was antialiasing on two groove arcs.
+
+			    It is also the "off-centre highlight" this component's own note has always
+			    claimed the record has. */}
+			<g fill="none" stroke="var(--sheet)" strokeLinecap="round" transform="rotate(62 100 100)">
+				<path d="M182.85 64.84 A90 90 0 0 1 182.85 135.16" strokeWidth="10" strokeOpacity="0.28" />
+				<path d="M172.68 77.78 A76 76 0 0 1 172.68 122.22" strokeWidth="6" strokeOpacity="0.17" />
+			</g>
+
 			{/* The label, and the keyline that makes it belong to this design rather than to
 			    a stock illustration. */}
 			<circle cx="100" cy="100" r="34" fill={label} stroke="var(--ink)" strokeWidth="4" />
