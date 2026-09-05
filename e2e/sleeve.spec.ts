@@ -31,9 +31,11 @@ async function sleeveGeometry(page: Page, index = 0) {
 			heading === null ? Number.POSITIVE_INFINITY : heading.getBoundingClientRect().left,
 			story === null ? Number.POSITIVE_INFINITY : story.getBoundingClientRect().left
 		)
+		const cardBox = folder.getBoundingClientRect()
 		return {
 			// How far the record shows past the sleeve's right edge.
 			out: paintedRight - coverBox.right,
+			cardEdge: cardBox.right - paintedRight,
 			// Its top, relative to the cover, so every Song can be compared.
 			top: discBox.top - coverBox.top,
 			// Null when the story is not beside the cover at all.
@@ -43,6 +45,22 @@ async function sleeveGeometry(page: Page, index = 0) {
 }
 
 test.describe('the record and its sleeve', () => {
+	test('gives the record a hover target no bigger than the artwork', async ({ page }) => {
+		await page.setViewportSize({ width: 1024, height: 900 })
+		await page.goto('/')
+		const dead = await page.evaluate(() => {
+			const sleeve = document.querySelector('[data-song-stack] .folder .folder-sleeve')
+			const cover = sleeve?.querySelector('img')
+			if (!sleeve || !cover) {
+				return 0
+			}
+			return sleeve.getBoundingClientRect().height - cover.getBoundingClientRect().height
+		})
+		// Left to stretch, the wrapper fills a grid row the story makes far taller than the
+		// picture — 282px of blank paper under it, all of which brought the record out.
+		expect(dead, 'the hover target extends past the artwork').toBeLessThan(8)
+	})
+
 	test('keeps the record in the sleeve until something plays', async ({ page }) => {
 		await page.goto('/')
 		const resting = await sleeveGeometry(page)
@@ -66,7 +84,7 @@ test.describe('the record and its sleeve', () => {
 	})
 
 	test('never reaches the story, at any width', async ({ page }) => {
-		for (const width of [375, 414, 768, 1024, 1440]) {
+		for (const width of [320, 360, 375, 414, 768, 1024, 1440]) {
 			await page.setViewportSize({ width, height: 900 })
 			await page.goto('/')
 			await page.locator('[data-song-stack] .transport-play').first().click()
@@ -80,6 +98,10 @@ test.describe('the record and its sleeve', () => {
 			if (playing?.clearance !== null && playing?.clearance !== undefined) {
 				expect(playing.clearance, `the record reaches the story at ${width}px`).toBeGreaterThan(0)
 			}
+			// And it must not leave the card either. Below the width at which the cover stops
+			// being capped, the runway is the card's own padding and the full travel put the
+			// rim within a pixel and a half of the outer edge.
+			expect(playing?.cardEdge ?? 0, `the record escapes the card at ${width}px`).toBeGreaterThan(4)
 		}
 	})
 
