@@ -9,18 +9,25 @@ test.describe('the timeline', () => {
 
 		// Not an image: every step is real text a screen reader reaches.
 		await expect(page.locator('[data-timeline] ol')).toHaveJSProperty('tagName', 'OL')
-		await expect(entries.first()).toContainText('2019–2022')
-		await expect(entries.first()).toContainText('Liceo musicale, pianoforte principale')
-		await expect(entries.last()).toContainText('Colonna sonora per cortometraggio')
+		// Newest first, both down the lanes and across the ruler: the reader wants to know
+		// what she is doing now, and on a strip that has to be scrolled the newest entry has
+		// to be the one already on screen.
+		await expect(entries.first()).toContainText('2026')
+		await expect(entries.first()).toContainText('Colonna sonora per cortometraggio')
+		await expect(entries.last()).toContainText('2019–2022')
+		await expect(entries.last()).toContainText('Liceo musicale, pianoforte principale')
 	})
 
-	test('keeps the order set in the CMS', async ({ page }) => {
+	test('reads newest first, whatever order the CMS holds', async ({ page }) => {
 		await page.goto('/')
 
 		const periods = await page
 			.locator('[data-timeline] ol > li')
 			.evaluateAll(nodes => nodes.map(n => n.textContent?.match(/\d{4}(–\d{4})?/)?.[0] ?? ''))
-		expect(periods).toEqual(['2019–2022', '2022–2026', '2024', '2025', '2026'])
+		// The CMS holds these in the order she lived them. Ordered by the year a clip ENDS,
+		// which is the same quantity that positions it on the reversed ruler — so the lanes
+		// and the columns agree and the blocks step down and to the right.
+		expect(periods).toEqual(['2026', '2022–2026', '2025', '2024', '2019–2022'])
 	})
 
 	test('reads in English with the shared periods intact', async ({ page }) => {
@@ -28,9 +35,9 @@ test.describe('the timeline', () => {
 
 		const entries = page.locator('[data-timeline] ol > li')
 		await expect(entries).toHaveCount(5)
-		await expect(entries.first()).toContainText('Music high school, principal study piano')
+		await expect(entries.last()).toContainText('Music high school, principal study piano')
 		// The period is not localized — it is the same fact in both languages.
-		await expect(entries.first()).toContainText('2019–2022')
+		await expect(entries.last()).toContainText('2019–2022')
 	})
 
 	test('scrolls inside its own container, never the page', async ({ page }) => {

@@ -76,15 +76,28 @@ test.describe('the top of the landing page', () => {
 			}))
 			expect(overflow.scrollWidth, 'the page scrolls sideways').toBeLessThanOrEqual(overflow.clientWidth)
 
-			// Nothing sticks out of the viewport either — an element can overflow without
-			// making the document scrollable if something above it clips. Content inside a
-			// scroll container is exempt: that is the timeline strip doing its job, and the
-			// page-level assertion above already proves the page is not the thing scrolling.
+			// Nothing is VISIBLE outside the viewport either. An element can overflow without
+			// making the document scrollable, and the page-level assertion above already
+			// proves the page is not the thing scrolling — so what is left to check is
+			// whether anything actually shows past the edge.
+			//
+			// Being clipped is the exemption, not being inside a scroller specifically. This
+			// page deliberately bleeds things past their containers: the hero's dithered field
+			// is wider than the viewport by design, and the ornament layer has its own test
+			// named "overflows its container rather than being clipped by it". Both are cut by
+			// an ancestor with `overflow: hidden`, which is invisible and cannot scroll
+			// anything — so the old rule, which exempted only `auto` and `scroll`, was failing
+			// the page for doing what the rest of the suite requires of it.
 			const wide = await page.evaluate(() => {
 				const limit = document.documentElement.clientWidth
-				const insideScroller = (el: Element) => {
+				const clippedBeforeTheEdge = (el: Element) => {
 					for (let node = el.parentElement; node !== null; node = node.parentElement) {
-						if (/(auto|scroll)/.test(getComputedStyle(node).overflowX)) {
+						if (getComputedStyle(node).overflowX === 'visible') {
+							continue
+						}
+						// A clipping ancestor only helps if it is itself inside the viewport;
+						// one that is also too wide has simply moved the problem up a level.
+						if (node.getBoundingClientRect().right <= limit + 1) {
 							return true
 						}
 					}
@@ -93,7 +106,7 @@ test.describe('the top of the landing page', () => {
 				return [...document.querySelectorAll('body *')]
 					.filter(el => {
 						const box = el.getBoundingClientRect()
-						return box.width > 0 && (box.right > limit + 1 || box.left < -1) && !insideScroller(el)
+						return box.width > 0 && (box.right > limit + 1 || box.left < -1) && !clippedBeforeTheEdge(el)
 					})
 					.map(el => `${el.tagName.toLowerCase()}.${el.className || '(no class)'}`.slice(0, 80))
 			})

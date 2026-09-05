@@ -31,9 +31,14 @@ export function Timeline({ timeline, scrollLabel }: { timeline: Home['timeline']
 		return null
 	}
 
-	// The playhead parks at the most recent entry's start — "now" in her arrangement.
-	const playhead = Math.max(...arrangement.lanes.map(lane => lane.offset))
-	const bars = Array.from({ length: arrangement.years }, (_, index) => arrangement.firstYear + index)
+	// The playhead parks where the most recent entry begins — "now" in her arrangement. The
+	// ruler counts DOWN, so now is the smallest offset rather than the largest.
+	const playhead = Math.min(...arrangement.lanes.map(lane => lane.offset))
+	// Counted down from the last bar, so the leftmost year is the most recent one.
+	const bars = Array.from(
+		{ length: arrangement.years },
+		(_, index) => arrangement.firstYear + arrangement.years - 1 - index
+	)
 
 	return (
 		<section

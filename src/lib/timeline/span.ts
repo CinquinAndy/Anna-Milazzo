@@ -62,11 +62,24 @@ export type Arrangement<T> = {
 }
 
 /**
- * Lays entries out against a shared ruler.
+ * Lays entries out against a shared ruler that runs BACKWARDS — newest at bar one.
+ *
+ * Both axes are reversed, and for the same reason. The CMS holds Anna's history in the
+ * order she lived it, so left to right and top down the first thing a reader met was the
+ * oldest thing she had done. A CV is reverse-chronological because the reader wants to know
+ * what she is doing now. So the ruler counts down from the most recent year, and the lanes
+ * come back newest first: her latest work is the block at the top left, where the eye
+ * starts.
+ *
+ * It also fixes something the forward ruler could not. The arrangement is wider than any
+ * viewport and scrolls; with time running forwards the newest entry began off the right
+ * edge, so the one thing a Recruiter most wants to see was the one thing they had to go
+ * looking for. Counting down puts it against the left edge at rest.
  *
  * Entries whose period carries no year are kept, not dropped — losing a line of someone's
  * history because they wrote "in corso" would be the worst possible failure here. They are
- * placed at the end, each one bar long.
+ * placed after the last known bar, which on a reversed ruler is before all of it: "ongoing"
+ * is the most recent thing there is.
  */
 export function arrange<T>(entries: T[], periodOf: (entry: T) => string | null | undefined): Arrangement<T> | null {
 	if (entries.length === 0) {
@@ -97,6 +110,19 @@ export function arrange<T>(entries: T[], periodOf: (entry: T) => string | null |
 	})
 
 	const span = Math.max(...lanes.map(lane => lane.offset + lane.length))
+
+	// Flipped end for end. A clip that ran from bar 7 to bar 8 on a forward ruler runs from
+	// bar 0 to bar 1 on a backward one, and its LENGTH is untouched — a three-year
+	// conservatory is still three bars wide, which is the whole reason these are spans and
+	// not dots.
+	for (const lane of lanes) {
+		lane.offset = span - lane.offset - lane.length
+	}
+
+	// Ascending on the reversed ruler, which is descending in time. Stable, so two entries
+	// from the same year keep the order Anna put them in — nothing here knows which of them
+	// she considers the more important.
+	lanes.sort((a, b) => a.offset - b.offset)
 
 	return { lanes, firstYear, lastYear: firstYear + span, years: span }
 }
