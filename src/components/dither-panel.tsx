@@ -16,10 +16,10 @@ import { endianPacker, mix, resolveToken, threshold } from '@/lib/canvas/dither'
  * the bands bend around each other instead of marching. That is the whole difference
  * between a pattern and a texture.
  *
- * The two colours are the block's own ground and a LIGHTER version of it, never a darker
- * one. Black type sits on this at 6.05:1, and anything that darkens the field takes that
- * down; lightening can only raise it, which makes the contrast safe by construction rather
- * than by measurement.
+ * The two colours are the block's own ground and a version of it carried AWAY from whatever
+ * type sits on top. On the magenta call to action the type is ink, so the field lightens and
+ * black can only gain contrast; on the blue arrival the type is sheet, so it darkens. Either
+ * way the contrast is safe by construction rather than by measurement.
  *
  * Decoration. Hidden from assistive technology, and the block reads correctly without it.
  */
@@ -33,7 +33,20 @@ const FPS = 12
 /** How far the ground is carried toward the paper. */
 const LIFT = 0.24
 
-export function DitherPanel() {
+export function DitherPanel({
+	ground = '--magenta',
+	toward = '--paper',
+}: {
+	/** The block's own colour. */
+	ground?: string
+	/**
+	 * What the ground is carried toward, and it must always be AWAY from the type sitting on
+	 * it. On magenta the type is ink, so the field lightens; on blue the type is sheet, so it
+	 * has to darken. Measured: lightening blue takes sheet down to 3.68:1, a fail, where
+	 * darkening it takes sheet up to 8.15:1.
+	 */
+	toward?: string
+}) {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
 	useEffect(() => {
@@ -47,11 +60,11 @@ export function DitherPanel() {
 		}
 		const host = canvas.parentElement ?? canvas
 
-		const back = resolveToken(host, '--magenta')
-		const paper = resolveToken(host, '--paper')
+		const back = resolveToken(host, ground)
+		const front = resolveToken(host, toward)
 		const pack = endianPacker()
 		const backWord = pack(back)
-		const frontWord = pack(mix(back, paper, LIFT))
+		const frontWord = pack(mix(back, front, LIFT))
 
 		let width = 0
 		let height = 0
@@ -160,7 +173,7 @@ export function DitherPanel() {
 			watcher.disconnect()
 			document.removeEventListener('visibilitychange', onVisibility)
 		}
-	}, [])
+	}, [ground, toward])
 
 	// `aria-hidden` on the wrapper, not on the canvas: a canvas counts as focusable, and
 	// hiding a focusable element from assistive technology is its own defect.

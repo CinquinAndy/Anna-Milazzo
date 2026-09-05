@@ -201,6 +201,41 @@ function homeData(
 	}
 }
 
+/**
+ * The contact page's copy, with its arrays carrying the row ids Postgres already gave them.
+ *
+ * This exists for the same reason `homeData` does, and it did not exist while the global
+ * held no arrays. The moment it does, writing English without the Italian row ids replaces
+ * the rows rather than translating them, and the Italian text goes with them. Silently.
+ */
+function contactData(
+	copy: (typeof SEED_CONTACT)['it'],
+	stored?: {
+		points?: ReadonlyArray<{ id?: string | null }> | null | undefined
+		entries?: ReadonlyArray<{ id?: string | null }> | null | undefined
+	}
+) {
+	return {
+		heading: copy.heading,
+		intro: copy.intro,
+		form: copy.form,
+		outcome: copy.outcome,
+		brief: {
+			heading: copy.brief.heading,
+			intro: copy.brief.intro,
+			points: withRowIds(
+				copy.brief.points.map(text => ({ text })),
+				stored?.points
+			),
+		},
+		practical: {
+			heading: copy.practical.heading,
+			entries: withRowIds(copy.practical.entries, stored?.entries),
+		},
+		direct: copy.direct,
+	}
+}
+
 function legalsData(copy: (typeof SEED_LEGALS)['it']) {
 	return { heading: copy.heading, body: paragraphs(copy.paragraphs) }
 }
@@ -237,12 +272,13 @@ export async function seed(): Promise<void> {
 	// replaces the rows outright and takes the first locale's text with them, silently.
 	// So: write Italian, read the ids back, then write English carrying them.
 	await payload.updateGlobal({ slug: 'home', locale: 'it', data: homeData(SEED_HOME.it, portrait) })
-	await payload.updateGlobal({ slug: 'contact', locale: 'it', data: SEED_CONTACT.it })
+	await payload.updateGlobal({ slug: 'contact', locale: 'it', data: contactData(SEED_CONTACT.it) })
 	await payload.updateGlobal({ slug: 'legals', locale: 'it', data: legalsData(SEED_LEGALS.it) })
 	await payload.updateGlobal({ slug: 'settings', locale: 'it', data: settingsData(SEED_SETTINGS.it) })
 	payload.logger.info('seeded page copy in it')
 
 	const storedHome = await payload.findGlobal({ slug: 'home', locale: 'it' })
+	const storedContact = await payload.findGlobal({ slug: 'contact', locale: 'it' })
 	const storedSettings = await payload.findGlobal({ slug: 'settings', locale: 'it' })
 
 	await payload.updateGlobal({
@@ -253,7 +289,14 @@ export async function seed(): Promise<void> {
 			timeline: storedHome.timeline?.entries,
 		}),
 	})
-	await payload.updateGlobal({ slug: 'contact', locale: 'en', data: SEED_CONTACT.en })
+	await payload.updateGlobal({
+		slug: 'contact',
+		locale: 'en',
+		data: contactData(SEED_CONTACT.en, {
+			points: storedContact.brief?.points,
+			entries: storedContact.practical?.entries,
+		}),
+	})
 	await payload.updateGlobal({ slug: 'legals', locale: 'en', data: legalsData(SEED_LEGALS.en) })
 	await payload.updateGlobal({
 		slug: 'settings',

@@ -1294,6 +1294,278 @@
 		}
 	}
 
+	/* ---- the contact form ----------------------------------------------
+	 * A panel of chrome with the paper set into it: the panel is --muted, the boxes are
+	 * --card. That order is arithmetic rather than taste. --card measures 1.170:1 against
+	 * --paper and 2.020:1 against the cantaloupe field, so on any light ground an input is a
+	 * shape held together by its keyline alone, which is the flatness the client called out.
+	 * On --muted the fill is still only 1.227:1, but the keyline reads at 16.64:1 and so
+	 * does the offset shadow, which is also ink. On an ink panel that shadow would be ink on
+	 * ink and every box on the form would silently lose it.
+	 *
+	 * Square to the page, and the only object in this section that is. The brief note beside
+	 * it is tilted and taped; a tilted card can be read and cannot be written on, and
+	 * rotating a container skews every focus outline inside it. */
+	.form-panel {
+		--panel-pad: 1.25rem;
+		position: relative;
+		border: var(--border-brutal) solid var(--border);
+		background-color: var(--muted);
+		box-shadow: var(--shadow-lg);
+		padding: var(--panel-pad);
+	}
+
+	@media (width >= 40rem) {
+		.form-panel {
+			--panel-pad: 2rem;
+		}
+	}
+
+	@media (width < 40rem) {
+		/* Cloudflare's widget has a hard 300px floor at data-size="flexible", and the size is
+		 * read once when the widget mounts, so it cannot be swapped responsively. Inside the
+		 * shell at 375 this panel offers 279px of clear width. Taking the whole viewport
+		 * instead offers 335, which clears the floor, and turns the panel into a band, which
+		 * is already this page's unit. The negative margin is exactly the section's own px-5;
+		 * the inline keylines and the shadow go with it or they push the page sideways. */
+		.form-panel {
+			margin-inline: -1.25rem;
+			border-inline: 0;
+			box-shadow: none;
+		}
+	}
+
+	.form-fields {
+		display: grid;
+		gap: calc(var(--spacing) * 7);
+	}
+
+	.field {
+		display: grid;
+		gap: calc(var(--spacing) * 2);
+	}
+
+	/* The Folder tab's voice and the transport clock's: mono, small, tracked. Labels and
+	 * machine strings are mono on this site; prose is not. */
+	.field-label {
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		letter-spacing: 0.08em;
+		line-height: 1.2;
+		text-transform: uppercase;
+	}
+
+	/* The offset every other object here carries. These three boxes were the only
+	 * interactive things on the whole site standing flat on their ground, which is a
+	 * legibility problem before it is a style one: a shadow on this site means an object on
+	 * the surface, not a press target, which is why .console-meter and .piano both have one
+	 * and neither can be pressed.
+	 *
+	 * Deliberately no focus transform. .control travels into its shadow because a button is
+	 * pressed and released; a field holds focus for as long as someone is typing, and a box
+	 * displaced for three minutes is motion nobody asked for. The ring is the indicator, and
+	 * it lands on --muted at 4.58:1. */
+	.field-box {
+		inline-size: 100%;
+		border: var(--border-brutal) solid var(--input);
+		background-color: var(--card);
+		color: var(--foreground);
+		box-shadow: var(--shadow-md);
+		padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+		font-family: var(--font-sans);
+		/* 17px, and 16 is a floor rather than a preference: Safari on iOS zooms the whole
+		 * document when a field below 16px takes focus, and it does not zoom back. */
+		font-size: 1.0625rem;
+		line-height: 1.45;
+	}
+
+	.field-box[data-multiline] {
+		/* Tall enough that a real brief never needs the grip. Vertical only: a horizontal drag
+		 * would take the box out past the panel's keyline. */
+		min-block-size: 14rem;
+		resize: vertical;
+	}
+
+	/* Wrong or missing, drawn as weight rather than as hue. There is no red on this lattice
+	 * and --destructive already resolves to --ink, so the keyline doubles instead: it reads
+	 * at any zoom, it survives a monochrome print, and it does not ask anyone to separate red
+	 * from black. The padding is reduced by exactly the extra keyline, so the box's outer
+	 * size does not change and a rejected submission does not shift the form under a pointer
+	 * already travelling toward the send button. */
+	.field-box[aria-invalid="true"] {
+		border-width: calc(var(--border-brutal) * 2);
+		padding: calc(var(--spacing) * 3 - var(--border-brutal)) calc(var(--spacing) * 4 - var(--border-brutal));
+	}
+
+	.field-note {
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		line-height: 1.4;
+	}
+
+	/* ---- the check ------------------------------------------------------
+	 * The one object on this site drawn by somebody else. It is a cross-origin iframe, so its
+	 * radius, its hairline border and its own near-white card cannot be reached from this
+	 * stylesheet. It is framed rather than fought: on --card its fill and its edge disappear
+	 * into the frame, and what the page shows is a hard box with the house keyline like every
+	 * other object here.
+	 *
+	 * The height is reserved rather than discovered. The widget arrives after hydration, and
+	 * an unreserved box drops the send button 65px down the page under the cursor.
+	 *
+	 * Below roughly 364px even the full-bleed panel cannot clear the widget's 300px floor, so
+	 * the frame scrolls rather than the page: a sideways scrollbar on the document is a
+	 * defect, one inside a box the width of a phone is a widget. */
+	/* A fieldset, so the caption over the check is a real legend rather than a paragraph
+	 * pretending. The browser default border, padding and margin are all removed: the frame
+	 * this compartment shows is the well below, not the fieldset itself. */
+	.check-field {
+		min-inline-size: 0;
+		margin: 0;
+		border: 0;
+		padding: 0;
+	}
+	.check-field > legend {
+		padding: 0;
+	}
+
+	.check-well {
+		display: flex;
+		align-items: center;
+		inline-size: 100%;
+		min-block-size: 5.75rem;
+		border: var(--border-brutal) solid var(--input);
+		background-color: var(--card);
+		box-shadow: var(--shadow-md);
+		padding: calc(var(--spacing) * 2);
+		overflow-x: auto;
+		overscroll-behavior-inline: contain;
+	}
+
+	@media (width < 23rem) {
+		.check-well {
+			padding: 0;
+		}
+	}
+
+	/* Same marking as a field, and the compartment nobody wired: validate() pushes 'token'
+	 * when the widget never ran, and until now that produced "check the fields marked" with
+	 * nothing marked anywhere on the page. */
+	.check-well[data-invalid="true"] {
+		border-width: calc(var(--border-brutal) * 2);
+		padding: calc(var(--spacing) * 2 - var(--border-brutal));
+	}
+
+	/* ---- the foot -------------------------------------------------------
+	 * The strip along the bottom of a paper form: the small print on one side, the thing you
+	 * press on the other, ruled off from the fields above. The negative margins cancel the
+	 * panel's own padding so the rule runs the full width of the paper, which is what makes
+	 * it a rule across the form rather than one more box on it. The top gap comes from
+	 * .form-fields, so there is no margin-block-start here to double it. */
+	.form-foot {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: calc(var(--spacing) * 5);
+		margin-inline: calc(var(--panel-pad) * -1);
+		margin-block-end: calc(var(--panel-pad) * -1);
+		border-block-start: var(--border-brutal) solid var(--border);
+		padding: calc(var(--spacing) * 5) var(--panel-pad);
+	}
+
+	.form-note {
+		max-inline-size: 34ch;
+		font-family: var(--font-sans);
+		font-size: 0.875rem;
+		line-height: 1.5;
+	}
+
+	/* ---- the outcome ----------------------------------------------------
+	 * One panel, two fills, and the two differ by a drawn mark as well as by colour, so
+	 * neither depends on a hue this palette does not have.
+	 *
+	 * Sent is --spring, and this is the only place green appears on the page: the field
+	 * colour the client called out comes back as a state rather than as a ground. Not sent is
+	 * --card and carries the address as a link, because the sentence inside it tells the
+	 * Recruiter to write directly and until now there was nowhere on this page to write to. */
+	.outcome {
+		display: flex;
+		align-items: flex-start;
+		gap: calc(var(--spacing) * 3);
+		margin-block-end: calc(var(--spacing) * 7);
+		border: var(--border-brutal) solid var(--border);
+		background-color: var(--card);
+		color: var(--foreground);
+		box-shadow: var(--shadow-lg);
+		padding: calc(var(--spacing) * 4) calc(var(--spacing) * 5);
+		font-family: var(--font-sans);
+		line-height: 1.55;
+	}
+	.outcome-sent {
+		background-color: var(--spring);
+		color: var(--spring-foreground);
+	}
+	.outcome a {
+		color: inherit;
+		text-decoration-line: underline;
+		text-decoration-thickness: 2px;
+		text-underline-offset: 4px;
+	}
+	/* Drawn rather than imported, the same trade .cta-arrow already makes. */
+	.outcome-mark {
+		inline-size: 1.5rem;
+		block-size: 1.5rem;
+		flex: none;
+	}
+
+	/* Pressed and held for as long as the request is in flight. The geometry is
+	 * .control:active exactly, so "sending" is drawn in the vocabulary this button already
+	 * owns and no spinner is needed. Not dimmed: there is no grey on this palette that keeps
+	 * 4.5:1, so a disabled control stays at full contrast and says so in words. The :hover
+	 * pair is not decoration, without it a pointer resting on the button lifts a control that
+	 * cannot be pressed. */
+	.control:disabled,
+	.control:disabled:hover {
+		transform: translate(6px, 6px);
+		box-shadow: 0 0 0 0 var(--border);
+		cursor: progress;
+	}
+
+	/* ---- the brief list -------------------------------------------------
+	 * Numbered by a counter rather than by a marker, so the numeral can be set in the same
+	 * chip .daw-switch already draws, and ruled between rows so the list reads as something
+	 * to work through rather than as prose with bullets. The <ol> carries the count for
+	 * assistive technology; the drawn numerals are generated content and are not announced. */
+	.brief-list {
+		counter-reset: brief;
+		display: grid;
+	}
+	.brief-point {
+		counter-increment: brief;
+		display: grid;
+		grid-template-columns: 2.25rem 1fr;
+		align-items: start;
+		gap: calc(var(--spacing) * 4);
+		border-block-start: var(--border-brutal) solid var(--border);
+		padding-block: calc(var(--spacing) * 4);
+	}
+	.brief-point:first-child {
+		border-block-start: 0;
+		padding-block-start: 0;
+	}
+	.brief-point::before {
+		content: counter(brief, decimal-leading-zero);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		block-size: 2.25rem;
+		background-color: var(--ink);
+		color: var(--sheet);
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+	}
+
 	.playhead-blocks {
 		--playhead: 0;
 		position: absolute;

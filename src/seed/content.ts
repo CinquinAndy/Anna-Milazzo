@@ -290,41 +290,168 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 type ContactCopy = {
 	heading: string
 	intro: string
-	form: { nameLabel: string; emailLabel: string; messageLabel: string; submitLabel: string; sendingLabel: string }
+	form: {
+		heading: string
+		requiredNote: string
+		nameLabel: string
+		emailLabel: string
+		messageLabel: string
+		submitLabel: string
+		sendingLabel: string
+		checkLabel: string
+		checkNote: string
+		missingNote: string
+		emailNote: string
+		privacyNote: string
+	}
 	outcome: { success: string; failure: string; invalid: string }
+	brief: { heading: string; intro: string; points: readonly string[] }
+	practical: { heading: string; entries: readonly { term: string; value: string }[] }
+	direct: { heading: string; note: string; elsewhereHeading: string }
 }
 
 export const SEED_CONTACT: Record<Locale, ContactCopy> = {
 	it: {
 		heading: 'Contatti',
-		intro: 'Scrivetemi. Rispondo entro pochi giorni, in italiano o in inglese.',
+		// Scope, not logistics: the reply time and the languages moved to `practical`, where
+		// they are checkable facts rather than a sentence nobody reads twice.
+		intro:
+			'Un cortometraggio, un documentario, un podcast, un’installazione, uno spettacolo. ' +
+			'Anche un pezzo solo: una sigla è un lavoro come un altro.',
 		form: {
+			heading: 'Scrivetemi',
+			requiredNote: 'Tutti e tre i campi servono per potervi rispondere.',
 			nameLabel: 'Il vostro nome',
 			emailLabel: 'La vostra email',
 			messageLabel: 'Il messaggio',
 			submitLabel: 'Invia',
 			sendingLabel: 'Invio in corso…',
+			checkLabel: 'Controllo anti-bot',
+			checkNote:
+				'Il controllo non è stato completato. Riprovate: se il riquadro resta vuoto, è probabile che il ' +
+				'browser lo stia bloccando, e in quel caso scrivetemi via email.',
+			missingNote: 'Manca questo campo.',
+			emailNote: 'Questo indirizzo non sembra valido.',
+			privacyNote:
+				'Il messaggio mi arriva per email e non viene salvato su questo sito. Il modulo è protetto da un ' +
+				'controllo anti-bot di Cloudflare.',
 		},
 		outcome: {
-			success: 'Messaggio inviato. Grazie, vi rispondo presto.',
+			success:
+				'Messaggio inviato. Vi rispondo entro pochi giorni dallo stesso indirizzo: se non vedete niente, ' +
+				'controllate anche lo spam.',
 			failure: 'Il messaggio non è partito. Riprovate fra poco, oppure scrivetemi direttamente via email.',
 			invalid: 'Controllate i campi segnalati: manca qualcosa o l’indirizzo non è valido.',
+		},
+		brief: {
+			heading: 'Cosa scrivere',
+			intro:
+				'Non serve un brief formale. Con queste cose nel primo messaggio vi rispondo con qualcosa di utile ' +
+				'invece che con altre domande.',
+			points: [
+				'Che cos’è il progetto: un film, un podcast, uno spazio, altro.',
+				'Quanta musica serve, e in quanti pezzi.',
+				'Entro quando vi serve.',
+				'Il budget che avete in mente, anche approssimativo.',
+				'Un riferimento: un brano, un film, qualcosa che suoni come quello che cercate.',
+			],
+		},
+		practical: {
+			heading: 'In pratica',
+			entries: [
+				{
+					term: 'Risposta',
+					value:
+						'Entro pochi giorni. Se non ricevete niente, riscrivetemi: è più probabile un problema tecnico che un no.',
+				},
+				{ term: 'Lingue', value: 'Italiano e inglese, scritti e parlati.' },
+				{
+					term: 'Dove sono',
+					value: 'Milano. Lavoro a distanza senza problemi, e vengo in studio o sul posto quando serve.',
+				},
+				{
+					term: 'Compensi',
+					value: 'Dipendono dalla durata e dall’uso. Ditemi il budget che avete in mente e vi dico subito se ha senso.',
+				},
+			],
+		},
+		direct: {
+			heading: 'Per email',
+			note:
+				'Il modulo qui sotto manda tutto a questo indirizzo. Se preferite il vostro programma di posta, o ' +
+				'dovete allegare qualcosa, scrivete direttamente qui.',
+			elsewhereHeading: 'Altrove',
 		},
 	},
 	en: {
 		heading: 'Contact',
-		intro: 'Write to me. I answer within a few days, in Italian or English.',
+		intro:
+			'A short film, a documentary, a podcast, an installation, a piece of theatre. ' +
+			'A single cue too: a title theme is work like any other.',
 		form: {
+			heading: 'Write to me',
+			requiredNote: 'All three fields are needed before I can answer you.',
 			nameLabel: 'Your name',
 			emailLabel: 'Your email',
 			messageLabel: 'Your message',
 			submitLabel: 'Send',
 			sendingLabel: 'Sending…',
+			checkLabel: 'Anti-bot check',
+			checkNote:
+				'The check did not complete. Try again: if the box stays empty your browser is probably blocking ' +
+				'it, and in that case write to me by email instead.',
+			missingNote: 'This field is missing.',
+			emailNote: 'This address does not look valid.',
+			privacyNote:
+				'The message reaches me by email and is not stored on this site. The form is protected by an ' +
+				'anti-bot check from Cloudflare.',
 		},
 		outcome: {
-			success: 'Message sent. Thank you, I will get back to you shortly.',
+			success:
+				'Message sent. I will answer within a few days from the same address. If you see nothing, check ' +
+				'your spam folder too.',
 			failure: 'The message did not go through. Try again shortly, or email me directly.',
 			invalid: 'Check the fields marked below: something is missing or the address is not valid.',
+		},
+		brief: {
+			heading: 'What to write',
+			intro:
+				'No formal brief needed. With these in the first message I can answer with something useful ' +
+				'instead of more questions.',
+			points: [
+				'What the project is: a film, a podcast, a space, something else.',
+				'How much music it needs, and in how many pieces.',
+				'When you need it by.',
+				'The budget you have in mind, even roughly.',
+				'One reference: a piece, a film, anything that sounds like what you are after.',
+			],
+		},
+		practical: {
+			heading: 'In practice',
+			entries: [
+				{
+					term: 'Reply',
+					value: 'Within a few days. If nothing arrives, write again: a technical problem is more likely than a no.',
+				},
+				{ term: 'Languages', value: 'Italian and English, written and spoken.' },
+				{
+					term: 'Where I am',
+					value: 'Milan. I work remotely without trouble, and I come to the studio or the location when it helps.',
+				},
+				{
+					term: 'Fees',
+					value:
+						'They depend on the length and on how the music is used. Tell me the budget you have and I will tell ' +
+						'you straight away whether it works.',
+				},
+			],
+		},
+		direct: {
+			heading: 'By email',
+			note:
+				'The form below sends everything to this address. If you would rather use your own mail client, or ' +
+				'need to attach something, write here instead.',
+			elsewhereHeading: 'Elsewhere',
 		},
 	},
 } as const

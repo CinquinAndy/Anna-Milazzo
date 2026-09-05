@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
-import { ContactForm } from '@/components/contact-form'
+import { ContactArrival } from '@/components/contact-arrival'
+import { ContactDesk } from '@/components/contact-desk'
+import { ContactFacts } from '@/components/contact-facts'
 import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
 import { isLocale, type Locale, localeHref } from '@/lib/locale'
 import { getContact } from '@/lib/payload/get-contact'
+import { getHome } from '@/lib/payload/get-home'
 import { getSettings } from '@/lib/payload/get-settings'
 
 const PATH = '/contact'
@@ -32,17 +35,27 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export default async function ContactPage({ params }: { params: Promise<{ lang: string }> }) {
 	const { lang } = await params
 	const locale = localeOf(lang)
-	const [copy, settings] = await Promise.all([getContact(locale), getSettings(locale)])
+	const [copy, settings, home] = await Promise.all([getContact(locale), getSettings(locale), getHome(locale)])
+	const contactEmail = settings.contactEmail
 
 	return (
 		<>
-			<SiteHeader path={PATH} locale={locale} />
-			<main className="min-h-[60vh] bg-spring px-5 py-14 text-spring-foreground sm:px-8 md:py-20">
-				<div className="shell">
-					<h1 className="font-display uppercase [font-stretch:88%]">{copy.heading}</h1>
-					{copy.intro ? <p className="mt-4 max-w-prose font-sans text-lg">{copy.intro}</p> : null}
-					<ContactForm copy={copy} locale={locale} />
-				</div>
+			{/* The nav the header has always accepted and this page has never been given. It is
+			    the route back into the work, and it is the only place `aria-current="page"` on
+			    the contact pill can ever fire. */}
+			<SiteHeader
+				path={PATH}
+				locale={locale}
+				nav={[
+					{ label: home.songs?.heading ?? '', href: '/#ascolta' },
+					{ label: home.timeline?.heading ?? '', href: '/#percorso' },
+				]}
+				contact={{ label: home.contactCta?.buttonLabel ?? '', href: localeHref(PATH, locale) }}
+			/>
+			<main data-contact-main>
+				<ContactArrival copy={copy} contactEmail={contactEmail} />
+				<ContactDesk copy={copy} locale={locale} contactEmail={contactEmail} />
+				<ContactFacts copy={copy} settings={settings} />
 			</main>
 			<SiteFooter settings={settings} locale={locale} />
 		</>

@@ -496,11 +496,79 @@ export interface Contact {
   heading?: string | null;
   intro?: string | null;
   form?: {
+    /**
+     * The black band above the form, and the name a screen reader gives it. Set edge to edge, so keep it short.
+     */
+    heading?: string | null;
+    /**
+     * Sits above the fields. All three are required.
+     */
+    requiredNote?: string | null;
     nameLabel?: string | null;
     emailLabel?: string | null;
     messageLabel?: string | null;
     submitLabel?: string | null;
     sendingLabel?: string | null;
+    /**
+     * Names the Cloudflare box, which is the one object on this site drawn by somebody else.
+     */
+    checkLabel?: string | null;
+    /**
+     * Shown when the check is what stopped the message. Without it the form says "check the fields marked" with nothing marked.
+     */
+    checkNote?: string | null;
+    /**
+     * Shown under a field that was left empty.
+     */
+    missingNote?: string | null;
+    /**
+     * Shown under an address that could not receive a reply.
+     */
+    emailNote?: string | null;
+    /**
+     * Beside the send button. The form stores nothing (ADR-0005) and that is worth saying here, not only on the legals page.
+     */
+    privacyNote?: string | null;
+  };
+  brief?: {
+    heading?: string | null;
+    intro?: string | null;
+    /**
+     * What a first message should carry so it can be answered rather than queried.
+     */
+    points?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  practical?: {
+    heading?: string | null;
+    /**
+     * Short, checkable facts. Nothing with a date in it: a claim that rots is worse than no claim.
+     */
+    entries?:
+      | {
+          /**
+           * Printed on the card’s tab, so two or three words at most.
+           */
+          term: string;
+          value: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  direct?: {
+    heading?: string | null;
+    /**
+     * The address comes from Settings, not from here. This block renders nothing while that field is empty.
+     */
+    note?: string | null;
+    /**
+     * Heads the links from Settings, repeated on the page at a readable size.
+     */
+    elsewhereHeading?: string | null;
   };
   outcome?: {
     success?: string | null;
@@ -627,11 +695,49 @@ export interface ContactSelect<T extends boolean = true> {
   form?:
     | T
     | {
+        heading?: T;
+        requiredNote?: T;
         nameLabel?: T;
         emailLabel?: T;
         messageLabel?: T;
         submitLabel?: T;
         sendingLabel?: T;
+        checkLabel?: T;
+        checkNote?: T;
+        missingNote?: T;
+        emailNote?: T;
+        privacyNote?: T;
+      };
+  brief?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+        points?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  practical?:
+    | T
+    | {
+        heading?: T;
+        entries?:
+          | T
+          | {
+              term?: T;
+              value?: T;
+              id?: T;
+            };
+      };
+  direct?:
+    | T
+    | {
+        heading?: T;
+        note?: T;
+        elsewhereHeading?: T;
       };
   outcome?:
     | T
