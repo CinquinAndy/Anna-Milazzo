@@ -132,8 +132,26 @@ test.describe('the top of the landing page', () => {
 	test('tells search engines the two languages are one page', async ({ page }) => {
 		await page.goto('/')
 
-		await expect(page.locator('link[rel="alternate"][hreflang="it"]')).toHaveAttribute('href', /\/$|\/it$/)
-		await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute('href', /\/en$/)
+		// Absolute since the layout declares a `metadataBase`, which is what makes an
+		// `hreflang` set mean anything to a search engine. The Italian root resolves to the
+		// bare origin with no trailing slash, which is the same resource.
+		await expect(page.locator('link[rel="alternate"][hreflang="it"]')).toHaveAttribute(
+			'href',
+			/^https?:\/\/[^/]+(\/)?$/
+		)
+		await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute('href', /^https?:\/\/[^/]+\/en$/)
 		await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveCount(1)
+
+		// And each page's own canonical has to be the very string its own `hreflang` claims,
+		// or the two are telling a crawler different things about the same page.
+		for (const [path, lang] of [
+			['/', 'it'],
+			['/en', 'en'],
+		] as const) {
+			await page.goto(path)
+			const canonical = await page.locator('link[rel="canonical"]').getAttribute('href')
+			const alternate = await page.locator(`link[rel="alternate"][hreflang="${lang}"]`).getAttribute('href')
+			expect(canonical, `${path} disagrees with its own hreflang`).toBe(alternate)
+		}
 	})
 })

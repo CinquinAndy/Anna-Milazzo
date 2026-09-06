@@ -1,6 +1,7 @@
 import type { Field } from 'payload'
 import { describe, expect, it } from 'vitest'
 import { Contact } from '@/globals/contact'
+import { SEED_CONTACT, SEED_SETTINGS } from '@/seed/content'
 
 /**
  * Every field the contact page renders, as a dotted path.
@@ -93,6 +94,35 @@ describe('the contact page has somewhere to get every word from', () => {
 			}
 			expect(label.en, `${path} has no English label`).toBeTruthy()
 			expect(label.it, `${path} has no Italian label`).toBeTruthy()
+		}
+	})
+})
+
+describe('the details Anna gave for the live site', () => {
+	it('carries her real address, and nothing that looks like a placeholder', () => {
+		expect(SEED_SETTINGS.contactEmail).toBe('annamil012002n2@gmail.com')
+		const serialised = JSON.stringify(SEED_SETTINGS)
+		expect(serialised, 'a placeholder survived into the seeded settings').not.toMatch(/example\.com|placeholder/i)
+	})
+
+	it('links to her profiles without the share tracking they arrived with', () => {
+		for (const locale of ['it', 'en'] as const) {
+			for (const link of SEED_SETTINGS[locale].socialLinks) {
+				// An `stkn` share token is tied to the account that made it, and the `utm_*`
+				// pair would report every visitor as having arrived from Anna's own phone.
+				expect(link.url, `${link.label} carries a query string`).not.toMatch(/[?&](stkn|utm_[a-z]+)=/)
+			}
+			const urls = SEED_SETTINGS[locale].socialLinks.map(link => link.url)
+			expect(urls).toContain('https://www.instagram.com/imannasound')
+			expect(urls).toContain('https://www.linkedin.com/in/anna-milazzo-118b413b7')
+			expect(urls).toContain(`mailto:${SEED_SETTINGS.contactEmail}`)
+		}
+	})
+
+	it('says where she actually is, in both languages', () => {
+		for (const locale of ['it', 'en'] as const) {
+			const where = SEED_CONTACT[locale].practical.entries.find(entry => /dove sono|where i am/i.test(entry.term))
+			expect(where?.value, `no location fact in ${locale}`).toMatch(/Palermo/)
 		}
 	})
 })

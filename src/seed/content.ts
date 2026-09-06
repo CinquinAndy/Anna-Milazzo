@@ -368,7 +368,7 @@ export const SEED_CONTACT: Record<Locale, ContactCopy> = {
 				{ term: 'Lingue', value: 'Italiano e inglese, scritti e parlati.' },
 				{
 					term: 'Dove sono',
-					value: 'Milano. Lavoro a distanza senza problemi, e vengo in studio o sul posto quando serve.',
+					value: 'Palermo. Lavoro a distanza senza problemi, e vengo in studio o sul posto quando serve.',
 				},
 				{
 					term: 'Compensi',
@@ -436,7 +436,7 @@ export const SEED_CONTACT: Record<Locale, ContactCopy> = {
 				{ term: 'Languages', value: 'Italian and English, written and spoken.' },
 				{
 					term: 'Where I am',
-					value: 'Milan. I work remotely without trouble, and I come to the studio or the location when it helps.',
+					value: 'Palermo. I work remotely without trouble, and I come to the studio or the location when it helps.',
 				},
 				{
 					term: 'Fees',
@@ -542,16 +542,28 @@ type SettingsCopy = {
 	socialLinks: readonly { label: string; url: string }[]
 }
 
+/**
+ * The chrome every page carries: where to write to Anna, and where else to find her.
+ *
+ * The two profile URLs are the bare canonical ones. Both arrived carrying the parameters
+ * the share sheet adds, an `stkn` share token on the Instagram link and `utm_source`,
+ * `utm_content` and `utm_medium` on the LinkedIn one. A share token is tied to the account
+ * that generated it and the campaign parameters would report every visitor to this site as
+ * having arrived from Anna's own Android app, so neither belongs on a page anyone can read.
+ *
+ * A Fiverr profile is still to come. It goes in the admin as a fourth link; nothing here
+ * has to change for it, though a re-seed would overwrite it, so add it here too.
+ */
 export const SEED_SETTINGS: { contactEmail: string } & Record<Locale, SettingsCopy> = {
-	contactEmail: 'anna@example.com',
+	contactEmail: 'annamil012002n2@gmail.com',
 	it: {
 		navHeading: 'Pagine',
 		elsewhereHeading: 'Altrove',
 		legalsLinkLabel: 'Note legali',
 		socialLinks: [
-			{ label: 'Ascolta su Spotify', url: 'https://open.spotify.com/artist/placeholder' },
-			{ label: 'Ascolta su Bandcamp', url: 'https://placeholder.bandcamp.com' },
-			{ label: 'Scrivetemi', url: 'mailto:anna@example.com' },
+			{ label: 'Instagram', url: 'https://www.instagram.com/imannasound' },
+			{ label: 'LinkedIn', url: 'https://www.linkedin.com/in/anna-milazzo-118b413b7' },
+			{ label: 'Scrivetemi', url: 'mailto:annamil012002n2@gmail.com' },
 		],
 	},
 	en: {
@@ -559,9 +571,9 @@ export const SEED_SETTINGS: { contactEmail: string } & Record<Locale, SettingsCo
 		elsewhereHeading: 'Elsewhere',
 		legalsLinkLabel: 'Legal notice',
 		socialLinks: [
-			{ label: 'Listen on Spotify', url: 'https://open.spotify.com/artist/placeholder' },
-			{ label: 'Listen on Bandcamp', url: 'https://placeholder.bandcamp.com' },
-			{ label: 'Write to me', url: 'mailto:anna@example.com' },
+			{ label: 'Instagram', url: 'https://www.instagram.com/imannasound' },
+			{ label: 'LinkedIn', url: 'https://www.linkedin.com/in/anna-milazzo-118b413b7' },
+			{ label: 'Write to me', url: 'mailto:annamil012002n2@gmail.com' },
 		],
 	},
 }

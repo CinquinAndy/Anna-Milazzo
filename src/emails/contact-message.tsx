@@ -1,5 +1,6 @@
 import { Body, Container, Head, Heading, Hr, Html, Link, Preview, Section, Text } from '@react-email/components'
 import type { ContactMessage } from '@/lib/contact/send-contact-message'
+import { SITE_DOMAIN } from '@/lib/site'
 
 /**
  * The email Anna receives when somebody writes from the portfolio.
@@ -90,8 +91,8 @@ const rule = { borderColor: DUST, borderWidth: '1px 0 0', margin: '0 0 16px' }
 const note = { margin: 0, color: INK, fontFamily: SANS, fontSize: '14px', lineHeight: '1.5' }
 const foot = { margin: '20px 0 0', color: INK, fontFamily: MONO, fontSize: '11px', letterSpacing: '0.06em' }
 
-/** The site this arrived from, named once and used in two places. */
-const SITE = 'anna-milazzo.com'
+/** The site this arrived from. */
+const SITE = SITE_DOMAIN
 
 export function ContactMessageEmail({ message }: { message: ContactMessage }) {
 	// What a client shows beside the subject in the inbox list. Without it, clients fall back

@@ -4,11 +4,16 @@ import type { ReactNode } from 'react'
 import { AudioEngine } from '@/components/audio-engine'
 import { HeaderHeight } from '@/components/header-height'
 import { isLocale } from '@/lib/locale'
+import { SITE_ORIGIN } from '@/lib/site'
 import { fontVariables } from '../fonts'
 import '../globals.css'
 
 export const metadata: Metadata = {
 	title: 'Anna Milazzo',
+	// Every page already declares its canonical and its two `hreflang` alternates as
+	// locale-free paths. They only mean anything to a search engine once there is an origin
+	// to resolve them against, and this is the one place to say it.
+	metadataBase: new URL(SITE_ORIGIN),
 }
 
 /**
