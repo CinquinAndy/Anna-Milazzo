@@ -27,6 +27,10 @@ export function SiteHeader({
 	contact?: NavLink | undefined
 }) {
 	const home = localeHref('/', locale)
+	// On the landing page the wordmark links to the page it is already on, which the App
+	// Router treats as a no-op, so pressing it did nothing on a nine-thousand-pixel page
+	// where it is the only control in the bar that could go back to the top. A bare `#top`
+	// fragment resolves to the body, so no element has to carry the id.
 
 	return (
 		<header className="sticky top-0 z-50 border-b-brutal border-border bg-paper px-4 py-3 sm:px-6" data-site-header>
@@ -34,7 +38,7 @@ export function SiteHeader({
 				{/* The wordmark is a filled pill, so the bar has one anchor point that does not
 				    move between pages. It is a link even on the landing page: pressing it
 				    returns to the top, which is what a wordmark is for. */}
-				<Link href={home} className="nav-pill nav-pill-mark" data-nav-home>
+				<Link href={path === '/' ? `${home}#top` : home} className="nav-pill nav-pill-mark" data-nav-home>
 					Anna Milazzo
 				</Link>
 

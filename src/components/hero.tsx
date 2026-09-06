@@ -4,6 +4,7 @@ import { Ornament } from '@/components/ornament'
 import { Piano } from '@/components/piano'
 import { Portrait } from '@/components/portrait'
 import { Badge, Vinyl } from '@/components/vinyl'
+import { fitToBox } from '@/lib/type/display-advance'
 import type { Home } from '@/payload-types'
 
 /**
@@ -34,6 +35,12 @@ export function Hero({
 	contactLabel?: string | undefined
 	contactHref: string
 }) {
+	// 1.02, not the 1.01 a section title takes: the table was measured at font-stretch 74%
+	// and this is set at 76% with a hair more negative tracking, which lands within one
+	// percent on the seeded name and wants the margin.
+	const { em, reserve } = fitToBox(hero?.name ?? '', 1.02)
+	const nameSize = `clamp(3rem, calc((100cqi - ${reserve}px) / ${em.toFixed(3)}), 11rem)`
+
 	return (
 		<section
 			data-enter
@@ -53,11 +60,20 @@ export function Hero({
 
 			<div className="relative flex flex-1 flex-col justify-center">
 				<div className="shell grid items-center gap-12 md:grid-cols-[1.05fr_1fr] md:gap-8">
-					<div className="relative">
+					<div className="hero-column relative">
 						{/* Larger than the h1 token, which is sized for section headings. The hero
-					    name is the one place on the site that should be as big as it can be and
-					    still hold the Italian on two lines at 375px. */}
-						<h1 className="font-display text-[clamp(3rem,11.5vw,11rem)] leading-display text-primary-foreground uppercase break-words [font-stretch:76%] [letter-spacing:-0.025em]">
+					    name is the one place on the site that should be as big as it can be.
+					    Sized from its own letters against its own column, the way the section
+					    titles are, rather than from one `vw` coefficient: 11.5vw filled the
+					    48vw column it was tuned for and then filled half the page below md,
+					    where the column becomes the whole width. Measured, the name went from
+					    51% of its column at 639px to 88% or better at every width, and the
+					    section bands below it stopped being larger than the name the hero
+					    exists to set. */}
+						<h1
+							style={{ fontSize: nameSize }}
+							className="font-display leading-display text-primary-foreground uppercase break-words [font-stretch:76%] [letter-spacing:-0.025em]"
+						>
 							{hero?.name}
 						</h1>
 						<p className="mt-7 max-w-[40ch] font-sans text-xl text-primary-foreground sm:text-2xl md:text-[1.75rem] md:leading-snug">

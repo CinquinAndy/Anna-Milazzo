@@ -425,6 +425,27 @@
 		color: var(--magenta-foreground);
 	}
 
+	/* The pills are 34 to 36px: over the 24px floor, under the 44px a thumb wants, and the
+	 * pager is the only way to reach the last two works on a phone.
+	 *
+	 * The hit region grows and the box does not. A `min-block-size` would push the sticky
+	 * bar to 176px at 320 and to 72px on every touch laptop, and the hero subtracts that
+	 * height, so the whole first screen would move to buy five pixels of target. A
+	 * transparent pseudo-element costs nothing and moves nothing. Only on a coarse pointer,
+	 * because a mouse does not need it and an overlapping hit region would make the row's
+	 * hover states fight. */
+	@media (pointer: coarse) {
+		.nav-pill {
+			position: relative;
+		}
+		.nav-pill::before {
+			content: "";
+			position: absolute;
+			inset-inline: 0;
+			inset-block: -5px;
+		}
+	}
+
 	/* ---- the section title band ---------------------------------------
 	 * A container, so the heading inside can be sized from `100cqi`: the band's real
 	 * content width, with the scrollbar and the band's own padding already excluded. Sizing
@@ -432,6 +453,13 @@
 	 * one breakpoint, which is what let PERCORSO run past the viewport and give the whole
 	 * page a horizontal scrollbar. */
 	.section-title {
+		container-type: inline-size;
+	}
+
+	/* The hero name is sized from this column the same way, so the column has to be a
+	 * container for it to measure. `inline-size` only, so nothing about the height is
+	 * contained and the tagline and the controls below still size themselves. */
+	.hero-column {
 		container-type: inline-size;
 	}
 	.section-title h2 {
@@ -1116,6 +1144,12 @@
 		 * and creates no stacking context, so it changes nothing about how the strip lays
 		 * out or paints. */
 		container-type: scroll-state;
+		/* A drag that carries on past the left end chains what it did not consume to the
+		 * document, which is what feeds the browser's swipe-back gesture: a reader halfway
+		 * through the arrangement could be taken off the page entirely. The check slot
+		 * already contains its own overscroll for the same reason. The strip has no vertical
+		 * overflow, so a vertical wheel over it still scrolls the page. */
+		overscroll-behavior-inline: contain;
 		/* One year. Narrow enough that a seven-year arrangement fits the 72rem measure
 		 * without scrolling on a desktop, at 13rem the last three lanes started off-screen
 		 * and read as empty rows, which is authentic for a sequencer and useless for a
