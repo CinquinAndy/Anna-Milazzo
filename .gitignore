@@ -18,3 +18,9 @@ next-env.d.ts
 # Payload writes uploads here until ticket 05 moves them to R2
 /media/
 /audio/
+
+# Throwaway measurement scripts. A Playwright probe has to live inside the repo to
+# resolve the installed browser, so it lands here and must not be committed with the work.
+/.probe-*.mjs
+/.audit*.mjs
+/.shot*.mjs
