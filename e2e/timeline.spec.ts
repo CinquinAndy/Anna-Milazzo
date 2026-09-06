@@ -94,3 +94,65 @@ test.describe('the timeline', () => {
 		expect(rendered).toBe(fromApi)
 	})
 })
+
+test.describe('the arrangement on a small screen', () => {
+	for (const width of [320, 360]) {
+		test(`the newest work is readable at rest at ${width}px`, async ({ page }) => {
+			await page.setViewportSize({ width, height: 800 })
+			await page.emulateMedia({ reducedMotion: 'reduce' })
+			await page.goto('/')
+			await page.evaluate(() => document.fonts.ready)
+
+			// The 2026 clip is the one the playhead points at. The lane gutter plus a clip's
+			// minimum width was 304px against a 272px scrollport, so its title and its
+			// description ran under the opaque edge marker before the reader touched anything.
+			const gap = await page.evaluate(() => {
+				const strip = document.querySelector('.daw') as HTMLElement
+				strip.scrollLeft = 0
+				const detail = strip.querySelector('.daw-clip-detail')?.getBoundingClientRect()
+				const title = strip.querySelector('.daw-clip-title')?.getBoundingClientRect()
+				const mark = document.querySelector('.daw-edge-mark')?.getBoundingClientRect()
+				if (detail === undefined || title === undefined || mark === undefined) {
+					return Number.NaN
+				}
+				return Math.min(mark.left - detail.right, mark.left - title.right)
+			})
+			expect(gap, `the newest clip runs under the edge marker at ${width}px`).toBeGreaterThanOrEqual(0)
+		})
+	}
+
+	test('a drag past the start of the strip does not take the page with it', async ({ page }) => {
+		await page.setViewportSize({ width: 375, height: 800 })
+		await page.goto('/')
+		await page.evaluate(() => document.fonts.ready)
+
+		// Unconsumed inline scroll chains to the document, and that is what feeds the
+		// browser's swipe-back: a reader halfway through the arrangement could be taken off
+		// the page entirely.
+		const containment = await page.locator('.daw').evaluate(el => getComputedStyle(el).overscrollBehaviorInline)
+		expect(containment, 'the strip hands its overshoot to the document').toBe('contain')
+
+		const moved = await page.evaluate(async () => {
+			const strip = document.querySelector('.daw') as HTMLElement
+			strip.scrollIntoView({ block: 'center' })
+			await new Promise(resolve => setTimeout(resolve, 100))
+			strip.scrollLeft = 0
+			const before = window.scrollX
+			const box = strip.getBoundingClientRect()
+			for (let i = 0; i < 6; i++) {
+				strip.dispatchEvent(
+					new WheelEvent('wheel', {
+						deltaX: -120,
+						bubbles: true,
+						cancelable: true,
+						clientX: box.left + box.width / 2,
+						clientY: box.top + box.height / 2,
+					})
+				)
+			}
+			await new Promise(resolve => setTimeout(resolve, 200))
+			return window.scrollX - before
+		})
+		expect(moved, 'the overshoot moved the document').toBe(0)
+	})
+})

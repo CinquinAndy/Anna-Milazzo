@@ -174,3 +174,40 @@ test.describe('the contact page', () => {
 		await expect(header.locator('a[aria-current="page"]')).toHaveCount(1)
 	})
 })
+
+test.describe('a real address', () => {
+	// Thirty-three characters, which is an ordinary professional address. The seeded
+	// placeholder is sixteen and fits by seven pixels, which is the only reason nothing
+	// overflowed in the captures.
+	const LONG = 'anna.milazzo.composer@example.com'
+
+	for (const [path, width] of [
+		['/contact', 320],
+		['/contact', 375],
+		['/contact', 768],
+		['/contact', 900],
+		['/', 768],
+		['/legal', 768],
+	] as const) {
+		test(`does not widen ${path} at ${width}px`, async ({ page }) => {
+			await page.setViewportSize({ width, height: 800 })
+			await page.goto(path, { waitUntil: 'load' })
+			await page.evaluate(() => document.fonts.ready)
+
+			// An email is one unbreakable word, so a pill holding one contributes its whole
+			// length to its container's minimum width: the arrival card grew past the
+			// viewport and the footer's three fixed columns pushed the document sideways.
+			await page.evaluate(long => {
+				for (const link of document.querySelectorAll('a[href^="mailto:"]')) {
+					link.textContent = long
+				}
+			}, LONG)
+			await page.waitForTimeout(100)
+
+			const slop = await page.evaluate(
+				() => document.documentElement.scrollWidth - document.documentElement.clientWidth
+			)
+			expect(slop, `the address pushed ${path} sideways at ${width}px`).toBeLessThanOrEqual(0)
+		})
+	}
+})

@@ -152,3 +152,33 @@ test.describe('the works pager', () => {
 		await expect(page.locator('[data-song-stack]')).not.toContainText('Cinque brani')
 	})
 })
+
+test.describe('paging lands the reader on the new page', () => {
+	for (const width of [375, 768, 1440]) {
+		test(`the first work of the new page sits under the bar at ${width}px`, async ({ page }) => {
+			await page.setViewportSize({ width, height: 800 })
+			await page.emulateMedia({ reducedMotion: 'reduce' })
+			await page.goto('/')
+			await page.evaluate(() => document.fonts.ready)
+
+			// Arrive at the strip the way a reader does, from the works above it.
+			await page.locator('.song-pager').evaluate(el => el.scrollIntoView({ block: 'end' }))
+			await page.waitForTimeout(150)
+
+			await page.locator('.song-pager-page').nth(1).click()
+			await page.waitForTimeout(400)
+
+			// `setPage` and `focus` used to run in the same handler, so the browser scrolled
+			// the OLD three-work list into view, bottom-aligned because it is taller than the
+			// screen, and React then swapped in a shorter page under a scroll position
+			// computed for a list that no longer existed. On a phone the next section filled
+			// the whole screen and the works sat two thousand pixels above.
+			const { listTop, barBottom } = await page.evaluate(() => ({
+				listTop: document.querySelector('.song-list')?.getBoundingClientRect().top ?? 0,
+				barBottom: document.querySelector('[data-site-header]')?.getBoundingClientRect().bottom ?? 0,
+			}))
+			expect(listTop, `the new page starts above the bar at ${width}px`).toBeGreaterThanOrEqual(barBottom - 1)
+			expect(listTop, `the reader was dropped past the works at ${width}px`).toBeLessThan(barBottom + 32)
+		})
+	}
+})

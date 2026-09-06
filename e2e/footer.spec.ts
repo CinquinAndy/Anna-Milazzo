@@ -71,3 +71,48 @@ test.describe('the foot of every page', () => {
 		expect(credit, 'the credit hardcodes the site name').toContain((name ?? '').trim())
 	})
 })
+
+test.describe('the footer as a set of targets', () => {
+	for (const width of [320, 375, 768, 1440]) {
+		test(`every link clears the 24px floor at ${width}px`, async ({ page }) => {
+			await page.setViewportSize({ width, height: 800 })
+			await page.goto('/')
+			await page.evaluate(() => document.fonts.ready)
+
+			// A bare inline anchor's hit box is its glyph box, 20px here and 18px on the
+			// credit, with sixteen pixels of dead ground between neighbours: a miss landed on
+			// nothing at all.
+			const small = await page
+				.locator('.footer-link, .footer-credit a')
+				.evaluateAll(nodes =>
+					nodes
+						.filter(node => node.getBoundingClientRect().height < 24)
+						.map(node => `${(node.textContent ?? '').trim()} ${Math.round(node.getBoundingClientRect().height)}px`)
+				)
+			expect(small, `under 24px at ${width}px: ${small.join(', ')}`).toEqual([])
+
+			// And they must not have grown into each other, which would turn a miss into a
+			// press on the wrong link.
+			const touching = await page.locator('.footer-link').evaluateAll(nodes => {
+				const boxes = nodes.map(node => node.getBoundingClientRect()).sort((a, b) => a.top - b.top)
+				const overlaps: string[] = []
+				for (let i = 1; i < boxes.length; i++) {
+					const above = boxes[i - 1]
+					const below = boxes[i]
+					if (above === undefined || below === undefined) {
+						continue
+					}
+					// Only neighbours in the same column.
+					if (Math.abs(above.left - below.left) > 4 && above.bottom > below.top) {
+						continue
+					}
+					if (Math.abs(above.left - below.left) <= 4 && above.bottom > below.top) {
+						overlaps.push(`${Math.round(above.bottom - below.top)}px`)
+					}
+				}
+				return overlaps
+			})
+			expect(touching, `footer links overlap at ${width}px`).toEqual([])
+		})
+	}
+})
