@@ -39,8 +39,10 @@
 	 * unpainted. 17.48:1 on black. Held at L 0.94 / C 0.030 because L 0.95 / C 0.030 puts
 	 * the red channel at 1.017 and clips out of sRGB. */
 	--paper: oklch(0.94 0.03 44.76);
-	--sheet: oklch(0.99 0.005 97.968); /* #FDFCF8, Folder bodies, inputs */
-	--dust: oklch(0.92 0.008 97.968); /* #E6E5DF, rails only, never a section */
+	--sheet: oklch(0.99 0.005 97.968);
+	/* #FDFCF8, Folder bodies, inputs */
+	--dust: oklch(0.92 0.008 97.968);
+	/* #E6E5DF, rails only, never a section */
 
 	/* #3866A8, anchor. Do not touch; see the band argument above. */
 	--blue: oklch(0.5104 0.1169 257.59);
@@ -48,9 +50,12 @@
 	 * Already at 87.6% of the sRGB chroma ceiling for its lightness. */
 	--cantaloupe: oklch(0.7803 0.1196 44.76);
 
-	--lemon: oklch(0.88 0.175 97.968); /* #F7D725, black type, 14.708:1 */
-	--spring: oklch(0.82 0.18 151.175); /* #57E486, black type, 12.852:1 */
-	--magenta: oklch(0.66 0.22 4.005); /* #F74183, black type; NEVER a section */
+	--lemon: oklch(0.88 0.175 97.968);
+	/* #F7D725, black type, 14.708:1 */
+	--spring: oklch(0.82 0.18 151.175);
+	/* #57E486, black type, 12.852:1 */
+	--magenta: oklch(0.66 0.22 4.005);
+	/* #F74183, black type; NEVER a section */
 	/* #9B35D1, white type, 5.496:1. L is 0.55 and no lower: at L 0.49 it measured
 	 * 2.982:1 against black and its own keylines vanished. The keyline sets the floor. */
 	--grape: oklch(0.55 0.23 310.797);
@@ -87,7 +92,7 @@
 	 * emptiness read as the design not filling the page rather than as white space. One
 	 * token because it has to change in one place, a per-component max-width is how the
 	 * header ends up a different width from the section under it. */
-	--measure: 100rem;
+	--measure: 90rem;
 	/* The sticky header occupies the flow, so a full-viewport hero has to subtract it or the
 	 * keyboard at its foot lands below the fold. Measured, not estimated: 67px at 1440, 1600
 	 * and 1920, since the bar's height comes from its padding and a fixed control size
@@ -282,18 +287,23 @@
 	h1 {
 		font-size: var(--text-h1);
 	}
+
 	h2 {
 		font-size: var(--text-h2);
 	}
+
 	h3 {
 		font-size: var(--text-h3);
 	}
+
 	h4 {
 		font-size: var(--text-h4);
 	}
+
 	h5 {
 		font-size: var(--text-h5);
 	}
+
 	h6 {
 		font-size: var(--text-h6);
 	}
@@ -307,6 +317,7 @@
 }
 
 @layer components {
+
 	/* The signature move, and the only one. Hover lifts and grows the shadow; press
 	 * translates into the shadow and collapses it. ~90ms ease-out: a symmetric
 	 * ease-in-out accelerates the object away from the press, which is backwards for a
@@ -375,14 +386,17 @@
 			transform 90ms cubic-bezier(0, 0, 0.58, 1),
 			box-shadow 90ms cubic-bezier(0, 0, 0.58, 1);
 	}
+
 	.nav-pill:hover {
 		transform: translate(-1px, -1px);
 		box-shadow: var(--shadow-xs);
 	}
+
 	.nav-pill:active {
 		transform: translate(2px, 2px);
 		box-shadow: 0 0 0 0 var(--border);
 	}
+
 	.nav-pill-mark {
 		background-color: var(--ink);
 		color: var(--sheet);
@@ -391,6 +405,7 @@
 		font-weight: 700;
 		letter-spacing: 0.02em;
 	}
+
 	.nav-pill-cta {
 		background-color: var(--magenta);
 		color: var(--magenta-foreground);
@@ -447,6 +462,7 @@
 		color: color-mix(in oklab, var(--ink) 45%, var(--dust));
 		cursor: default;
 	}
+
 	.song-pager-step[aria-disabled="true"]:hover,
 	.song-pager-step[aria-disabled="true"]:active {
 		transform: none;
@@ -470,6 +486,7 @@
 		background-color: var(--ink);
 		color: var(--sheet);
 	}
+
 	.control-paper {
 		background-color: var(--card);
 		color: var(--foreground);
@@ -503,7 +520,7 @@
 		filter: drop-shadow(var(--folder-shadow) var(--folder-shadow) 0 var(--border));
 	}
 
-	@media (width <= 40rem) {
+	@media (width <=40rem) {
 		.folder {
 			/* Proportional at 375px, and it stops eating the gutter. */
 			--folder-shadow: 5px;
@@ -561,6 +578,7 @@
 		box-shadow: 0 1px 3px rgb(0 0 0 / 0.22);
 		pointer-events: none;
 	}
+
 	/* Multiply only ever darkens, so on a saturated ground the strip turns muddy, blue tape
 	 * on the green field came out dark teal and stopped reading as tape at all. On coloured
 	 * sections the strip blends normally and carries its own translucency instead. */
@@ -575,10 +593,12 @@
 	.marquee {
 		overflow: hidden;
 	}
+
 	.marquee-track {
 		display: flex;
 		inline-size: max-content;
 	}
+
 	.marquee-pass {
 		display: flex;
 		align-items: center;
@@ -588,6 +608,7 @@
 		padding-inline-end: calc(var(--spacing) * 6);
 		list-style: none;
 	}
+
 	.marquee-item {
 		display: flex;
 		align-items: center;
@@ -599,6 +620,7 @@
 		white-space: nowrap;
 		font-stretch: 88%;
 	}
+
 	.marquee-star {
 		inline-size: 0.85rem;
 		block-size: 0.85rem;
@@ -627,6 +649,7 @@
 		gap: calc(var(--spacing) * 4);
 		inline-size: max-content;
 	}
+
 	.console-meter {
 		display: flex;
 		align-items: flex-end;
@@ -637,6 +660,7 @@
 		background-color: var(--ink);
 		box-shadow: var(--shadow-lg);
 	}
+
 	.console-bar {
 		inline-size: 1.7rem;
 		block-size: 100%;
@@ -645,6 +669,7 @@
 		transform-origin: bottom;
 		transform: scaleY(0.28);
 	}
+
 	.console-deck {
 		display: flex;
 		justify-content: space-around;
@@ -654,6 +679,7 @@
 		background-color: var(--sheet);
 		box-shadow: var(--shadow-md);
 	}
+
 	.console-knob {
 		position: relative;
 		display: block;
@@ -663,6 +689,7 @@
 		border-radius: 50%;
 		background-color: var(--dust);
 	}
+
 	/* The line that says which way the knob is turned. Without it a circle is a circle. */
 	.console-pointer {
 		position: absolute;
@@ -687,12 +714,15 @@
 			animation-iteration-count: infinite;
 			animation-direction: alternate;
 		}
+
 		.console-bar[data-variant="b"] {
 			animation-name: meter-b;
 		}
+
 		.console-bar[data-variant="c"] {
 			animation-name: meter-c;
 		}
+
 		.console-bar[data-variant="d"] {
 			animation-name: meter-d;
 		}
@@ -704,30 +734,37 @@
 		from {
 			transform: scaleY(0.18);
 		}
+
 		to {
 			transform: scaleY(0.92);
 		}
 	}
+
 	@keyframes meter-b {
 		from {
 			transform: scaleY(0.34);
 		}
+
 		to {
 			transform: scaleY(0.66);
 		}
 	}
+
 	@keyframes meter-c {
 		from {
 			transform: scaleY(0.12);
 		}
+
 		to {
 			transform: scaleY(1);
 		}
 	}
+
 	@keyframes meter-d {
 		from {
 			transform: scaleY(0.46);
 		}
+
 		to {
 			transform: scaleY(0.8);
 		}
@@ -741,11 +778,13 @@
 		block-size: 5rem;
 		pointer-events: none;
 	}
+
 	/* Ink on the blue reads at 3.63:1, plenty for a mark, and held under full strength so
 	 * it stays a drawing on the ground rather than a second object competing with the name. */
 	.hairpin-mark {
 		opacity: 0.5;
 	}
+
 	.hairpin-words {
 		opacity: 0.42;
 	}
@@ -765,11 +804,13 @@
 		color: var(--grape);
 		pointer-events: none;
 	}
-	@media (width >= 40rem) {
+
+	@media (width >=40rem) {
 		.dither-field {
 			inset-inline: -2rem;
 		}
 	}
+
 	.dither-canvas {
 		display: block;
 		inline-size: 100%;
@@ -794,7 +835,8 @@
 		block-size: 420px;
 		pointer-events: none;
 	}
-	@media (width <= 48rem) {
+
+	@media (width <=48rem) {
 		.ribbon {
 			block-size: 300px;
 		}
@@ -833,6 +875,7 @@
 		background-color: var(--sheet);
 		box-shadow: var(--shadow-lg);
 	}
+
 	.piano-white {
 		position: relative;
 		flex: 1 1 0;
@@ -840,9 +883,11 @@
 		border-inline-end: 2px solid var(--border);
 		background-color: var(--sheet);
 	}
+
 	.piano-white:last-child {
 		border-inline-end: 0;
 	}
+
 	.piano-black {
 		position: absolute;
 		z-index: 2;
@@ -854,6 +899,7 @@
 		border: 2px solid var(--border);
 		background-color: var(--ink);
 	}
+
 	/* The struck key. A separate layer rather than animating the key itself, so the black
 	 * keys stacked above it are never dimmed by their neighbour lighting up. */
 	.piano-hit {
@@ -877,15 +923,19 @@
 		0% {
 			opacity: 0;
 		}
+
 		1% {
 			opacity: 1;
 		}
+
 		8% {
 			opacity: 0.55;
 		}
+
 		14% {
 			opacity: 0;
 		}
+
 		100% {
 			opacity: 0;
 		}
@@ -932,6 +982,7 @@
 		translate: var(--disc-tuck) 0;
 		pointer-events: none;
 	}
+
 	@media (prefers-reduced-motion: no-preference) {
 		.folder-disc {
 			/* Out is slower than home, and eased the other way. A record leaving a paper
@@ -940,11 +991,13 @@
 			 * its own asymmetry. */
 			transition: translate 180ms cubic-bezier(0.4, 0, 1, 1);
 		}
+
 		.folder:has(.folder-sleeve:hover) .folder-disc,
 		.folder:has([data-playing="true"]) .folder-disc {
 			transition: translate 240ms cubic-bezier(0.16, 0.84, 0.44, 1);
 		}
 	}
+
 	/* Below the width at which the cover stops being capped at 16rem, the runway is the
 	 * card's own padding rather than a column gap. Measured at 320px with the full travel,
 	 * the rim came within 1.44px of the card's outer edge. */
@@ -953,12 +1006,14 @@
 			--disc-out: 0.75rem;
 		}
 	}
+
 	/* The record comes out when the music starts. Declared outside every media query: this is
 	 * the state, not the flourish, and a portfolio gets opened on a phone where there is no
 	 * pointer to hover with. */
 	.folder:has([data-playing="true"]) .folder-disc {
 		translate: var(--disc-out) 0;
 	}
+
 	/* And on a pointer device, when you rest on the artwork. The SAME end value, deliberately:
 	 * the client sent a hover component and asked for that gesture, and half a record reads as
 	 * a mistake rather than as a hint. Identical declarations also mean there is no third
@@ -972,15 +1027,18 @@
 			translate: var(--disc-out) 0;
 		}
 	}
+
 	@media (prefers-reduced-motion: no-preference) {
 		.folder-disc {
 			animation: disc-spin 1.8s linear infinite;
 			animation-play-state: paused;
 		}
+
 		.folder:has([data-playing="true"]) .folder-disc {
 			animation-play-state: running;
 		}
 	}
+
 	@keyframes disc-spin {
 		to {
 			rotate: 360deg;
@@ -1007,12 +1065,14 @@
 		background-color: var(--ink);
 		box-shadow: var(--shadow-xl);
 	}
-	@media (width <= 40rem) {
+
+	@media (width <=40rem) {
 		.daw {
 			--bar: 9rem;
 			--gutter: 7rem;
 		}
 	}
+
 	.daw-grid {
 		position: relative;
 		inline-size: max-content;
@@ -1029,6 +1089,7 @@
 		border-block-end: var(--border-brutal) solid var(--border);
 		background-color: var(--ink);
 	}
+
 	.daw-ruler-gutter {
 		/* Sticky for the same reason the lane headers are, and it was not: drag the strip
 		 * and the ruler's gutter scrolled away, so the year labels slid over the top of the
@@ -1042,6 +1103,7 @@
 		border-inline-end: var(--border-brutal) solid var(--border);
 		background-color: var(--ink);
 	}
+
 	.daw-ruler-track {
 		display: flex;
 		background-repeat: repeat-x;
@@ -1055,6 +1117,7 @@
 			linear-gradient(90deg, var(--sheet) 0 2px, transparent 2px),
 			linear-gradient(90deg, color-mix(in oklch, var(--sheet) 45%, transparent) 0 2px, transparent 2px);
 	}
+
 	.daw-bar {
 		flex: none;
 		inline-size: var(--bar);
@@ -1072,6 +1135,7 @@
 		padding: 0;
 		list-style: none;
 	}
+
 	.daw-lane {
 		display: flex;
 		/* 9.5rem, not 7.5. A clip's content box is the lane minus the track's 12px inset at
@@ -1082,6 +1146,7 @@
 		min-block-size: 9.5rem;
 		border-block-end: 2px solid color-mix(in oklch, var(--sheet) 30%, transparent);
 	}
+
 	.daw-lane:last-child {
 		border-block-end: 0;
 	}
@@ -1102,16 +1167,19 @@
 		border-inline-end: var(--border-brutal) solid var(--border);
 		background-color: var(--ink);
 	}
+
 	.daw-period {
 		color: var(--sheet);
 		font-family: var(--font-mono);
 		font-size: 0.75rem;
 		letter-spacing: 0.06em;
 	}
+
 	.daw-switches {
 		display: flex;
 		gap: calc(var(--spacing) * 1.5);
 	}
+
 	/* Solo and mute. Spans, never buttons, see the component note. */
 	.daw-switch {
 		display: inline-flex;
@@ -1130,6 +1198,7 @@
 		flex: 1;
 		padding-block: calc(var(--spacing) * 3);
 	}
+
 	/* Width is duration. This is the difference between a chart and an arrangement. */
 	.daw-clip {
 		position: absolute;
@@ -1146,6 +1215,7 @@
 		color: var(--foreground);
 		box-shadow: var(--shadow-sm);
 	}
+
 	.daw-clip-title {
 		font-family: var(--font-display);
 		font-size: 1rem;
@@ -1153,6 +1223,7 @@
 		text-transform: uppercase;
 		font-stretch: 88%;
 	}
+
 	/* Clamped to whole lines. Letting it simply overflow-hidden cut the last line through
 	 * the middle of the letterforms, which reads as a rendering fault rather than as a clip
 	 * that is too short for its text. */
@@ -1175,6 +1246,7 @@
 		inline-size: 3px;
 		background-color: var(--lemon);
 	}
+
 	.daw-playhead::before {
 		content: "";
 		position: absolute;
@@ -1216,6 +1288,7 @@
 		/* A drag that starts on the marker still reaches the strip underneath it. */
 		pointer-events: none;
 	}
+
 	.daw-edge-mark {
 		position: sticky;
 		inset-inline-end: 0;
@@ -1237,13 +1310,15 @@
 		opacity: 0;
 		transition: border-inline-start-color 90ms cubic-bezier(0, 0, 0.58, 1);
 	}
-	@media (width <= 40rem) {
+
+	@media (width <=40rem) {
 		.daw-edge-mark {
 			/* 28px of the 215px of track visible beside the gutter, so 13%. Worth it on the
 			 * one viewport where 937px of the arrangement is genuinely hidden. */
 			inline-size: 1.75rem;
 		}
 	}
+
 	/* Drawn with a border rather than a clip path, because that is how the playhead's own
 	 * flag is drawn eleven lines above. The ink fills only the inline-start half of the
 	 * 14px box, so the box is nudged to put the ink on the centre line. */
@@ -1255,11 +1330,13 @@
 		border-inline-start-color: var(--sheet);
 		transition: border-inline-start-color 90ms cubic-bezier(0, 0, 0.58, 1);
 	}
+
 	@container scroll-state(scrollable: inline-end) {
 		.daw-edge-mark {
 			opacity: 1;
 		}
 	}
+
 	/* The one thing a keyboard reader gets that the focus outline does not say: this edge
 	 * is what the arrow keys move. Unguarded, for the reason `.transport-play` gives about
 	 * its own unguarded shadow swap: it is the state reading as the state, and it moves
@@ -1280,6 +1357,7 @@
 		padding-inline: calc(var(--spacing) * 2);
 		padding-block-end: calc(var(--spacing) * 2);
 	}
+
 	.band-bar {
 		flex: 1 1 0;
 		min-inline-size: 0;
@@ -1290,6 +1368,7 @@
 		from {
 			transform: translateX(0);
 		}
+
 		to {
 			transform: translateX(-50%);
 		}
@@ -1311,6 +1390,7 @@
 		gap: calc(var(--spacing) * 4);
 		flex-wrap: wrap;
 	}
+
 	/* Below a wide desktop the rail takes a line of its own, with the button and the time
 	 * sharing the one above it.
 	 *
@@ -1328,12 +1408,15 @@
 			align-items: center;
 			gap: calc(var(--spacing) * 4);
 		}
+
 		.transport-play {
 			grid-area: play;
 		}
+
 		.transport-rail {
 			grid-area: rail;
 		}
+
 		.transport-time {
 			grid-area: time;
 		}
@@ -1358,23 +1441,28 @@
 			transform 90ms cubic-bezier(0, 0, 0.58, 1),
 			box-shadow 90ms cubic-bezier(0, 0, 0.58, 1);
 	}
+
 	/* The shadow swap is unguarded on purpose: it is the press reading as a press, and it
 	 * moves nothing. The travel is motion, and this was the one thing in the transport that
 	 * moved for a visitor who had asked for less of it. */
 	.transport-play:hover {
 		box-shadow: var(--shadow-lg);
 	}
+
 	.transport-play:active {
 		box-shadow: 0 0 0 0 var(--border);
 	}
+
 	@media (prefers-reduced-motion: no-preference) {
 		.transport-play:hover {
 			transform: translate(-2px, -2px);
 		}
+
 		.transport-play:active {
 			transform: translate(6px, 6px);
 		}
 	}
+
 	.transport-icon {
 		display: block;
 		/* Scaled with the button it sits in. A 1.5rem glyph inside a 5.5rem square reads as
@@ -1397,6 +1485,7 @@
 		 * room to be visible. */
 		block-size: 5.5rem;
 	}
+
 	/* The range itself is transparent, so the focus ring has to belong to the rail or a
 	 * keyboard user would tab to something with no visible state at all. */
 	/* `:has(:focus-visible)`, not `:focus-within`. A plain mouse click on the rail focuses
@@ -1429,12 +1518,14 @@
 		display: flex;
 		align-items: center;
 	}
+
 	.dither-panel {
 		position: absolute;
 		inset: 0;
 		z-index: 0;
 		pointer-events: none;
 	}
+
 	.dither-panel-canvas {
 		display: block;
 		inline-size: 100%;
@@ -1443,20 +1534,24 @@
 		 * image. */
 		image-rendering: pixelated;
 	}
+
 	.cta-button {
 		display: inline-flex;
 		align-items: center;
 		gap: calc(var(--spacing) * 3);
 	}
+
 	.cta-arrow {
 		inline-size: 1.25em;
 		block-size: 1.25em;
 		flex: none;
 	}
+
 	@media (prefers-reduced-motion: no-preference) {
 		.cta-arrow {
 			transition: translate 120ms cubic-bezier(0, 0, 0.58, 1);
 		}
+
 		.cta-button:hover .cta-arrow {
 			translate: 0.25rem 0;
 		}
@@ -1483,13 +1578,14 @@
 		padding: var(--panel-pad);
 	}
 
-	@media (width >= 40rem) {
+	@media (width >=40rem) {
 		.form-panel {
 			--panel-pad: 2rem;
 		}
 	}
 
 	@media (width < 40rem) {
+
 		/* Cloudflare's widget has a hard 300px floor at data-size="flexible", and the size is
 		 * read once when the widget mounts, so it cannot be swapped responsively. Inside the
 		 * shell at 375 this panel offers 279px of clear width. Taking the whole viewport
@@ -1645,16 +1741,19 @@
 		font-family: var(--font-sans);
 		line-height: 1.55;
 	}
+
 	.outcome-sent {
 		background-color: var(--spring);
 		color: var(--spring-foreground);
 	}
+
 	.outcome a {
 		color: inherit;
 		text-decoration-line: underline;
 		text-decoration-thickness: 2px;
 		text-underline-offset: 4px;
 	}
+
 	/* Drawn rather than imported, the same trade .cta-arrow already makes. */
 	.outcome-mark {
 		inline-size: 1.5rem;
@@ -1684,6 +1783,7 @@
 		counter-reset: brief;
 		display: grid;
 	}
+
 	.brief-point {
 		counter-increment: brief;
 		display: grid;
@@ -1693,10 +1793,12 @@
 		border-block-start: var(--border-brutal) solid var(--border);
 		padding-block: calc(var(--spacing) * 4);
 	}
+
 	.brief-point:first-child {
 		border-block-start: 0;
 		padding-block-start: 0;
 	}
+
 	.brief-point::before {
 		content: counter(brief, decimal-leading-zero);
 		display: flex;
@@ -1721,9 +1823,11 @@
 		font-size: 1.0625rem;
 		line-height: 1.65;
 	}
+
 	.legal-prose p {
 		margin-block: 0 calc(var(--spacing) * 4);
 	}
+
 	.legal-prose h2 {
 		margin-block: calc(var(--spacing) * 10) calc(var(--spacing) * 4);
 		border-block-end: var(--border-brutal) solid var(--border);
@@ -1734,12 +1838,14 @@
 		line-height: 1.1;
 		text-transform: uppercase;
 	}
+
 	.legal-prose h2:first-child {
 		margin-block-start: 0;
 	}
+
 	/* The addresses and the registration numbers are a block of facts, not prose, so they sit
 	 * tight to each other rather than a paragraph apart. */
-	.legal-prose p + p {
+	.legal-prose p+p {
 		margin-block-start: 0;
 	}
 
@@ -1752,21 +1858,25 @@
 		color: var(--sheet);
 		padding: calc(var(--spacing) * 12) calc(var(--spacing) * 5);
 	}
-	@media (width >= 40rem) {
+
+	@media (width >=40rem) {
 		.site-footer {
 			padding-inline: calc(var(--spacing) * 8);
 		}
 	}
+
 	.footer-columns {
 		display: grid;
 		gap: calc(var(--spacing) * 10);
 		align-items: start;
 	}
-	@media (width >= 48rem) {
+
+	@media (width >=48rem) {
 		.footer-columns {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
 		}
 	}
+
 	/* The voice every machine string on this site uses: mono, small, tracked. */
 	.footer-heading {
 		font-family: var(--font-mono);
@@ -1777,6 +1887,7 @@
 		 * sheet: 9.4:1, plainly a heading and plainly not a link. */
 		color: var(--dust);
 	}
+
 	.footer-list {
 		display: grid;
 		gap: calc(var(--spacing) * 3);
@@ -1784,6 +1895,7 @@
 		list-style: none;
 		padding: 0;
 	}
+
 	/* Underlined at rest, not on hover: on a black ground with no colour to spare, the
 	 * underline is what says "link" before anyone points at anything. */
 	.footer-link {
@@ -1792,17 +1904,20 @@
 		text-decoration-thickness: 2px;
 		text-underline-offset: 4px;
 	}
+
 	/* Pushed down to where the other two columns' first links start, since this one has no
 	 * heading above it to do that. The value is the heading's line box plus the gap under it,
 	 * which is what the lists get. */
 	.footer-mail-row {
 		margin: 0;
 	}
-	@media (width >= 48rem) {
+
+	@media (width >=48rem) {
 		.footer-mail-row {
 			margin-block-start: calc(var(--spacing) * 8);
 		}
 	}
+
 	/* The rule across the bottom, and the two things that sit under it. */
 	.footer-foot {
 		display: flex;
@@ -1814,6 +1929,7 @@
 		border-block-start: 2px solid color-mix(in oklch, var(--sheet) 30%, transparent);
 		padding-block-start: calc(var(--spacing) * 6);
 	}
+
 	.footer-credit {
 		display: flex;
 		flex-wrap: wrap;
@@ -1824,9 +1940,11 @@
 		font-size: 0.75rem;
 		color: var(--dust);
 	}
+
 	.footer-sep {
 		opacity: 0.6;
 	}
+
 	/* Drawn rather than set as an emoji: an emoji is a font the visitor may not have, it
 	 * renders differently on every platform, and a screen reader announces it as "red heart"
 	 * in the middle of a sentence. This is decoration and says so. */
@@ -1850,6 +1968,7 @@
 		/* The range on top owns every pointer event. */
 		pointer-events: none;
 	}
+
 	.playhead-canvas {
 		display: block;
 		inline-size: 100%;
@@ -1870,6 +1989,7 @@
 		opacity: 0;
 		cursor: pointer;
 	}
+
 	.playhead-seek:focus-visible {
 		outline: none;
 	}
@@ -1901,6 +2021,7 @@
 		opacity: 0;
 		transform: translateY(12px);
 	}
+
 	to {
 		opacity: 1;
 		transform: none;
@@ -1954,6 +2075,7 @@
 	from {
 		translate: 0 1.25rem;
 	}
+
 	to {
 		translate: 0 0;
 	}
