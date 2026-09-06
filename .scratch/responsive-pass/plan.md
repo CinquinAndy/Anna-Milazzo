@@ -1,4 +1,34 @@
-# Responsive plan for annamilazzo.com
+# Responsive plan for anna-milazzo.com
+
+**Status: the nine majors are fixed and held by tests. The twenty-two minors and eleven
+polish items below are not, except where noted.**
+
+| id | severity | state |
+|---|---|---|
+| `scroll-under-header` | major | fixed, `HeaderHeight` + `scroll-padding-block-start` |
+| `header-rows` | major | fixed, two rows and 109px on every phone in both languages |
+| `pager-scroll-jump` | major | fixed, the scroll happens after the commit |
+| `daw-edge-marker-support` | major | fixed, `DawEdge` publishes the same condition for every engine |
+| `title-sliced` | major | fixed, real glyph metrics against `100cqi` |
+| `header-two-rows-mid` | major | fixed, section nav from md and compact language codes |
+| `contact-address-overflow` | major | fixed, `.control-wrap` on every CMS-authored control |
+| `title-long-en` | major | fixed, balanced two-line setting below 512px |
+| `daw-first-clip-cut` | major | fixed, the strip runs full bleed below 23rem |
+| `footer-link-targets` | minor | fixed, 32px hit boxes on the same 36px pitch |
+| `pill-touch-size` | minor | fixed, a transparent hit region on a coarse pointer |
+| `daw-overscroll` | minor | fixed, `overscroll-behavior-inline: contain` |
+| `wordmark-noop` | minor | fixed, the wordmark carries a fragment on the landing page |
+| `hero-name-floor` | minor | fixed, the name is sized from its own column |
+| `hero-header-h-tablet` | minor | fixed by the measured `--header-h` |
+| `legal-prose-measure` | minor | gone: the shell's `--measure` moved to 90rem |
+| `title-ultrawide-left` | minor | NOT fixed, and it is a design call: the fix moves the giant titles off the viewport edge, which is the device itself |
+| everything else | minor / polish | NOT fixed, prescriptions below stand |
+
+Tests: `e2e/responsive.spec.ts` (six routes x fourteen viewports), `e2e/site-header.spec.ts`,
+`e2e/section-title.spec.ts`, and additions to `song-pager`, `timeline`, `contact-page` and
+`footer`.
+
+---
 
 Audit date: 2026-09-06. Evidence root: `/tmp/claude-1000/-home-andycinquin-clonedrepo-anna-milazzo/8e55e7d3-9f9e-4104-8b5b-fbb02b51495f/scratchpad/responsive/` (72 capture folders, `index.md` lists them). Every finding below was reported by one agent and then re-checked by a second agent who looked at the pictures and measured the running site themselves. 42 defects survived that check. 10 reports were refuted and are listed in section 4 so nobody spends a day re-auditing them.
 
