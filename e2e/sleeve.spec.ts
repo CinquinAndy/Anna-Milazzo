@@ -3,7 +3,9 @@ import { expect, type Page, test } from '@playwright/test'
 /** The record's painted box, and what it is measured against. */
 async function sleeveGeometry(page: Page, index = 0) {
 	return page.evaluate(nth => {
-		const folder = document.querySelectorAll('[data-song-stack] .folder')[nth]
+		// Indexed over what is on the page, not over the whole document: the stack is
+		// paginated and a hidden Folder measures as a zero box.
+		const folder = document.querySelectorAll('[data-song-stack] li:not([hidden]) .folder')[nth]
 		if (folder === undefined) {
 			return null
 		}
@@ -108,12 +110,24 @@ test.describe('the record and its sleeve', () => {
 	test('sits at the same height on every Song', async ({ page }) => {
 		await page.goto('/')
 		const tops: number[] = []
-		for (let index = 0; index < 5; index++) {
-			const geometry = await sleeveGeometry(page, index)
-			if (geometry !== null) {
-				tops.push(Math.round(geometry.top))
+		// Walked page by page: the works off the current page are `hidden`, and a hidden
+		// element measures as a zero box, which would report a difference in height that
+		// nobody can see.
+		const buttons = page.locator('.song-pager-page')
+		const pages = Math.max(1, await buttons.count())
+		for (let pageIndex = 0; pageIndex < pages; pageIndex++) {
+			if ((await buttons.count()) > 0) {
+				await buttons.nth(pageIndex).click()
+			}
+			const shown = await page.locator('[data-song-stack] li:not([hidden]) .folder').count()
+			for (let index = 0; index < shown; index++) {
+				const geometry = await sleeveGeometry(page, index)
+				if (geometry !== null) {
+					tops.push(Math.round(geometry.top))
+				}
 			}
 		}
+		expect(tops.length, 'no Song was measured at all').toBeGreaterThan(0)
 		// A percentage `inset-block-start` resolves against the containing block's HEIGHT,
 		// which here is a grid row stretched by the story beside it, so the record hung at a
 		// different height on every Song. A percentage margin resolves against the width.

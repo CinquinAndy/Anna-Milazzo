@@ -991,6 +991,11 @@
 	 * in: clip offsets, clip widths, ruler ticks and the playhead all multiply it, so the
 	 * whole timeline rescales from this one value. */
 	.daw {
+		/* Published so the edge marker inside can ask whether there is any arrangement left
+		 * to the right of the visible strip. A scroll-state container applies no containment
+		 * and creates no stacking context, so it changes nothing about how the strip lays
+		 * out or paints. */
+		container-type: scroll-state;
 		/* One year. Narrow enough that a seven-year arrangement fits the 72rem measure
 		 * without scrolling on a desktop, at 13rem the last three lanes started off-screen
 		 * and read as empty rows, which is authentic for a sequencer and useless for a
@@ -1025,6 +1030,13 @@
 		background-color: var(--ink);
 	}
 	.daw-ruler-gutter {
+		/* Sticky for the same reason the lane headers are, and it was not: drag the strip
+		 * and the ruler's gutter scrolled away, so the year labels slid over the top of the
+		 * lane names. `z-index` is local to the ruler, which is its own stacking context at
+		 * 3, so 1 is enough to hold it above the tick track. */
+		position: sticky;
+		inset-inline-start: 0;
+		z-index: 1;
 		flex: none;
 		inline-size: var(--gutter);
 		border-inline-end: var(--border-brutal) solid var(--border);
@@ -1062,7 +1074,12 @@
 	}
 	.daw-lane {
 		display: flex;
-		min-block-size: 7.5rem;
+		/* 9.5rem, not 7.5. A clip's content box is the lane minus the track's 12px inset at
+		 * each end, minus its own 3px keyline and 12px padding at each end: 88px, against
+		 * the 103px a two-line title over a two-line detail actually needs. Three of the
+		 * five clips were having their last line cut through the letterforms, which is the
+		 * exact failure the line clamp below was added to prevent. */
+		min-block-size: 9.5rem;
 		border-block-end: 2px solid color-mix(in oklch, var(--sheet) 30%, transparent);
 	}
 	.daw-lane:last-child {
@@ -1165,6 +1182,92 @@
 		inset-inline-start: -7px;
 		border: 8px solid transparent;
 		border-block-start-color: var(--lemon);
+	}
+
+	/* ---- the end of the visible strip ---------------------------------
+	 * A second gutter, mirroring the one the lane names sit in: an ink column against the
+	 * inline-end keyline carrying a drawn chevron.
+	 *
+	 * It exists because the arrangement is wider than the strip at every viewport below
+	 * about 1700px. 192px is hidden at 1440 and 937px at 375, where three quarters of
+	 * Anna's history is past the right edge and two of the five lanes render as completely
+	 * empty track. An empty lane does not read as "there is more this way", it reads as a
+	 * row with nothing in it, and overlay scrollbars mean many readers get no other hint.
+	 *
+	 * Its presence is a scroll-state query rather than an animation, which is the whole
+	 * reason it is worth building: it is drawn when there is arrangement to the right and
+	 * gone when there is not, at any viewport and any number of entries, with no breakpoint
+	 * and no magic number. An affordance pointing at nothing is the same class of lie as a
+	 * clip whose width does not mean its duration.
+	 *
+	 * Sticky inside the scroller rather than absolute outside it. Two consequences, both
+	 * wanted: a scroll-state query is answered by the container it is inside, so it has to
+	 * be in there; and it is a sibling of the ruler in `.daw-grid`, so beating the ruler's
+	 * `z-index: 3` is decided in one stacking context rather than by luck. */
+	.daw-edge {
+		position: absolute;
+		inset: 0;
+		z-index: 4;
+		display: flex;
+		/* The mark's static position has to be at the far end of the arrangement:
+		 * `inset-inline-end` on a sticky box pulls it back INTO the scrollport and never
+		 * pushes it out to the edge, so laid out at the start it simply never sticks. */
+		justify-content: flex-end;
+		/* A drag that starts on the marker still reaches the strip underneath it. */
+		pointer-events: none;
+	}
+	.daw-edge-mark {
+		position: sticky;
+		inset-inline-end: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 2.5rem;
+		block-size: 100%;
+		/* Sheet, not lemon. Lemon on this ground is the playhead and the playhead means
+		 * "now"; a second permanent lemon rule would read as a second playhead. Sheet is
+		 * what the ruler's ticks are drawn in, so this reads as chrome. 3px is the clip
+		 * keyline's weight, the nearest thing to it on the strip. */
+		border-inline-start: 3px solid var(--sheet);
+		background-color: var(--ink);
+		/* Off unless there is something to the right. Written as the base state rather than
+		 * as the query's negation on purpose: a browser with no scroll-state queries drops
+		 * the rule below and gets today's page, where a permanent chevron pointing at
+		 * nothing would be worse than no chevron at all. */
+		opacity: 0;
+		transition: border-inline-start-color 90ms cubic-bezier(0, 0, 0.58, 1);
+	}
+	@media (width <= 40rem) {
+		.daw-edge-mark {
+			/* 28px of the 215px of track visible beside the gutter, so 13%. Worth it on the
+			 * one viewport where 937px of the arrangement is genuinely hidden. */
+			inline-size: 1.75rem;
+		}
+	}
+	/* Drawn with a border rather than a clip path, because that is how the playhead's own
+	 * flag is drawn eleven lines above. The ink fills only the inline-start half of the
+	 * 14px box, so the box is nudged to put the ink on the centre line. */
+	.daw-edge-arrow {
+		inline-size: 0;
+		block-size: 0;
+		margin-inline-end: 7px;
+		border: 7px solid transparent;
+		border-inline-start-color: var(--sheet);
+		transition: border-inline-start-color 90ms cubic-bezier(0, 0, 0.58, 1);
+	}
+	@container scroll-state(scrollable: inline-end) {
+		.daw-edge-mark {
+			opacity: 1;
+		}
+	}
+	/* The one thing a keyboard reader gets that the focus outline does not say: this edge
+	 * is what the arrow keys move. Unguarded, for the reason `.transport-play` gives about
+	 * its own unguarded shadow swap: it is the state reading as the state, and it moves
+	 * nothing. Lemon is safe here where a permanent lemon rule would not be, because it
+	 * exists only while the strip is focused. */
+	.daw:focus-visible .daw-edge-mark,
+	.daw:focus-visible .daw-edge-arrow {
+		border-inline-start-color: var(--lemon);
 	}
 
 	/* The divider's second lane. One black band carrying text above and bars below, rather
@@ -1801,5 +1904,57 @@
 	to {
 		opacity: 1;
 		transform: none;
+	}
+}
+
+/* ---- the card that carries the words --------------------------------
+ * Two sentences, and the section around them is furnished with a record, a set of arcs,
+ * six ornaments and a score fragment which between them out-weigh the words: the Score's
+ * white area measures 274k px against the card's 236k, with the harder shadow and the
+ * higher internal contrast, and it carries no information at all.
+ *
+ * Nothing here makes the card louder. What it does is make the card the LAST thing in the
+ * section to stop. The field arrives and settles hundreds of pixels of scroll before the
+ * card's top edge ever crosses the fold, so when the card takes its four steps it is the
+ * only thing moving in the green and the eye finishes where the words are. The Score gets
+ * no motion at all, which is the other half of the same decision.
+ *
+ * Scrubbed rather than timed, so the finish line is a position and not a moment: "over
+ * before it can be read" becomes geometry instead of a guess about how fast somebody
+ * scrolls, and scrolling back up plays it backwards instead of re-firing.
+ *
+ * The wrapper rather than the `p`: the two tape strips and the underline are placed
+ * against this box, so moving the wrapper moves the card and its fixings as one pinned
+ * object, where moving the `p` alone would leave the tape hanging above the paper it is
+ * supposed to be holding. The ornament inside still computes `animation-name: none`,
+ * which is what the ornament suite reads.
+ *
+ * `translate` rather than `transform`, because the `p` inside is rotated -0.6deg and the
+ * two channels compose. Same reason `.badge-turn` animates `rotate`.
+ *
+ * Declared inside `prefers-reduced-motion: no-preference` rather than switched off after,
+ * for the reason the section entrance above already gives. */
+@media (prefers-reduced-motion: no-preference) {
+	@supports (animation-timeline: view()) {
+		.about-card {
+			/* Four positions, 5px apart, over the first 60% of the entry phase. Stepped,
+			 * not eased, for the reason `.console-bar` gives: this page's motion jumps
+			 * between levels rather than sliding between them. Quantising is also what
+			 * makes the gesture perceptible at all, since 20px spread smoothly over 200px
+			 * of scroll is a ratio nobody sees, while the same 20px in four hard hops at
+			 * the same total travel is unmistakable. */
+			animation: about-card-seat steps(4, end) both;
+			animation-timeline: view();
+			animation-range: entry 0% entry 60%;
+		}
+	}
+}
+
+@keyframes about-card-seat {
+	from {
+		translate: 0 1.25rem;
+	}
+	to {
+		translate: 0 0;
 	}
 }

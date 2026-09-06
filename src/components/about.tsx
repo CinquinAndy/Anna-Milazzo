@@ -30,7 +30,14 @@ export function About({ about }: { about: Home['about'] }) {
 	return (
 		<section
 			data-enter
-			className="relative overflow-hidden border-b-brutal border-border bg-spring text-spring-foreground"
+			// `overflow-clip`, not `overflow-hidden`. Hidden makes this section a scroll
+			// container, and a scroll container is what `view()` resolves against, so any
+			// scroll-driven animation on anything INSIDE here measures itself against a box
+			// that never scrolls: measured, the card jumped straight from its base state to
+			// its finished one without ever passing through a value in between. Clip clips
+			// at the same edge, makes no scroll container, and cannot be scrolled out of
+			// place programmatically either.
+			className="relative overflow-clip border-b-brutal border-border bg-spring text-spring-foreground"
 			data-about
 		>
 			{about?.heading ? <SectionTitle>{about.heading}</SectionTitle> : null}
@@ -51,7 +58,7 @@ export function About({ about }: { about: Home['about'] }) {
 
 				<div className="shell relative grid items-center gap-16 lg:grid-cols-[1.3fr_1fr] lg:gap-24">
 					{about?.body ? (
-						<div className="relative mx-auto w-full max-w-2xl lg:mx-0">
+						<div className="about-card relative mx-auto w-full max-w-2xl lg:mx-0">
 							<span
 								aria-hidden="true"
 								className="tape tape-on-colour -top-2 left-8 [--tape-tint:var(--sheet)] rotate-[-42deg]"
