@@ -1,6 +1,6 @@
 'use client'
 
-import { Children, type ReactNode, useRef, useState } from 'react'
+import { Children, type ReactNode, useEffect, useRef, useState } from 'react'
 
 /**
  * How many works one page holds. Three: a Folder is tall, and three of them is about
@@ -45,8 +45,30 @@ export function SongPager({
 			return
 		}
 		setPage(next)
-		listRef.current?.focus()
 	}
+
+	// After the commit, never inside the click. Focusing the list from the handler scrolled
+	// the OLD three-work list into view, and because that list is taller than the screen the
+	// browser bottom-aligned it; React then swapped in a shorter page under a scroll position
+	// computed for a list that no longer existed, and the reader landed on the next section
+	// entirely. `preventScroll` and then one explicit scroll, so there is a single movement
+	// rather than a centre followed by a start. The landing point is the document's own
+	// scroll padding, which already clears the sticky bar.
+	const shown = useRef(page)
+	useEffect(() => {
+		// Equal on the first render, which is the one time the reader has not asked to be
+		// taken anywhere.
+		if (shown.current === page) {
+			return
+		}
+		shown.current = page
+		const list = listRef.current
+		if (list === null) {
+			return
+		}
+		list.focus({ preventScroll: true })
+		list.scrollIntoView({ block: 'start' })
+	}, [page])
 
 	const first = page * PER_PAGE
 	const numbers = Array.from({ length: pages }, (_, index) => index)

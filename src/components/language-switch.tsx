@@ -7,6 +7,19 @@ const LOCALE_NAMES: Record<Locale, string> = {
 }
 
 /**
+ * The same two words at two characters.
+ *
+ * The full names are 186px together, which is what pushed the phone bar into a third row
+ * and kept it wrapped up to 866px. The codes are 92px and fit beside the wordmark. They
+ * are shown to the eye only: every control keeps the full name as its accessible name, so
+ * nothing is abbreviated for a screen reader.
+ */
+const LOCALE_CODES: Record<Locale, string> = {
+	it: 'IT',
+	en: 'EN',
+}
+
+/**
  * Switches the Portfolio between Italian and English, landing on the same page.
  *
  * The current path arrives as a prop rather than from `usePathname`. Under the proxy's
@@ -29,7 +42,9 @@ export function LanguageSwitch({ path, locale }: { path: string; locale: Locale 
 								lang={candidate}
 								className="inline-flex border-2 border-border bg-foreground px-3 py-2 font-mono text-xs text-background uppercase"
 							>
-								{LOCALE_NAMES[candidate]}
+								{/* `aria-label` needs a role that supports naming and a span has none, so the
+								    full name is carried as text only a screen reader reads. */}
+								<LocaleLabel locale={candidate} />
 							</span>
 						) : (
 							<Link
@@ -41,12 +56,32 @@ export function LanguageSwitch({ path, locale }: { path: string; locale: Locale 
 								// over whatever sits behind the header rather than on the paper.
 								className="inline-flex border-2 border-border bg-card px-3 py-2 font-mono text-xs uppercase"
 							>
-								{LOCALE_NAMES[candidate]}
+								<LocaleLabel locale={candidate} />
 							</Link>
 						)}
 					</li>
 				))}
 			</ul>
 		</nav>
+	)
+}
+
+/**
+ * Both spellings, one shown at a time by width. Rendered rather than swapped in
+ * JavaScript so the bar never changes size after hydration, and hidden from assistive
+ * technology because the control already carries the full name in `aria-label`.
+ */
+function LocaleLabel({ locale }: { locale: Locale }) {
+	return (
+		<>
+			{/* The code is decoration: it is the short spelling of the name beside it. */}
+			<span aria-hidden="true" className="lg:hidden">
+				{LOCALE_CODES[locale]}
+			</span>
+			{/* The name is the label at every width. Below lg it is read but not drawn, so
+			    the control is never announced as two letters, and `sr-only` rather than
+			    `aria-label` because a span carries no role that supports naming. */}
+			<span className="sr-only lg:not-sr-only">{LOCALE_NAMES[locale]}</span>
+		</>
 	)
 }

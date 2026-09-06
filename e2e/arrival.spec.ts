@@ -177,17 +177,23 @@ test.describe('the end of the visible strip', () => {
 		await dragStrip(page, 99_999)
 		expect(await opacity(), 'the marker still points right at the end of the strip').toBe('0')
 
-		// Same rule on a desktop wide enough that nothing is hidden at all.
-		await page.setViewportSize({ width: 1800, height: 900 })
-		await page.goto('/')
-		await page.evaluate(() => document.fonts.ready)
-		await dragStrip(page, 0)
-		const hidden = await page.evaluate(() => {
-			const strip = document.querySelector('[data-timeline-scroller]') as HTMLElement
-			return strip.scrollWidth - strip.clientWidth
-		})
-		expect(hidden, 'the strip still overflows at 1800px, so this proves nothing').toBe(0)
-		expect(await opacity(), 'the marker points at content that does not exist').toBe('0')
+		// And the rule itself, at every width rather than at one: drawn exactly while there
+		// is arrangement to the right. Not asserted against a width where the strip happens
+		// to fit, because whether it fits depends on the shell's own measure, which is a
+		// design decision that has already moved once.
+		for (const width of [375, 768, 1024, 1440, 1800]) {
+			await page.setViewportSize({ width, height: 900 })
+			await page.goto('/')
+			await page.evaluate(() => document.fonts.ready)
+			await dragStrip(page, 0)
+			const hidden = await page.evaluate(() => {
+				const strip = document.querySelector('[data-timeline-scroller]') as HTMLElement
+				return strip.scrollWidth - strip.clientWidth
+			})
+			expect(await opacity(), `at ${width}px the marker disagrees with the ${hidden}px it describes`).toBe(
+				hidden > 0 ? '1' : '0'
+			)
+		}
 	})
 
 	test('it survives with motion off, because it is drawn and not animated', async ({ page }) => {

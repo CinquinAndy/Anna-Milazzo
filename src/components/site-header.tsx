@@ -30,7 +30,7 @@ export function SiteHeader({
 
 	return (
 		<header className="sticky top-0 z-50 border-b-brutal border-border bg-paper px-4 py-3 sm:px-6" data-site-header>
-			<div className="shell flex flex-wrap items-center gap-x-3 gap-y-2">
+			<div className="shell flex flex-wrap items-center gap-x-2 gap-y-2 lg:gap-x-3">
 				{/* The wordmark is a filled pill, so the bar has one anchor point that does not
 				    move between pages. It is a link even on the landing page: pressing it
 				    returns to the top, which is what a wordmark is for. */}
@@ -38,8 +38,11 @@ export function SiteHeader({
 					Anna Milazzo
 				</Link>
 
+				{/* From md, not sm. The six pills need about 700px and the shell offers 592 at
+				    640, so showing them at sm wrapped the bar into two rows all the way to
+				    866px, which is a third of a landscape phone. */}
 				{nav.length > 0 ? (
-					<nav aria-label="Sections" className="hidden flex-wrap items-center gap-2 sm:flex">
+					<nav aria-label="Sections" className="hidden flex-wrap items-center gap-2 md:flex">
 						{nav.map(link => (
 							<a key={link.href} href={link.href} className="nav-pill">
 								{link.label}
@@ -48,11 +51,18 @@ export function SiteHeader({
 					</nav>
 				) : null}
 
-				{/* Its own row below 640px. Pushed right by ms-auto with nowrap pills it overflowed
-				    the viewport by 66px at 375px, the contact label is long in Italian and the
-				    language switch sits after it. */}
-				<div className="flex w-full flex-wrap items-center gap-2 sm:ms-auto sm:w-auto sm:gap-3">
-					{contact ? (
+				{/* The switch rides the wordmark's row, pushed right. As two-letter codes it is
+				    92px, so at 320 the row is 142 + 12 + 92 of 288 and fits with room. */}
+				<div className="ms-auto flex items-center gap-2 sm:gap-3">
+					<LanguageSwitch path={path} locale={locale} />
+				</div>
+
+				{/* Below sm the contact pill takes the second row on its own and right-aligns
+				    there, so the bar is two rows rather than three and neither row packs left
+				    against empty paper. It sits after the switch in the document as well as on
+				    the screen, so the focus order is the reading order. */}
+				{contact ? (
+					<div className="flex w-full justify-end sm:w-auto">
 						<Link
 							href={contact.href}
 							className="nav-pill nav-pill-cta"
@@ -61,9 +71,8 @@ export function SiteHeader({
 						>
 							{contact.label}
 						</Link>
-					) : null}
-					<LanguageSwitch path={path} locale={locale} />
-				</div>
+					</div>
+				) : null}
 			</div>
 		</header>
 	)

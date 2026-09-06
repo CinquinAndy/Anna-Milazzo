@@ -93,11 +93,16 @@
 	 * token because it has to change in one place, a per-component max-width is how the
 	 * header ends up a different width from the section under it. */
 	--measure: 90rem;
-	/* The sticky header occupies the flow, so a full-viewport hero has to subtract it or the
-	 * keyboard at its foot lands below the fold. Measured, not estimated: 67px at 1440, 1600
-	 * and 1920, since the bar's height comes from its padding and a fixed control size
-	 * rather than from anything that reflows. */
-	--header-h: 67px;
+	/* The sticky header occupies the flow, so anything that has to clear it subtracts this:
+	 * the hero's full-screen height, and the scroll padding that keeps an anchor jump or a
+	 * focus move from landing underneath the bar.
+	 *
+	 * One row from sm up, where the bar's height comes from its padding and a fixed control
+	 * size rather than from anything that reflows. Below sm the contact pill takes a second
+	 * row, so the default is two. It is only a default: `HeaderHeight` measures the bar and
+	 * overwrites this, because no arithmetic can predict the wrap width for copy Anna is
+	 * free to change in the CMS. */
+	--header-h: 110px;
 
 	/* Paired foregrounds, so a surface is never used without its type colour. There is
 	 * deliberately no white --magenta-foreground: white on magenta is 3.478:1, large
@@ -144,6 +149,16 @@
 	--shadow-lg: 8px 8px 0 0 var(--border);
 	--shadow-xl: 12px 12px 0 0 var(--border);
 	--shadow-2xl: 16px 16px 0 0 var(--border);
+}
+
+/* From sm the bar is a single row: the section nav appears at md, and below that the
+ * wordmark, the language codes and the contact pill fit on one line from 513px up. Paired
+ * with the two-row default above, this keeps the page close to right before `HeaderHeight`
+ * has measured anything, and with JavaScript off it never moves at all. */
+@media (width >= 40rem) {
+	:root {
+		--header-h: 67px;
+	}
 }
 
 @theme inline {
@@ -317,7 +332,6 @@
 }
 
 @layer components {
-
 	/* The signature move, and the only one. Hover lifts and grows the shadow; press
 	 * translates into the shadow and collapses it. ~90ms ease-out: a symmetric
 	 * ease-in-out accelerates the object away from the press, which is backwards for a
@@ -411,6 +425,28 @@
 		color: var(--magenta-foreground);
 	}
 
+	/* ---- the section title band ---------------------------------------
+	 * A container, so the heading inside can be sized from `100cqi`: the band's real
+	 * content width, with the scrollbar and the band's own padding already excluded. Sizing
+	 * from `100vw` counted the scrollbar and subtracted a padding that was only right at
+	 * one breakpoint, which is what let PERCORSO run past the viewport and give the whole
+	 * page a horizontal scrollbar. */
+	.section-title {
+		container-type: inline-size;
+	}
+	.section-title h2 {
+		font-size: var(--title-wide);
+	}
+	/* Below sm a long heading is set as two balanced lines instead of one caption-sized
+	 * one. The size comes from the longer of the two, computed against the narrowest phone
+	 * this site is held to, and the break itself is left to the browser so the heading is
+	 * never hard-wrapped at a width where it fits on one line. */
+	@media (width < 32rem) {
+		.section-title h2 {
+			font-size: var(--title-narrow);
+		}
+	}
+
 	/* ---- the works pager ----------------------------------------------
 	 * Built on .nav-pill because it is the same object as the header's: a small mono
 	 * control that has to hold a row of siblings at 375px. It sits below the works,
@@ -477,9 +513,18 @@
 		outline: none;
 	}
 
-	/* The sticky bar must never land on the heading an anchor jumped to. */
-	[id] {
-		scroll-margin-block-start: 5rem;
+	/* The sticky bar must never land on what the browser just scrolled to.
+	 *
+	 * Scroll padding on the scroller rather than scroll margin on the target: margin only
+	 * helps elements that carry it, and the things that landed under the bar were the ones
+	 * without an id, a footer link reached by Shift+Tab, the check widget, a rejected form
+	 * field. Padding is a property of the scrollport, so it applies to every scroll the
+	 * browser performs, anchors, `focus()` and sequential focus navigation alike.
+	 *
+	 * The extra 0.75rem is the landing target's own keyline plus a hair, so it reads as
+	 * sitting under the bar rather than glued to it. */
+	html {
+		scroll-padding-block-start: calc(var(--header-h) + 0.75rem);
 	}
 
 	.control-ink {
@@ -490,6 +535,23 @@
 	.control-paper {
 		background-color: var(--card);
 		color: var(--foreground);
+	}
+
+	/* An email address is one unbreakable word, and a pill holding one contributes its whole
+	 * length to its container's minimum width. The seeded placeholder happens to fit with
+	 * seven pixels to spare; a real address of twenty-two characters inflates the arrival
+	 * card past the viewport at 320 and pushes the whole document sideways at 768, where the
+	 * footer's three fixed columns cannot absorb it.
+	 *
+	 * `overflow-wrap: anywhere` rather than `break-word`, because only `anywhere` lowers the
+	 * min-content contribution, which is the number doing the damage. The address then wraps
+	 * inside its own keyline instead of widening what holds it.
+	 *
+	 * On every control whose label comes from the CMS rather than from the design, since any
+	 * of them can be handed a word longer than the box. It only ever breaks a word that
+	 * cannot fit on a line of its own, so ordinary labels still wrap at their spaces. */
+	.control-wrap {
+		overflow-wrap: anywhere;
 	}
 
 	/* ---- the Folder --------------------------------------------------
@@ -520,7 +582,7 @@
 		filter: drop-shadow(var(--folder-shadow) var(--folder-shadow) 0 var(--border));
 	}
 
-	@media (width <=40rem) {
+	@media (width <= 40rem) {
 		.folder {
 			/* Proportional at 375px, and it stops eating the gutter. */
 			--folder-shadow: 5px;
@@ -805,7 +867,7 @@
 		pointer-events: none;
 	}
 
-	@media (width >=40rem) {
+	@media (width >= 40rem) {
 		.dither-field {
 			inset-inline: -2rem;
 		}
@@ -836,7 +898,7 @@
 		pointer-events: none;
 	}
 
-	@media (width <=48rem) {
+	@media (width <= 48rem) {
 		.ribbon {
 			block-size: 300px;
 		}
@@ -1066,10 +1128,24 @@
 		box-shadow: var(--shadow-xl);
 	}
 
-	@media (width <=40rem) {
+	@media (width <= 40rem) {
 		.daw {
 			--bar: 9rem;
 			--gutter: 7rem;
+		}
+	}
+
+	/* Below 23rem the strip runs full bleed, the way the contact form's panel already does
+	 * at its own narrow breakpoint: the inline keylines and the offset shadow go, the ground
+	 * and the top and bottom keylines stay. At 320 the 112px lane gutter plus the 192px a
+	 * clip needs is 304px against a 272px scrollport, so the newest work, the one the
+	 * playhead points at, lost its title and its description under the edge marker at rest.
+	 * Full bleed gives the scrollport the whole 320 and every clip keeps its honest width. */
+	@media (width <= 23rem) {
+		.daw {
+			margin-inline: -1.25rem;
+			border-inline: 0;
+			box-shadow: none;
 		}
 	}
 
@@ -1311,7 +1387,7 @@
 		transition: border-inline-start-color 90ms cubic-bezier(0, 0, 0.58, 1);
 	}
 
-	@media (width <=40rem) {
+	@media (width <= 40rem) {
 		.daw-edge-mark {
 			/* 28px of the 215px of track visible beside the gutter, so 13%. Worth it on the
 			 * one viewport where 937px of the arrangement is genuinely hidden. */
@@ -1335,6 +1411,13 @@
 		.daw-edge-mark {
 			opacity: 1;
 		}
+	}
+	/* The same condition, published by `DawEdge` for the engines that drop the query above.
+	 * Firefox and Safari implement neither `container-type: scroll-state` nor the query, so
+	 * without this the base `opacity: 0` stands and an iPhone reader is never told that
+	 * three quarters of the arrangement is off to the right. */
+	.daw[data-more="true"] .daw-edge-mark {
+		opacity: 1;
 	}
 
 	/* The one thing a keyboard reader gets that the focus outline does not say: this edge
@@ -1578,14 +1661,13 @@
 		padding: var(--panel-pad);
 	}
 
-	@media (width >=40rem) {
+	@media (width >= 40rem) {
 		.form-panel {
 			--panel-pad: 2rem;
 		}
 	}
 
 	@media (width < 40rem) {
-
 		/* Cloudflare's widget has a hard 300px floor at data-size="flexible", and the size is
 		 * read once when the widget mounts, so it cannot be swapped responsively. Inside the
 		 * shell at 375 this panel offers 279px of clear width. Taking the whole viewport
@@ -1845,7 +1927,7 @@
 
 	/* The addresses and the registration numbers are a block of facts, not prose, so they sit
 	 * tight to each other rather than a paragraph apart. */
-	.legal-prose p+p {
+	.legal-prose p + p {
 		margin-block-start: 0;
 	}
 
@@ -1859,7 +1941,7 @@
 		padding: calc(var(--spacing) * 12) calc(var(--spacing) * 5);
 	}
 
-	@media (width >=40rem) {
+	@media (width >= 40rem) {
 		.site-footer {
 			padding-inline: calc(var(--spacing) * 8);
 		}
@@ -1871,7 +1953,7 @@
 		align-items: start;
 	}
 
-	@media (width >=48rem) {
+	@media (width >= 48rem) {
 		.footer-columns {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
 		}
@@ -1898,7 +1980,19 @@
 
 	/* Underlined at rest, not on hover: on a black ground with no colour to spare, the
 	 * underline is what says "link" before anyone points at anything. */
+	/* A bare inline anchor's hit box is its glyph box, 20px here and 18px on the credit, so
+	 * every link in the footer sat under the 24px floor with 16px of dead ground between
+	 * neighbours: a miss landed on nothing.
+	 *
+	 * `inline-block` with a quarter-rem of padding and the same negative margin makes a 32px
+	 * box on the same 36px pitch, so the underline, the colour and the rhythm are unchanged
+	 * and only the target grows. Not 0.375rem: an inline-block's box is the 24px line box,
+	 * so that would give 36px boxes that touch, and a miss would land on the next link
+	 * instead of on nothing, which is worse. */
 	.footer-link {
+		display: inline-block;
+		padding-block: 0.25rem;
+		margin-block: -0.25rem;
 		font-family: var(--font-sans);
 		text-decoration-line: underline;
 		text-decoration-thickness: 2px;
@@ -1912,7 +2006,7 @@
 		margin: 0;
 	}
 
-	@media (width >=48rem) {
+	@media (width >= 48rem) {
 		.footer-mail-row {
 			margin-block-start: calc(var(--spacing) * 8);
 		}
@@ -1939,6 +2033,14 @@
 		font-family: var(--font-mono);
 		font-size: 0.75rem;
 		color: var(--dust);
+	}
+	/* The credit's own link, 12px type and an 18px box, given the same cushion as the
+	 * others. The row is a wrapping flex, so the negative margin keeps the line height it
+	 * always had. */
+	.footer-credit a {
+		display: inline-block;
+		padding-block: 0.25rem;
+		margin-block: -0.25rem;
 	}
 
 	.footer-sep {

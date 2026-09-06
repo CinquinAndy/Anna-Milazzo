@@ -1,3 +1,4 @@
+import { DawEdge } from '@/components/daw-edge'
 import { SectionTitle } from '@/components/section-title'
 import { arrange } from '@/lib/timeline/span'
 import type { Home } from '@/payload-types'
@@ -104,15 +105,12 @@ export function Timeline({ timeline, scrollLabel }: { timeline: Home['timeline']
 							    1700px, and 74% of it is off-screen on a phone, where two of the five
 							    lanes render as completely empty track. This says the strip continues,
 							    and it says it only while it is true: its presence is a scroll-state
-							    query on the strip itself, so it is drawn when there is arrangement to
-							    the right and gone when there is not. Inside the scroller, because
-							    that is what the query can reach, and sticky so a drag cannot carry it
-							    away from the edge it describes. */}
-							<span className="daw-edge" aria-hidden="true">
-								<span className="daw-edge-mark">
-									<span className="daw-edge-arrow" />
-								</span>
-							</span>
+							    query on the strip itself, with a JavaScript fallback for the engines
+							    that cannot answer it, so it is drawn when there is arrangement to the
+							    right and gone when there is not. Inside the scroller, because that is
+							    what the query can reach, and sticky so a drag cannot carry it away
+							    from the edge it describes. */}
+							<DawEdge />
 						</div>
 					</section>
 				</div>

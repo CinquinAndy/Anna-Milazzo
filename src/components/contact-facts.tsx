@@ -64,7 +64,7 @@ export function ContactFacts({ copy, settings }: { copy: Contact; settings: Sett
 											href={link.url}
 											target="_blank"
 											rel="noreferrer noopener"
-											className="control control-paper text-base"
+											className="control control-paper control-wrap text-base"
 										>
 											{link.label}
 										</a>

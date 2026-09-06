@@ -86,7 +86,7 @@ export function SiteFooter({
 					    says what it is by being pressable. */}
 					{email ? (
 						<p className="footer-mail-row">
-							<a href={`mailto:${email}`} className="control control-paper font-mono text-sm">
+							<a href={`mailto:${email}`} className="control control-paper control-wrap font-mono text-sm">
 								{email}
 							</a>
 						</p>

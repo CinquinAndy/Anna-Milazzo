@@ -69,7 +69,10 @@ export function ContactArrival({
 								{direct.note ? <p className="mt-3 font-sans text-base leading-relaxed">{direct.note}</p> : null}
 								{/* Set as a control so it is a press target, and as text so it can be
 								    copied by somebody who would rather paste it into their own client. */}
-								<a href={`mailto:${contactEmail}`} className="control control-accent mt-6 font-mono text-base">
+								<a
+									href={`mailto:${contactEmail}`}
+									className="control control-accent control-wrap mt-6 font-mono text-base"
+								>
 									{contactEmail}
 								</a>
 							</div>

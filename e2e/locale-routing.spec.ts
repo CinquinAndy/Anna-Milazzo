@@ -34,8 +34,23 @@ test.describe('locale routing', () => {
 	test('the switch marks the language already being served', async ({ page }) => {
 		await page.goto('/')
 
+		// Not the rendered text: below lg the control is drawn as "IT" and carries the full
+		// name for a screen reader only. What must hold is that the language is announced in
+		// full, so this reads what is left after the decoration is taken out. It cannot be
+		// an accessible-name assertion either, because the marker is a span and a span has
+		// no role that supports naming.
 		const current = page.locator('[data-language-switch] [aria-current="true"]')
-		await expect(current).toHaveText('Italiano')
+		const announced = await current.evaluate(el =>
+			[...el.childNodes]
+				.filter(node => !(node instanceof Element) || node.getAttribute('aria-hidden') !== 'true')
+				.map(node => node.textContent ?? '')
+				.join('')
+				.trim()
+		)
+		expect(announced, 'the current language is not announced in full').toBe('Italiano')
+
+		// The other locale is a link, which does carry a name, and it must be the full one.
+		await expect(page.locator('[data-language-switch] a')).toHaveAccessibleName('English')
 	})
 
 	test('Italian is not also reachable under /it', async ({ page }) => {
