@@ -452,8 +452,15 @@ export interface Home {
   };
   songs?: {
     heading?: string | null;
-    intro?: string | null;
     listenLabel?: string | null;
+    /**
+     * Names the control that steps back through the works. Announced, not drawn.
+     */
+    previousLabel?: string | null;
+    /**
+     * Names the control that steps forward through the works. Announced, not drawn.
+     */
+    nextLabel?: string | null;
     platformLabel?: string | null;
     pauseLabel?: string | null;
     /**
@@ -658,8 +665,9 @@ export interface HomeSelect<T extends boolean = true> {
     | T
     | {
         heading?: T;
-        intro?: T;
         listenLabel?: T;
+        previousLabel?: T;
+        nextLabel?: T;
         platformLabel?: T;
         pauseLabel?: T;
         seekLabel?: T;

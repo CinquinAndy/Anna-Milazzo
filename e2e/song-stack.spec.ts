@@ -1,4 +1,24 @@
-import { expect, test } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
+
+/** Matches PER_PAGE in src/components/song-pager.tsx. */
+const PER_PAGE = 3
+
+/**
+ * Runs `check` once for every page of works, stepping the pager between them.
+ *
+ * The stack is paginated, so a geometric assertion that reads the whole list at once
+ * measures the works that are `hidden` as zero-sized boxes and passes on nothing.
+ */
+async function eachPage(page: Page, check: (index: number) => Promise<void>) {
+	const buttons = page.locator('.song-pager-page')
+	const pages = await buttons.count()
+	for (let index = 0; index < Math.max(1, pages); index++) {
+		if (pages > 0) {
+			await buttons.nth(index).click()
+		}
+		await check(index)
+	}
+}
 
 /** The seeded order. `citta-alle-quattro` is the Song with no platform link. */
 const ORDER = [
@@ -28,9 +48,11 @@ test.describe('the Folder stack', () => {
 		await expect(page.locator('[role="tab"]')).toHaveCount(0)
 		await expect(page.locator('[role="tabpanel"]')).toHaveCount(0)
 
+		// A page of works, not the whole stack: the rest are `hidden`, so they are out of
+		// the accessibility tree as well as out of the picture.
 		const list = page.locator('[data-song-stack] ul')
-		await expect(list.getByRole('listitem')).toHaveCount(ORDER.length)
-		await expect(list.getByRole('article')).toHaveCount(ORDER.length)
+		await expect(list.getByRole('listitem')).toHaveCount(PER_PAGE)
+		await expect(list.getByRole('article')).toHaveCount(PER_PAGE)
 	})
 
 	test('a Song with no platform link shows no link', async ({ page }) => {
@@ -111,7 +133,7 @@ test.describe('the Folder stack', () => {
 			await expect(tape.nth(i)).toHaveAttribute('aria-hidden', 'true')
 		}
 
-		const strips = await page.locator('[data-song-stack] .tape').evaluateAll(nodes =>
+		const strips = await page.locator('[data-song-stack] li:not([hidden]) .tape').evaluateAll(nodes =>
 			nodes.map(node => {
 				const style = getComputedStyle(node)
 				const cover = node.parentElement?.querySelector('img')?.getBoundingClientRect()
@@ -125,7 +147,7 @@ test.describe('the Folder stack', () => {
 			})
 		)
 
-		expect(strips.length).toBe(ORDER.length * 2)
+		expect(strips.length).toBe(PER_PAGE * 2)
 		for (const strip of strips) {
 			expect(strip.transform, 'a tape strip is unrotated').not.toBe('none')
 			expect(strip.blend, 'tape must let the surface below show through').toBe('multiply')
@@ -137,16 +159,22 @@ test.describe('the Folder stack', () => {
 		expect(angles.size).toBeGreaterThan(1)
 	})
 
-	test('every Folder is fully visible with no overlap', async ({ page }) => {
+	test('every Folder on the page is fully visible with no overlap', async ({ page }) => {
 		await page.goto('/')
 
-		const boxes = await page
-			.locator('[data-song-stack] .folder')
-			.evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect()).map(b => ({ top: b.top, bottom: b.bottom })))
+		await eachPage(page, async pageIndex => {
+			const boxes = await page
+				.locator('[data-song-stack] li:not([hidden]) .folder')
+				.evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect()).map(b => ({ top: b.top, bottom: b.bottom })))
 
-		for (let i = 1; i < boxes.length; i++) {
-			expect(boxes[i]?.top ?? 0, `Folder ${i + 1} overlaps the one above it`).toBeGreaterThan(boxes[i - 1]?.bottom ?? 0)
-		}
+			expect(boxes.length, `page ${pageIndex + 1} shows no works`).toBeGreaterThan(0)
+			for (let i = 1; i < boxes.length; i++) {
+				expect(
+					boxes[i]?.top ?? 0,
+					`on page ${pageIndex + 1}, Folder ${i + 1} overlaps the one above it`
+				).toBeGreaterThan(boxes[i - 1]?.bottom ?? 0)
+			}
+		})
 	})
 
 	test('every tap target clears 24 by 24 pixels at 375px', async ({ page }) => {
@@ -154,14 +182,21 @@ test.describe('the Folder stack', () => {
 		await page.goto('/')
 		await page.evaluate(() => document.fonts.ready)
 
-		const small = await page.evaluate(() => {
-			const targets = document.querySelectorAll('[data-song-stack] a, [data-song-stack] button')
-			return [...targets]
-				.map(el => ({ box: el.getBoundingClientRect(), text: (el.textContent ?? '').slice(0, 30) }))
-				.filter(({ box }) => box.width < 24 || box.height < 24)
-				.map(({ box, text }) => `${text}: ${Math.round(box.width)}x${Math.round(box.height)}`)
+		await eachPage(page, async pageIndex => {
+			const small = await page.evaluate(() => {
+				// `:not([hidden])` on the item, so the works off the page are not measured
+				// as zero-sized. The pager's own controls are outside the list and so are
+				// always included.
+				const targets = document.querySelectorAll(
+					'[data-song-stack] li:not([hidden]) a, [data-song-stack] li:not([hidden]) button, .song-pager button'
+				)
+				return [...targets]
+					.map(el => ({ box: el.getBoundingClientRect(), text: (el.textContent ?? '').slice(0, 30) }))
+					.filter(({ box }) => box.width < 24 || box.height < 24)
+					.map(({ box, text }) => `${text}: ${Math.round(box.width)}x${Math.round(box.height)}`)
+			})
+			expect(small, `tap targets below 24x24 on page ${pageIndex + 1}`).toEqual([])
 		})
-		expect(small, 'tap targets below 24x24').toEqual([])
 	})
 })
 
@@ -170,6 +205,8 @@ test('a Song created in the admin, with no seed handle, still gets a player', as
 
 	// `reference` is a seed handle hidden from the admin, so Anna's own Songs have none.
 	// Every Folder must carry a play control regardless of where the Song came from.
+	// Counted from the document, not the page: a Folder that never gets a play control
+	// is a bug whether or not it happens to be on the first page.
 	const folders = page.locator('[data-song-stack] .folder')
 	const count = await folders.count()
 

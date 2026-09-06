@@ -396,6 +396,71 @@
 		color: var(--magenta-foreground);
 	}
 
+	/* ---- the works pager ----------------------------------------------
+	 * Built on .nav-pill because it is the same object as the header's: a small mono
+	 * control that has to hold a row of siblings at 375px. It sits below the works,
+	 * where you arrive from reading them.
+	 *
+	 * Cantaloupe is behind it, so the pills keep their sheet fill and read as paper
+	 * laid on the field rather than as holes cut in it. */
+	.song-pager {
+		display: flex;
+		flex-wrap: wrap;
+		/* Stretch, not center: the arrows hold a 10px triangle and the numbers hold a
+		 * line of type, so centring leaves the two arrows visibly short of the pills
+		 * between them. */
+		align-items: stretch;
+		gap: calc(var(--spacing) * 2);
+		/* A keyline across the shell, so the strip reads as the end of the works rather
+		 * than as four loose pills dropped on the field. */
+		border-block-start: var(--border-brutal) solid var(--border);
+		padding-block-start: calc(var(--spacing) * 5);
+	}
+
+	.song-pager-step {
+		/* The triangle is 8px wide against the pills' 2ch of type, so the padding is
+		 * squared up by hand or the two arrows read as narrower than the numbers. */
+		padding-inline: calc(var(--spacing) * 3.5);
+	}
+
+	.song-pager-page {
+		justify-content: center;
+		/* Two digits at a fixed width, so stepping through the pages does not reflow
+		 * the row under the finger that is stepping. */
+		min-width: calc(var(--spacing) * 9);
+	}
+
+	/* The page you are on is not somewhere you can go, so it stops reading as a
+	 * control. Filled rather than outlined: at this size a 2px keyline change is not
+	 * a state anybody notices. */
+	.song-pager-page[aria-current="page"] {
+		background-color: var(--ink);
+		color: var(--sheet);
+	}
+
+	/* The ends of the run. Still focusable and still announced, because a button that
+	 * goes inert under the finger that pressed it drops focus to the body: it is the
+	 * press that does nothing, not the button that disappears. */
+	.song-pager-step[aria-disabled="true"] {
+		background-color: var(--dust);
+		box-shadow: 0 0 0 0 var(--border);
+		color: color-mix(in oklab, var(--ink) 45%, var(--dust));
+		cursor: default;
+	}
+	.song-pager-step[aria-disabled="true"]:hover,
+	.song-pager-step[aria-disabled="true"]:active {
+		transform: none;
+		box-shadow: 0 0 0 0 var(--border);
+	}
+
+	/* The list takes focus when the page changes, which is how the new page's first
+	 * work gets scrolled to the top and how a screen reader is put at the start of
+	 * what changed. It cannot be reached by tabbing, so the outline would only ever
+	 * be a 3px blue box drawn round the whole stack on the way past. */
+	.song-list:focus {
+		outline: none;
+	}
+
 	/* The sticky bar must never land on the heading an anchor jumped to. */
 	[id] {
 		scroll-margin-block-start: 5rem;

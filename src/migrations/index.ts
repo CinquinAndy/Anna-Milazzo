@@ -12,6 +12,8 @@ import * as migration_20260905_202229_drop_cta_badge from './20260905_202229_dro
 import * as migration_20260905_213339_contact_page from './20260905_213339_contact_page';
 import * as migration_20260905_220003_footer_headings from './20260905_220003_footer_headings';
 import * as migration_20260905_221112_drop_check_label from './20260905_221112_drop_check_label';
+import * as migration_20260905_235515_add_songs_pager_labels from './20260905_235515_add_songs_pager_labels';
+import * as migration_20260905_235525_drop_songs_intro from './20260905_235525_drop_songs_intro';
 
 export const migrations = [
   {
@@ -82,6 +84,16 @@ export const migrations = [
   {
     up: migration_20260905_221112_drop_check_label.up,
     down: migration_20260905_221112_drop_check_label.down,
-    name: '20260905_221112_drop_check_label'
+    name: '20260905_221112_drop_check_label',
+  },
+  {
+    up: migration_20260905_235515_add_songs_pager_labels.up,
+    down: migration_20260905_235515_add_songs_pager_labels.down,
+    name: '20260905_235515_add_songs_pager_labels',
+  },
+  {
+    up: migration_20260905_235525_drop_songs_intro.up,
+    down: migration_20260905_235525_drop_songs_intro.down,
+    name: '20260905_235525_drop_songs_intro'
   },
 ];

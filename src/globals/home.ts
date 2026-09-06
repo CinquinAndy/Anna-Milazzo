@@ -74,12 +74,35 @@ export const Home: GlobalConfig = {
 			label: { en: 'Works', it: 'Brani' },
 			fields: [
 				{ name: 'heading', type: 'text', localized: true, label: { en: 'Heading', it: 'Titolo' } },
-				{ name: 'intro', type: 'textarea', localized: true, label: { en: 'Intro', it: 'Introduzione' } },
 				{
 					name: 'listenLabel',
 					type: 'text',
 					localized: true,
 					label: { en: 'Play control label', it: 'Etichetta del comando di ascolto' },
+				},
+				{
+					name: 'previousLabel',
+					type: 'text',
+					localized: true,
+					label: { en: 'Previous page control', it: 'Comando pagina precedente' },
+					admin: {
+						description: {
+							en: 'Names the control that steps back through the works. Announced, not drawn.',
+							it: 'Dà un nome al comando che torna indietro fra i brani. Viene annunciato, non disegnato.',
+						},
+					},
+				},
+				{
+					name: 'nextLabel',
+					type: 'text',
+					localized: true,
+					label: { en: 'Next page control', it: 'Comando pagina successiva' },
+					admin: {
+						description: {
+							en: 'Names the control that steps forward through the works. Announced, not drawn.',
+							it: 'Dà un nome al comando che avanza fra i brani. Viene annunciato, non disegnato.',
+						},
+					},
 				},
 				{
 					name: 'platformLabel',

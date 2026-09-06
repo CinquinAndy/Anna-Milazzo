@@ -131,7 +131,8 @@ type HomeCopy = {
 	skills: { heading: string; entries: readonly string[] }
 	songs: {
 		heading: string
-		intro: string
+		previousLabel: string
+		nextLabel: string
 		listenLabel: string
 		platformLabel: string
 		pauseLabel: string
@@ -173,7 +174,8 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 		},
 		songs: {
 			heading: 'Ascolta',
-			intro: 'Cinque brani, dal più recente. Si ascoltano qui, senza andare da nessun’altra parte.',
+			previousLabel: 'Brani precedenti',
+			nextLabel: 'Brani successivi',
 			listenLabel: 'Ascolta',
 			platformLabel: 'Ascolta sulla piattaforma',
 			pauseLabel: 'Pausa',
@@ -242,7 +244,8 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 		},
 		songs: {
 			heading: 'Listen',
-			intro: 'Five pieces, most recent first. They play here. You do not have to go anywhere else.',
+			previousLabel: 'Previous works',
+			nextLabel: 'Next works',
 			listenLabel: 'Play',
 			platformLabel: 'Listen on the platform',
 			pauseLabel: 'Pause',
