@@ -75,6 +75,7 @@
 	/* ---- brand palette aliases (tied to semantic tokens for live reactivity) */
 	/* #000000 */
 	--ink: oklch(0 0 0);
+	/* biome-ignore lint/suspicious/noDuplicateCustomProperties: fallback required by og-palette contract while cascading from var(--foreground) */
 	--ink: var(--foreground);
 
 	/* #FEE5DB. Warmed off the near-white #F7F6EC the first build used */
@@ -737,6 +738,7 @@
 		block-size: 18rem;
 		padding: calc(var(--spacing) * 4);
 		border: var(--border-brutal) solid var(--border);
+		border-radius: var(--radius);
 		background-color: var(--foreground);
 		box-shadow: var(--shadow-lg);
 	}
@@ -756,6 +758,7 @@
 		gap: calc(var(--spacing) * 4);
 		padding: calc(var(--spacing) * 4);
 		border: var(--border-brutal) solid var(--border);
+		border-radius: var(--radius);
 		background-color: var(--card);
 		box-shadow: var(--shadow-md);
 	}
@@ -952,6 +955,7 @@
 		inline-size: 100%;
 		block-size: 5.5rem;
 		border: var(--border-brutal) solid var(--border);
+		border-radius: var(--radius);
 		background-color: var(--card);
 		box-shadow: var(--shadow-lg);
 	}
@@ -1539,6 +1543,7 @@
 		inline-size: 5.5rem;
 		block-size: 5.5rem;
 		border: var(--border-brutal) solid var(--border);
+		border-radius: var(--radius);
 		background-color: var(--primary);
 		color: var(--primary-foreground);
 		box-shadow: var(--shadow-md);
@@ -1679,6 +1684,7 @@
 		--panel-pad: 1.25rem;
 		position: relative;
 		border: var(--border-brutal) solid var(--border);
+		border-radius: var(--radius);
 		background-color: var(--muted);
 		box-shadow: var(--shadow-lg);
 		padding: var(--panel-pad);
@@ -1737,6 +1743,7 @@
 	.field-box {
 		inline-size: 100%;
 		border: var(--border-brutal) solid var(--input);
+		border-radius: var(--radius);
 		background-color: var(--card);
 		color: var(--foreground);
 		box-shadow: var(--shadow-md);
@@ -1839,6 +1846,7 @@
 		gap: calc(var(--spacing) * 3);
 		margin-block-end: calc(var(--spacing) * 7);
 		border: var(--border-brutal) solid var(--border);
+		border-radius: var(--radius);
 		background-color: var(--card);
 		color: var(--foreground);
 		box-shadow: var(--shadow-lg);
