@@ -16,7 +16,7 @@ export default function proxy(request: NextRequest) {
 	// rather than pages, they are the only address Next emits for them, and no human ever
 	// sees one: what sees them is a scraper unfurling a link, and several of those will not
 	// follow a redirect on `og:image` at all, which shows as a link with no card.
-	if (/^\/it\/(opengraph|twitter)-image/.test(pathname)) {
+	if (/^\/it\/(?:.*\/)?(opengraph|twitter)-image/.test(pathname)) {
 		return NextResponse.next()
 	}
 
