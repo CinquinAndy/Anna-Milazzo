@@ -272,6 +272,46 @@ function settingsData(
 	}
 }
 
+/**
+ * The one thing standing between this script and Anna's live site.
+ *
+ * `updateGlobal` replaces a global outright, so running this against the database the site
+ * is actually served from would overwrite every word she has written in the panel: her
+ * hero, her story, her works, her contact copy, her legal notice, back to the placeholder
+ * text this repository ships with. There are no drafts and no versions, so there would be
+ * nothing to restore from.
+ *
+ * The site went live with this content, which means there is no longer any database where
+ * running this is harmless. It is kept because it is how the site was built and how a new
+ * environment would be filled, and it refuses to run without somebody saying, in the
+ * command itself, that they mean it.
+ */
+const CONSENT = 'SEED_OVERWRITE_LIVE_CONTENT'
+
+function refuseUnlessMeant(): void {
+	if (process.env[CONSENT] === 'yes') {
+		return
+	}
+	console.error(
+		[
+			'',
+			'  Refusing to seed.',
+			'',
+			'  This replaces every global outright: the landing page, the contact page, the',
+			'  legal notice and the settings, in both languages, plus the five placeholder',
+			'  works. Anything Anna has written in the admin panel is gone, and there are no',
+			'  drafts and no versions to restore from.',
+			'',
+			'  The site is live on this database. If you are filling a NEW environment and',
+			'  that is really what you want:',
+			'',
+			`    ${CONSENT}=yes bun run seed`,
+			'',
+		].join('\n')
+	)
+	process.exit(1)
+}
+
 export async function seed(): Promise<void> {
 	const payload = await getPayload({ config })
 
@@ -329,4 +369,5 @@ export async function seed(): Promise<void> {
 	payload.logger.info('seed complete')
 }
 
+refuseUnlessMeant()
 await seed()

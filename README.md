@@ -29,9 +29,17 @@ bun run dev
 The portfolio is at http://localhost:3000 and the Payload admin at
 http://localhost:3000/admin, where the first visit offers to create the first user.
 
-`bun run seed` fills the database with the placeholder content, five works, the timeline,
-every string on the page in both languages. It is upsert-only and never deletes, because
-`DATABASE_URL` may well point at a shared database.
+`bun run seed` fills a NEW database with the placeholder content, five works, the
+timeline, every string on the page in both languages.
+
+**It refuses to run without being told to.** The site is live on this database, and the
+seed replaces every global outright, so running it would overwrite whatever Anna has since
+written in the panel and put the placeholder text back. There are no drafts and no
+versions, so nothing could be restored. If you are genuinely filling a new environment:
+
+```bash
+SEED_OVERWRITE_LIVE_CONTENT=yes bun run seed
+```
 
 ## Environment
 
@@ -120,7 +128,7 @@ uses them.
 | `bun run migrate` | Apply pending migrations |
 | `bun run migrate:create <name>` | Generate a migration from the current Payload config |
 | `bun run migrate:status` | What has run and what has not |
-| `bun run seed` | Fill the database with placeholder content |
+| `bun run seed` | Fill a NEW database with placeholder content. Refuses without `SEED_OVERWRITE_LIVE_CONTENT=yes`, because it would overwrite the live site |
 | `bun run generate:types` | Rewrite `src/payload-types.ts` |
 | `bun run generate:importmap` | Rewrite the admin import map |
 
