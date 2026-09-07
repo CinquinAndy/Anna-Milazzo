@@ -12,6 +12,14 @@ import { type NextRequest, NextResponse } from 'next/server'
 export default function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl
 
+	// Except the generated metadata images. Those are real routes on the `[lang]` tree
+	// rather than pages, they are the only address Next emits for them, and no human ever
+	// sees one: what sees them is a scraper unfurling a link, and several of those will not
+	// follow a redirect on `og:image` at all, which shows as a link with no card.
+	if (/^\/it\/(opengraph|twitter)-image/.test(pathname)) {
+		return NextResponse.next()
+	}
+
 	// `/it/*` is not a public URL. Italian has no prefix, so serving it at a second
 	// address would publish every page twice. 307 rather than 308 while the URL shape
 	// is still young: ADR-0001 notes it is expensive to reverse once indexed, and a
