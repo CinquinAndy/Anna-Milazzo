@@ -90,7 +90,7 @@ export function About({ about }: { about: Home['about'] }) {
 							aria-hidden="true"
 							className="tape tape-on-colour -top-3 right-8 z-10 [--tape-tint:var(--lemon)] rotate-[36deg]"
 						/>
-						<Score className="block w-full rotate-[1.4deg] drop-shadow-[10px_10px_0_var(--ink)]" />
+						<Score className="block w-full rotate-[1.4deg] drop-shadow-[10px_10px_0_var(--border)]" />
 						<Ornament
 							kind="sparkle"
 							tone="magenta"
