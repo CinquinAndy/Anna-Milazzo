@@ -1,5 +1,10 @@
 # The panel, explained to Anna
 
+`guida-anna.html` is the two guides as one page with a language switch, which is the form
+Anna actually receives. It is generated from the two Markdown files, so edit those and
+rebuild rather than editing the HTML. It carries the site's own palette and its three
+faces, and it has no dark mode for the same reason the site has none (ADR-0004).
+
 `it.md` is the one that matters: Anna is Italian and edits in Italian. `en.md` is the same
 guide, written as an English document rather than translated from it.
 
