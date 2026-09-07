@@ -8,6 +8,11 @@ import { expect, type Page, test } from '@playwright/test'
 const VIEWPORTS = [
 	[320, 568],
 	[360, 740],
+	// 640 and 768 are Tailwind's own sm: and md: edges. They are in the list because the
+	// stylesheet's hand-written queries used to be inclusive there, so at exactly those two
+	// widths a phone rule and a desktop rule both applied.
+	[640, 900],
+	[768, 900],
 	[375, 667],
 	[390, 844],
 	[430, 932],
