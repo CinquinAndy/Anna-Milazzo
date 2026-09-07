@@ -31,7 +31,7 @@ export function ContactDesk({
 		<section
 			data-enter
 			aria-labelledby="scrivetemi"
-			className="relative overflow-hidden border-b-brutal border-border bg-accent text-accent-foreground"
+			className="relative overflow-clip border-b-brutal border-border bg-accent text-accent-foreground"
 		>
 			{copy.form?.heading ? <SectionTitle id="scrivetemi">{copy.form.heading}</SectionTitle> : null}
 

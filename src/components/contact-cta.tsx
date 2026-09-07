@@ -25,7 +25,7 @@ export function ContactCta({ cta, locale }: { cta: Home['contactCta']; locale: L
 	return (
 		<section data-enter className="relative px-5 py-14 sm:px-8 md:py-20">
 			<div className="shell">
-				<div className="cta-block relative overflow-hidden border-brutal border-border bg-magenta text-magenta-foreground shadow-2xl">
+				<div className="cta-block relative overflow-clip border-brutal border-border bg-magenta text-magenta-foreground shadow-2xl">
 					{/* First child, so it paints under the ornaments rather than over them:
 					    between positioned siblings the later one wins. */}
 					<DitherPanel />

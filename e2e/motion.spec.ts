@@ -31,27 +31,26 @@ test.describe('motion', () => {
 		}
 	})
 
-	test('the Folder lifts on hover under the same rule', async ({ page }) => {
+	test('the Folder does not lift on hover, its controls do', async ({ page }) => {
 		await page.goto('/')
 
 		const folder = page.locator('[data-song="notturno-per-tram-vuoto"]')
-		const resting = await folder.evaluate(el => ({
-			transform: getComputedStyle(el).transform,
-			filter: getComputedStyle(el).filter,
-			duration: getComputedStyle(el).transitionDuration,
-		}))
-		expect(resting.transform).toBe('none')
-		expect(resting.duration).toBe('0.09s, 0.09s')
+		const resting = await folder.evaluate(el => getComputedStyle(el).transform)
+		expect(resting).toBe('none')
 
 		await folder.hover()
-		await expect
-			.poll(async () => folder.evaluate(el => getComputedStyle(el).transform))
-			.toBe('matrix(1, 0, 0, 1, -2, -2)')
+		await page.waitForTimeout(200)
 
-		// Lifted away from the shadow, and the shadow grows to match.
-		const lifted = await folder.evaluate(el => getComputedStyle(el).filter)
-		expect(lifted).not.toBe(resting.filter)
-		expect(lifted).toContain('drop-shadow')
+		// A Folder is not a control: there is nothing to press on the card itself, so
+		// lifting it promised an interaction that does not exist, and it compounded, since
+		// entering the card shifted every child by 2px and then landing on a button shifted
+		// that button another 2px. The reasoning is at globals.css, on `.folder` itself.
+		expect(await folder.evaluate(el => getComputedStyle(el).transform), 'the card lifted').toBe('none')
+
+		// The press gesture belongs to the things you can actually press.
+		const control = folder.locator('.control, [data-play]').first()
+		await control.hover()
+		await expect.poll(async () => control.evaluate(el => getComputedStyle(el).transform)).not.toBe('none')
 	})
 
 	test('section entrances are declared inside a reduced-motion-safe query', async ({ page }) => {

@@ -44,7 +44,12 @@ export function Hero({
 	return (
 		<section
 			data-enter
-			className="relative flex flex-col overflow-hidden border-b-brutal border-border bg-primary px-5 py-16 sm:px-8 md:min-h-[calc(100svh-var(--header-h))] md:justify-between md:py-14"
+			// `overflow-clip`, not `overflow-hidden`, per ADR-0009: hidden makes this a scroll
+			// container and `view()` resolves against the nearest one, so any scroll-driven
+			// animation put inside here later would sit frozen at its end value with no error
+			// to say so. Clip crops the dithered field at the same edge and creates no
+			// scroller.
+			className="relative flex flex-col overflow-clip border-b-brutal border-border bg-primary px-5 py-16 sm:px-8 md:min-h-[calc(100svh-var(--header-h))] md:justify-between md:py-14"
 		>
 			{/* First child, and absolutely positioned over the whole section: the bars are
 			    anchored to its foot and rise toward the middle, passing behind the keyboard so

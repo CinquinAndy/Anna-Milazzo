@@ -31,7 +31,7 @@ export function ContactArrival({
 		<section
 			data-enter
 			aria-labelledby="contatti"
-			className="relative overflow-hidden border-b-brutal border-border bg-primary text-primary-foreground"
+			className="relative overflow-clip border-b-brutal border-border bg-primary text-primary-foreground"
 		>
 			{/* First child, so it paints under the ornaments rather than over them. Darkening
 			    rather than lightening, because the type here is sheet: measured, lightening the

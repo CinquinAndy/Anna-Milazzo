@@ -50,7 +50,6 @@ const COLOUR_TOKENS = [
 	'--border',
 	'--input',
 	'--ring',
-	'--decor-lime',
 	'--chart-1',
 	'--chart-2',
 	'--chart-3',
@@ -147,8 +146,9 @@ test.describe('the theme layer', () => {
 		await is('--accent', 'oklch(0.7803 0.1196 44.76)')
 		// Cantaloupe carries black type only: 2.08:1 against white.
 		await is('--accent-foreground', 'oklch(0 0 0)')
-		// Warm paper, never pure white.
-		await is('--background', 'oklch(0.9711 0.0125 92)')
+		// Warm paper, never pure white. --background is --paper, and --paper moved when the
+		// palette was rebuilt around the band argument; this held the value it had before.
+		await is('--background', 'oklch(0.94 0.03 44.76)')
 		// Every keyline is black.
 		await is('--border', 'oklch(0 0 0)')
 		// Focus is the blue, not the black keyline.
