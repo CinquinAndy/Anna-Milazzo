@@ -43,6 +43,9 @@ export default async function FrontendLayout({
 
 	return (
 		<html lang={lang} className={fontVariables}>
+			<head>
+				<script async crossOrigin="anonymous" src="https://tweakcn.com/live-preview.min.js" />
+			</head>
 			<body>
 				<HeaderHeight />
 				<AudioEngine>{children}</AudioEngine>
