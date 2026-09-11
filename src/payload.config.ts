@@ -14,7 +14,7 @@ import { Contact } from './globals/contact'
 import { Home } from './globals/home'
 import { Legals } from './globals/legals'
 import { Settings } from './globals/settings'
-import { r2Storage } from './lib/storage'
+import { storagePlugins } from './lib/storage'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -56,7 +56,10 @@ export default buildConfig({
 		fallbackLanguage: 'it',
 	},
 	secret: process.env.PAYLOAD_SECRET ?? '',
-	plugins: [r2Storage],
+	// The bucket when it is configured, nothing when it is not: a clone with no credentials
+	// and a CI run both fall back to Payload's own local disk rather than failing at the
+	// first upload. See src/lib/storage.ts.
+	plugins: storagePlugins,
 	sharp,
 	// A file over this size is refused with a visible error and no record is written.
 	// Deliberately below Next's `proxyClientMaxBodySize`, so the limit that fails loudly

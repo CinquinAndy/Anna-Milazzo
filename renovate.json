@@ -1,0 +1,68 @@
+{
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["config:recommended", ":dependencyDashboard", ":semanticCommits"],
+	"timezone": "Europe/Paris",
+	"schedule": ["before 6am on monday"],
+	"prConcurrentLimit": 4,
+	"prHourlyLimit": 2,
+	"rangeStrategy": "pin",
+	"labels": ["dependencies"],
+	"postUpdateOptions": ["bunlock"],
+	"lockFileMaintenance": {
+		"enabled": true,
+		"schedule": ["before 6am on the first day of the month"],
+		"automerge": true
+	},
+	"packageRules": [
+		{
+			"description": "Never merge a major on its own. A major is a reading job, and the dashboard is where it waits.",
+			"matchUpdateTypes": ["major"],
+			"automerge": false,
+			"addLabels": ["major"]
+		},
+		{
+			"description": "Payload is one product across six packages and they must move together; a mismatch does not build. Manual because a Payload minor can carry a schema change, which needs a migration rather than a merge.",
+			"matchPackageNames": ["payload", "@payloadcms/**"],
+			"groupName": "payload",
+			"automerge": false
+		},
+		{
+			"description": "React and its types move together or the build disagrees with itself.",
+			"matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
+			"groupName": "react"
+		},
+		{
+			"description": "The Tailwind package and its postcss plugin are versioned in step.",
+			"matchPackageNames": ["tailwindcss", "@tailwindcss/postcss"],
+			"groupName": "tailwind"
+		},
+		{
+			"description": "Next is read by hand. This project pins it, the framework's own agent notes warn that its APIs move, and a bump here can change how every page is rendered.",
+			"matchPackageNames": ["next"],
+			"automerge": false,
+			"addLabels": ["needs a read"]
+		},
+		{
+			"description": "The toolchain cannot change what a visitor sees, only whether the gate is honest about it, and the gate runs on the same pull request. Patch and minor merge themselves once CI is green.",
+			"matchDepTypes": ["devDependencies"],
+			"matchUpdateTypes": ["patch", "minor"],
+			"automerge": true
+		},
+		{
+			"description": "Runtime dependencies merge themselves on a patch only, and only behind the render comparison, which fails a bot's pull request if a single element on any page moved.",
+			"matchDepTypes": ["dependencies"],
+			"matchUpdateTypes": ["patch"],
+			"automerge": true
+		},
+		{
+			"description": "Sharp compiles native binaries per platform and the build machine is not this laptop. Read it.",
+			"matchPackageNames": ["sharp"],
+			"automerge": false
+		}
+	],
+	"vulnerabilityAlerts": {
+		"description": "A security fix does not wait for Monday.",
+		"schedule": ["at any time"],
+		"labels": ["security"]
+	}
+}

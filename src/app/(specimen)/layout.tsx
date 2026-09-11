@@ -19,7 +19,17 @@ export default function SpecimenLayout({ children }: { children: ReactNode }) {
 	return (
 		<html lang="en" className={fontVariables}>
 			<head>
-				<script async crossOrigin="anonymous" src="https://tweakcn.com/live-preview.min.js" />
+				{/* The tweakcn live-preview tool, which lets the theme be edited from the browser
+					    against the running site. Behind a flag and off unless it is set, because it
+					    is a third party's script with full access to every page: it is not in the
+					    lockfile, Renovate cannot see it, whoever serves it can change what it does
+					    between one visitor and the next, and on the contact page the page it has
+					    access to is the one somebody is typing a message into.
+
+					    Turn it on for a session with NEXT_PUBLIC_TWEAKCN_PREVIEW=1 in .env.local. */}
+				{process.env.NEXT_PUBLIC_TWEAKCN_PREVIEW === '1' ? (
+					<script async crossOrigin="anonymous" src="https://tweakcn.com/live-preview.min.js" />
+				) : null}
 			</head>
 			<body>{children}</body>
 		</html>

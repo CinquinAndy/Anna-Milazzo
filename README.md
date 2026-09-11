@@ -41,6 +41,18 @@ versions, so nothing could be restored. If you are genuinely filling a new envir
 SEED_OVERWRITE_LIVE_CONTENT=yes bun run seed
 ```
 
+## The gate, and dependency updates
+
+`.github/workflows/ci.yml` runs the linter, the types, the unit tests, a production build
+and the end-to-end suite on every pull request, plus a render comparison that builds both
+sides and checks whether a single element on any page moved. `renovate.json` lets the
+toolchain and runtime patches merge themselves behind that gate and holds everything else
+for a read.
+
+Two steps are needed once and are not in the repository: installing the Renovate app, and
+marking the three checks required on `main`. Both are in
+[`docs/agents/ci-and-updates.md`](docs/agents/ci-and-updates.md).
+
 ## Environment
 
 | Variable | What it is for |

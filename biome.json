@@ -68,5 +68,17 @@
 				"noExplicitAny": "error"
 			}
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["scripts/**"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noConsole": "off"
+					}
+				}
+			}
+		}
+	]
 }
