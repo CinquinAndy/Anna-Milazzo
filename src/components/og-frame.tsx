@@ -59,6 +59,7 @@ export function OgFrame({ ground, domain, children }: { ground: string; domain: 
 			<div tw="flex w-full items-end" style={{ height: 92, gap: 7, padding: '0 12px', backgroundColor: OG.ink }}>
 				{BARS.map((height, index) => (
 					<div
+						// biome-ignore lint/suspicious/noArrayIndexKey: BARS is a fixed drawing, never reordered and never filtered, so a bar's position in it is its identity
 						key={`${index}-${height}`}
 						style={{
 							flex: 1,

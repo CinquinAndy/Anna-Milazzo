@@ -292,6 +292,9 @@ function refuseUnlessMeant(): void {
 	if (process.env[CONSENT] === 'yes') {
 		return
 	}
+	// The one place in this codebase that writes to a terminal on purpose: this runs before
+	// Payload exists, so there is no logger yet, and a refusal nobody sees is not a refusal.
+	// biome-ignore lint/suspicious/noConsole: the refusal has to reach whoever ran the script
 	console.error(
 		[
 			'',

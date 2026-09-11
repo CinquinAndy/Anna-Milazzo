@@ -19,7 +19,7 @@ const PILL_ROW = 1200 - 64 * 2 - 6
 
 const width = (label: string) => label.length * PILL_FONT * (MONO_ADVANCE + PILL_TRACKING) + PILL_CHROME
 
-const fit = (labels: readonly string[]) => {
+const rowOf = (labels: readonly string[]) => {
 	const taken: string[] = []
 	let used = 0
 	for (const label of labels) {
@@ -37,7 +37,7 @@ describe('the OG card row of disciplines', () => {
 	for (const locale of ['it', 'en'] as const) {
 		it(`takes at least two and never overruns the card in ${locale}`, () => {
 			const entries = SEED_HOME[locale].skills.entries
-			const taken = fit(entries)
+			const taken = rowOf(entries)
 
 			// Two is the floor at which the row still says more than one thing.
 			expect(taken.length, `only ${taken.length} pill(s) fit in ${locale}`).toBeGreaterThanOrEqual(2)
@@ -49,7 +49,7 @@ describe('the OG card row of disciplines', () => {
 
 	it('takes them in the order Anna set, never reordered to pack more in', () => {
 		const entries = SEED_HOME.it.skills.entries
-		const taken = fit(entries)
+		const taken = rowOf(entries)
 		expect(taken).toEqual(entries.slice(0, taken.length))
 	})
 })
