@@ -103,3 +103,9 @@ names it.
 which routes, and the two fingerprints are attached as an artifact. Download both and diff
 them to see exactly which properties changed. A dependency that changes the render is not
 automatically wrong, but it is never something to merge without looking.
+
+## Proved, not assumed
+
+The render comparison ran green on its own pull request before anyone relied on it, and
+the first real CI run found a test that had silently depended on the bucket being
+configured. Both are in the history.
