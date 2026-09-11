@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { hydrated } from './hydrated'
 
 const FIRST = 'notturno-per-tram-vuoto'
 const SECOND = 'perche-il-temporale'
@@ -128,6 +129,13 @@ test.describe('audio playback', () => {
 
 	test('the seek control is operable by keyboard', async ({ page }) => {
 		await page.goto('/')
+		// The one test on this page that cannot recover from arriving early. The range
+		// moves under the arrow keys with no JavaScript at all, and the `change` it fires
+		// is only heard once the listener is attached; a keystroke sent before then is
+		// lost, and pressing again will not produce a second `change` from a value that
+		// has already moved. Every other test here drives the player with a click, which
+		// Playwright retries until it lands.
+		await hydrated(page)
 
 		const seek = page.locator(`[data-seek="${FIRST}"]`)
 		await seek.focus()
