@@ -32,9 +32,25 @@ test.describe('the top of the landing page', () => {
 		expect(alt, 'the portrait has no alternative text').toBeTruthy()
 		expect(alt).toContain('Anna Milazzo')
 
-		// Served from the bucket's public domain, not proxied through the app.
 		const src = await portrait.getAttribute('src')
-		expect(src).not.toContain('/api/')
+
+		// ADR-0006: bytes come from the bucket's public domain and are never proxied through
+		// the app, because the app must not be the bandwidth bottleneck for a page whose
+		// point is playing audio. That only means anything where there IS a bucket: without
+		// the credentials, Payload falls back to local disk and serves the file itself, which
+		// is deliberate and is what lets CI and a fresh clone run at all. See
+		// src/lib/storage.ts.
+		const bucket = ['S3_BUCKET', 'S3_ENDPOINT', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY'].every(
+			key => (process.env[key] ?? '') !== ''
+		)
+		if (bucket) {
+			expect(src, 'the portrait is being proxied through the app').not.toContain('/api/')
+		} else {
+			expect(src, 'without a bucket the file should come from Payload itself').toContain('/api/')
+		}
+
+		// Never Next's image optimiser, bucket or no bucket: the covers are already the size
+		// they are drawn at and a second resize is a second copy to keep in step.
 		expect(src).not.toContain('/_next/image')
 	})
 
