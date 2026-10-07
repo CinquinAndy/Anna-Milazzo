@@ -2,7 +2,11 @@
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
 	"extends": ["config:recommended", ":dependencyDashboard", ":semanticCommits"],
 	"timezone": "Europe/Paris",
-	"schedule": ["before 6am on monday"],
+	"description": [
+		"All of Monday, not a narrow window inside it. A schedule is the time at which Renovate must itself be RUNNING to create a branch, not a window a pending update waits inside. The first version of this file said 'before 6am on monday'; the hosted app runs this repository a few times a day, never happened to run between midnight and 6am on a Monday, and so produced nothing at all for a month while the dashboard listed eighteen updates as 'Awaiting Schedule'. Twenty-four hours is wide enough to be hit and still batches everything into one day a week.",
+		"Same reasoning for lockFileMaintenance: the whole first day of the month, not the first six hours of it."
+	],
+	"schedule": ["* * * * 1"],
 	"prConcurrentLimit": 4,
 	"prHourlyLimit": 2,
 	"rangeStrategy": "pin",
@@ -10,7 +14,7 @@
 	"postUpdateOptions": ["bunlock"],
 	"lockFileMaintenance": {
 		"enabled": true,
-		"schedule": ["before 6am on the first day of the month"],
+		"schedule": ["* * 1 * *"],
 		"automerge": true
 	},
 	"packageRules": [
