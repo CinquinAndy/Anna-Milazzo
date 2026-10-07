@@ -135,13 +135,21 @@ export function ContactForm({
 				</div>
 
 				{/* `noValidate` keeps the server as the single validator, so every message stays in
-				    Anna's two languages rather than the browser's. */}
+				    Anna's two languages rather than the browser's.
+
+				    `data-replay-block` is for Umami's session recorder: set the instance's Block
+				    selector to `[data-replay-block]` and this subtree is never captured. Umami's
+				    default mask level already hides input values, but that is a setting on a
+				    server this repository does not control, and the legal notice promises that
+				    what you type here is not recorded. A promise should not rest on a remote
+				    default that someone can change by accident. */}
 				<form
 					action={action}
 					aria-labelledby="scrivetemi"
 					aria-describedby={form?.requiredNote ? `${ids}-required` : undefined}
 					className="form-fields"
 					data-contact-form
+					data-replay-block
 					noValidate
 				>
 					{form?.requiredNote ? (

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { AudioEngine } from '@/components/audio-engine'
 import { HeaderHeight } from '@/components/header-height'
+import { umamiScripts, umamiWebsiteId } from '@/lib/analytics'
 import { isLocale } from '@/lib/locale'
 import { SITE_ORIGIN } from '@/lib/site'
 import { fontVariables } from '../fonts'
@@ -55,6 +56,18 @@ export default async function FrontendLayout({
 				{process.env.NEXT_PUBLIC_TWEAKCN_PREVIEW === '1' ? (
 					<script async crossOrigin="anonymous" src="https://tweakcn.com/live-preview.min.js" />
 				) : null}
+
+				{/* Umami, self-hosted. The one allowed exception to the rule that nothing here
+					    loads code from another origin, and `src/lib/analytics.ts` says why. Absent
+					    entirely from a build with no website id, which is every build but production:
+					    that is what lets the test suite keep asserting the strict rule.
+
+					    In `<head>` of the layout rather than through `next/script`, because the layout
+					    does not re-render on a client navigation, so the tag is evaluated once per
+					    visit and Umami's own history hook reports the rest. */}
+				{umamiWebsiteId === null
+					? null
+					: umamiScripts.map(src => <script data-website-id={umamiWebsiteId} defer key={src} src={src} />)}
 			</head>
 			<body>
 				<HeaderHeight />
