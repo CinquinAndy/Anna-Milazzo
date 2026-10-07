@@ -123,9 +123,16 @@ jobs:
         with:
           bun-version-file: package.json
 
-      - name: Keep the comparison tools outside the working tree
-        # They are about to be checked out from under us: the base commit predates them.
-        run: cp scripts/render-fingerprint.mjs scripts/render-diff.mjs "$RUNNER_TEMP/"
+      - name: Keep a copy of the comparison tools that survives the checkout
+        # Two constraints at once. They are tracked on this branch and absent from the base,
+        # so `git checkout` of the base would delete them; and they import the project's
+        # Playwright, so they have to run from inside the working tree or Bun resolves its
+        # own global copy instead, whose browser is a different version and is not
+        # installed. An untracked file at the repository root satisfies both: checkout
+        # leaves it alone, and module resolution finds node_modules from there.
+        run: |
+          cp scripts/render-fingerprint.mjs ./.ci-render-fingerprint.mjs
+          cp scripts/render-diff.mjs ./.ci-render-diff.mjs
 
       - run: bun install --frozen-lockfile
       - name: Fill the database
@@ -142,7 +149,7 @@ jobs:
           bun run build
           PORT=3111 bun run start &
           npx --yes wait-on -t 120000 http://localhost:3111/
-          bun "$RUNNER_TEMP/render-fingerprint.mjs" "$RUNNER_TEMP/head.txt"
+          bun ./.ci-render-fingerprint.mjs "$RUNNER_TEMP/head.txt"
           kill %1
 
       - name: Measure the base it would merge into
@@ -151,10 +158,12 @@ jobs:
           # Reinstall: on a dependency pull request the whole point is that the two sides
           # have different packages, and a stale node_modules would compare nothing.
           bun install --frozen-lockfile
+          # The base may pin a different Playwright, and the browser is version-matched.
+          bunx playwright install --with-deps chromium
           bun run build
           PORT=3111 bun run start &
           npx --yes wait-on -t 120000 http://localhost:3111/
-          bun "$RUNNER_TEMP/render-fingerprint.mjs" "$RUNNER_TEMP/base.txt"
+          bun ./.ci-render-fingerprint.mjs "$RUNNER_TEMP/base.txt"
           kill %1
 
       - name: Compare
@@ -162,7 +171,7 @@ jobs:
         # Reported on every pull request, and only allowed to fail the run on a bot's,
         # because a person changing the design on purpose is not a regression.
         continue-on-error: ${{ github.actor != 'renovate[bot]' }}
-        run: bun "$RUNNER_TEMP/render-diff.mjs" "$RUNNER_TEMP/base.txt" "$RUNNER_TEMP/head.txt" "$GITHUB_STEP_SUMMARY"
+        run: bun ./.ci-render-diff.mjs "$RUNNER_TEMP/base.txt" "$RUNNER_TEMP/head.txt" "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         if: always()

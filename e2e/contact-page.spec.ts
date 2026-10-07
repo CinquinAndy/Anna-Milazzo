@@ -1,7 +1,15 @@
 import { expect, type Page, test } from '@playwright/test'
 
-/** Fills the form. The Turnstile test key solves itself, so no interaction is needed. */
+import { hydrated } from './hydrated'
+
+/**
+ * Fills the form. The Turnstile test key solves itself, so no interaction is needed.
+ *
+ * Hydration first: these are controlled inputs, and text typed into one before React owns
+ * it is text React never sees.
+ */
 async function fillForm(page: Page, message = 'Cerco musica per un cortometraggio.') {
+	await hydrated(page)
 	await page.getByLabel('Il vostro nome').fill('Giulia Ferrari')
 	await page.getByLabel('La vostra email').fill('giulia@example.com')
 	await page.getByLabel('Il messaggio').fill(message)
