@@ -3,7 +3,7 @@
 **What to fix:** `scripts/render-fingerprint.mjs` reports elements as changed when nothing
 changed, so the `Did the page change` job cannot be trusted as a gate.
 
-**Status:** open
+**Status:** resolved
 
 ## Why this matters now
 
@@ -76,3 +76,36 @@ and settling differently run to run is the widget's own mounting, not the site's
 Widening `TOLERANCE` in `scripts/render-diff.mjs` above `0`. The gate's entire value is that
 it reports one element out of 17,964; a tolerance that swallows five would swallow a real
 regression of the same size, and the two are indistinguishable from the count alone.
+
+## Comments
+
+Fixed, all three. `scripts/render-fingerprint.mjs`:
+
+- The four margin longhands are no longer recorded. They were redundant with the box, which
+  is recorded as `x`, `y`, `width`, `height` on the same row, and they were the only
+  properties ever observed to be unstable.
+- The walk stops at `[data-turnstile]`, so Cloudflare's widget and the divs it injects are
+  out of scope. The `.check-slot` above it is still recorded, which is the box that reserves
+  the height and therefore the one the layout depends on.
+- Each row now carries two hashes, geometry and style, and `render-diff.mjs` reports every
+  changed row as `geometry`, `style` or `both` with a count per kind. That is option 3, and
+  it is what makes the next false positive a two-minute question instead of a day.
+
+One real mistake on the way: the first attempt put `UNRELIABLE` and `FOREIGN` at module
+scope. `snapshot` is serialised and run inside the page by `page.evaluate`, so it closes
+over nothing from the file and the script died on every route. They live inside the function
+now, with a comment saying why.
+
+Measured after: 17,874 elements, down from 17,946, the 72 being the Turnstile subtrees
+across both contact routes and nine viewports. Two runs of one build: `Changed 0, gone 0,
+new 0`.
+
+**The limitation this accepts, stated plainly.** A margin change that moves no box at all is
+now invisible to this gate. That needs a margin on a last child whose parent does not size
+to its content; in every other case the margin moves either the element or a sibling, and
+the rect catches it. Widening `TOLERANCE` was and remains the wrong answer, for the reason
+above.
+
+**Still to prove.** Two runs of the *same* build were already clean before this change; the
+failure only ever appeared on CI, which builds both sides separately. The real verification
+is a CI run on a pull request, and that is what the pull request carrying this is for.

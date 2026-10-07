@@ -3,10 +3,14 @@
  *
  *   bun scripts/render-diff.mjs <base file> <head file> [markdown summary out]
  *
- * Exits 1 when anything differs. A handful of rows is the known floor: the hero's grid
- * row settles a fraction of a pixel differently depending on when the portrait decodes,
- * and that is noise rather than a regression, so TOLERANCE rows are allowed through and
- * reported.
+ * Exits 1 when anything differs at all. There is no floor and no noise to forgive; if
+ * this reports something, either the page changed or the measurement is wrong, and both
+ * are worth stopping for.
+ *
+ * Each row carries two hashes, the element's box and its computed style, so a difference
+ * is reported as `geometry`, `style` or `both`. That distinction is the difference between
+ * "the layout moved" and "a property changed under a box that did not move", and it is the
+ * first thing anyone needs to know.
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 
@@ -30,8 +34,8 @@ const read = path =>
 			.split('\n')
 			.filter(Boolean)
 			.map(line => {
-				const [key, hash] = line.split('\t')
-				return [key, hash]
+				const [key, geometry, style] = line.split('\t')
+				return [key, { geometry, style }]
 			})
 	)
 
@@ -41,13 +45,22 @@ const head = read(headPath)
 const changed = []
 const gone = []
 const added = []
-for (const [key, hash] of base) {
+/** How many changed rows moved their box, changed a property, or both. */
+const kinds = { geometry: 0, style: 0, both: 0 }
+for (const [key, row] of base) {
 	const other = head.get(key)
 	if (other === undefined) {
 		gone.push(key)
-	} else if (other !== hash) {
-		changed.push(key)
+		continue
 	}
+	const movedBox = other.geometry !== row.geometry
+	const movedStyle = other.style !== row.style
+	if (!(movedBox || movedStyle)) {
+		continue
+	}
+	const kind = movedBox && movedStyle ? 'both' : movedBox ? 'geometry' : 'style'
+	kinds[kind] += 1
+	changed.push(`${key}\t[${kind}]`)
 }
 for (const key of head.keys()) {
 	if (!base.has(key)) {
@@ -66,6 +79,11 @@ for (const key of [...changed, ...gone, ...added]) {
 const lines = []
 lines.push(`Base: ${base.size} elements. Head: ${head.size}.`)
 lines.push(`Changed ${changed.length}, gone ${gone.length}, new ${added.length}.`)
+if (changed.length > 0) {
+	lines.push(
+		`Of the changed: ${kinds.geometry} moved only their box, ${kinds.style} only a property, ${kinds.both} both.`
+	)
+}
 if (total > 0) {
 	lines.push('')
 	lines.push('Where:')
