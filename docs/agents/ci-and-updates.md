@@ -37,17 +37,16 @@ because the database this repository is normally pointed at is the live one.
 ## The render comparison
 
 `scripts/render-fingerprint.mjs` walks every element on six routes at nine viewports and
-hashes its full computed style plus its box. `scripts/render-diff.mjs` compares two of
-those files.
+hashes its box and its full computed style, as two hashes rather than one, so a reported
+difference says whether the box moved, a property changed, or both. `render-diff.mjs`
+compares two of those files and counts each kind.
 
 It is stronger than a screenshot, because it sees what does not paint: `overflow: clip`
 against `hidden`, `container-type`, `z-index`, `overscroll-behavior`, every value that
 decides what happens tomorrow rather than what is on screen today.
 
-Three things had to be true before it was worth anything, and each cost a round to find:
+Four things had to be true before it was worth anything, and each cost a round to find:
 
-- **It must be exactly reproducible.** Two runs of an unchanged tree now produce identical
-  files, 17,946 elements, zero differing rows, which is why the tolerance is zero.
 - **It must not hang.** The first version waited for every image to load, and an image
   below the fold that is lazily loaded never fires either event, so a run took twenty
   minutes instead of two and a half. The wait is raced against a timer now.
@@ -55,9 +54,26 @@ Three things had to be true before it was worth anything, and each cost a round 
   scripts, meta tags, route announcer and `<div hidden>` streaming markers Next injects in
   an order and a number that vary between runs, which renumbered every sibling and reported
   the whole page as changed. The walk starts at `header`, `main` and `footer`.
+- **It must record only values the renderer reports consistently.** Chromium's reported
+  *used* value for a margin specified `auto` depends on the page's load history: the hero's
+  `.shell` reads either `0px` or `208px` for identical geometry. The four margin longhands
+  are no longer recorded, which loses nothing, because a margin that really changes moves
+  the box and the box is on the same row.
+- **It must measure only boxes this site draws.** Cloudflare replaces the Turnstile mount
+  point's contents and sizes it whenever the widget lands, so the walk stops at
+  `[data-turnstile]`. The `.check-slot` above it is still recorded, and that is the element
+  reserving the height.
 
-It is also proved to catch something: changing `--border-brutal` from 4px to 5px moves all
-17,946 rows, because every element inherits the token.
+**What "reproducible" turned out to mean, because getting this wrong cost a day.** Two runs
+of the *same* build producing identical files is not the property that matters and was
+never in doubt. CI builds the two sides separately, and across two builds the gate reported
+`Changed 1` on one run of a branch and `Changed 5` on the next, with the two hashes for one
+element swapping sides between them. A claim of reproducibility is only worth anything if
+it was measured the way the gate is actually used. The last two rules above came out of
+that; `.scratch/render-gate/issues/01` carries the measurements.
+
+It is also proved to catch something: changing `--border-brutal` from 4px to 5px moves
+every row, because every element inherits the token.
 
 The comparison fails the run only for `renovate[bot]`. A person changing the design on
 purpose gets the report without the red cross.

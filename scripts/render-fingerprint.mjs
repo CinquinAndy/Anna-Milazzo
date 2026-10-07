@@ -45,8 +45,32 @@ const VIEWPORTS = [
  * the same build, and anything indexed by position underneath `body` therefore renumbers
  * itself for no reason. `header`, `main` and `footer` are ours, and what is inside them is
  * ours, so a path rooted there means the same thing twice.
+ *
+ * Two things are left out on the same principle, both found by this gate reporting changes
+ * on a branch that changed nothing. See `.scratch/render-gate/issues/01`.
+ *
+ * `UNRELIABLE`, the four margin longhands. Chromium's reported *used* value for a margin
+ * specified `auto` is a function of the page's load history: the hero's `.shell` reads
+ * either `0px` or `208px` for identical geometry, and two runs of the same build disagree
+ * about which. Nothing is lost by dropping them, because a margin that really changes
+ * moves the box and the box is recorded below as `x`, `y`, `width`, `height`.
+ *
+ * `FOREIGN`, the Turnstile mount point. Cloudflare replaces that node's contents with the
+ * widget and sizes it whenever the widget lands, which is not a box this site draws. The
+ * `.check-slot` wrapper above it is still recorded, and that is the one the layout depends
+ * on, because it is the element reserving the height.
  */
+
 const snapshot = () => {
+	// Declared in here, not at module scope: this function is serialised and run inside the
+	// page, so it closes over nothing from this file.
+
+	/** Properties whose reported value is not a function of the page alone. */
+	const UNRELIABLE = new Set(['margin-left', 'margin-right', 'margin-inline-start', 'margin-inline-end'])
+
+	/** Subtrees another party owns and resizes on its own schedule. */
+	const FOREIGN = '[data-turnstile]'
+
 	const rows = []
 
 	const describe = (element, path) => {
@@ -61,23 +85,34 @@ const snapshot = () => {
 			// unsorted hash reports every element as changed on a tree that did not change.
 			const names = []
 			for (let i = 0; i < style.length; i++) {
-				names.push(style[i])
+				if (!UNRELIABLE.has(style[i])) {
+					names.push(style[i])
+				}
 			}
 			names.sort()
+			// Geometry and style hashed apart, so a reported difference says which half of
+			// the element moved. One combined hash costs nothing to compute and tells you
+			// nothing when it changes; splitting it turns "something about this element is
+			// different" into "its box is where it was, a property is not", which is the
+			// first question anyone asks and used to take a day to answer by hand.
+			const geometry = [
+				Math.round(box.x * 100) / 100,
+				Math.round(box.y * 100) / 100,
+				Math.round(box.width * 100) / 100,
+				Math.round(box.height * 100) / 100,
+			].join(',')
 			rows.push(
-				[
-					path + (pseudo ?? ''),
-					Math.round(box.x * 100) / 100,
-					Math.round(box.y * 100) / 100,
-					Math.round(box.width * 100) / 100,
-					Math.round(box.height * 100) / 100,
-					names.map(name => `${name}:${style.getPropertyValue(name)}`).join(';'),
-				].join('|')
+				[path + (pseudo ?? ''), geometry, names.map(name => `${name}:${style.getPropertyValue(name)}`).join(';')].join(
+					'|'
+				)
 			)
 		}
 		let index = 0
 		for (const child of element.children) {
-			describe(child, `${path}/${child.tagName}[${index++}]`)
+			const childPath = `${path}/${child.tagName}[${index++}]`
+			if (!child.matches(FOREIGN)) {
+				describe(child, childPath)
+			}
 		}
 	}
 
@@ -135,10 +170,9 @@ for (const route of ROUTES) {
 		)
 		await page.waitForTimeout(250)
 		for (const row of await page.evaluate(snapshot)) {
-			const [key, ...rest] = row.split('|')
-			all.push(
-				`${route} ${width}x${height} ${key}\t${createHash('sha1').update(rest.join('|')).digest('hex').slice(0, 16)}`
-			)
+			const [key, geometry, style] = row.split('|')
+			const digest = value => createHash('sha1').update(value).digest('hex').slice(0, 16)
+			all.push(`${route} ${width}x${height} ${key}\t${digest(geometry)}\t${digest(style)}`)
 		}
 		await context.close()
 	}
