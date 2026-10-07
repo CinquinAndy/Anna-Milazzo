@@ -1,21 +1,29 @@
 import { expect, test } from '@playwright/test'
 
+import { UMAMI_HOST, umamiScripts, umamiWebsiteId } from '../src/lib/analytics'
+
 /**
- * Nothing on this site loads code from somebody else's server.
- *
- * Two exceptions are deliberate and named below: the fonts, which are self-hosted by
- * `next/font` and only fetched at build time, and Cloudflare Turnstile, which is the
- * anti-bot check on the contact form and cannot work any other way.
+ * Nothing on this site loads code from somebody else's server, beyond the exceptions
+ * named here.
  *
  * Everything else is a supply-chain question that no dependency update can answer, because
  * a script tag is not a dependency: Renovate cannot see it, the lockfile does not pin it,
  * and whoever serves it can change what it does between one visitor and the next. It also
  * runs with full access to the page, which on the contact page means the message being
  * typed into it.
+ *
+ * The allowance for Umami is derived from the configuration rather than written in, which
+ * matters: in a build that is not measuring anything (local work, and CI, neither of which
+ * sets the website id) the host is NOT allowed, so the strict rule is what actually runs
+ * on every pull request. A build that does set it gets the second test below, which pins
+ * exactly which scripts the exception buys -- the tracker, and specifically not Umami's
+ * session recorder. See ADR-0010.
  */
 const ALLOWED = [
 	// The anti-bot check. Only on the contact page, and the form cannot work without it.
 	'challenges.cloudflare.com',
+	// Analytics, on Andy's own server, and only in a build configured to report to it.
+	...(umamiWebsiteId === null ? [] : [UMAMI_HOST]),
 ]
 
 const PAGES = ['/', '/en', '/contact', '/en/contact', '/legal', '/en/legal'] as const
@@ -70,3 +78,62 @@ for (const path of PAGES) {
 		expect(tags, `${path} declares: ${tags.join(', ')}`).toEqual([])
 	})
 }
+
+/**
+ * The analytics exception, pinned from both sides.
+ *
+ * Whichever way this build is configured, one of these two tests runs and the other is
+ * skipped, so the suite always states what it expects rather than going quiet.
+ */
+test.describe('analytics', () => {
+	test.skip(umamiWebsiteId === null, 'this build reports to no Umami instance')
+
+	for (const path of PAGES) {
+		test(`${path} declares exactly the Umami scripts it is allowed`, async ({ page }) => {
+			await page.goto(path, { waitUntil: 'load' })
+
+			const declared = await page.locator(`script[src*="${UMAMI_HOST}"]`).evaluateAll(nodes =>
+				nodes.map(node => {
+					const script = node as HTMLScriptElement
+					return { src: script.src, id: script.dataset.websiteId ?? '', defer: script.defer }
+				})
+			)
+
+			expect(
+				declared.map(one => one.src),
+				'the wrong scripts, or in the wrong order'
+			).toEqual([...umamiScripts])
+			// Named on its own, because this is the one that would change the answer to
+			// whether the site needs a consent banner.
+			expect(
+				declared.filter(one => one.src.includes('recorder')),
+				'the session recorder is on the page'
+			).toEqual([])
+			// Without the id the script loads and measures nothing, which is the failure
+			// that looks like success.
+			expect(
+				declared.map(one => one.id),
+				'a script with no website id'
+			).toEqual(declared.map(() => umamiWebsiteId))
+			expect(
+				declared.map(one => one.defer),
+				'analytics competing with the page for the main thread'
+			).toEqual(declared.map(() => true))
+		})
+	}
+})
+
+test.describe('no analytics', () => {
+	test.skip(umamiWebsiteId !== null, 'this build does report to an Umami instance')
+
+	for (const path of PAGES) {
+		test(`${path} mentions no analytics host at all`, async ({ page }) => {
+			await page.goto(path, { waitUntil: 'load' })
+
+			// Named rather than inferred: the generic test above allows any host that is not
+			// in ALLOWED to fail the run, and this one says out loud that an unconfigured
+			// build must not carry the tag even inert.
+			await expect(page.locator(`script[src*="${UMAMI_HOST}"]`)).toHaveCount(0)
+		})
+	}
+})
