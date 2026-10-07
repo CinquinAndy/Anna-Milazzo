@@ -16,7 +16,8 @@ import { UMAMI_HOST, umamiScripts, umamiWebsiteId } from '../src/lib/analytics'
  * matters: in a build that is not measuring anything (local work, and CI, neither of which
  * sets the website id) the host is NOT allowed, so the strict rule is what actually runs
  * on every pull request. A build that does set it gets the second test below, which pins
- * exactly which two scripts the exception buys.
+ * exactly which scripts the exception buys -- the tracker, and specifically not Umami's
+ * session recorder. See ADR-0010.
  */
 const ALLOWED = [
 	// The anti-bot check. Only on the contact page, and the form cannot work without it.
@@ -88,7 +89,7 @@ test.describe('analytics', () => {
 	test.skip(umamiWebsiteId === null, 'this build reports to no Umami instance')
 
 	for (const path of PAGES) {
-		test(`${path} declares exactly the two Umami scripts`, async ({ page }) => {
+		test(`${path} declares exactly the Umami scripts it is allowed`, async ({ page }) => {
 			await page.goto(path, { waitUntil: 'load' })
 
 			const declared = await page.locator(`script[src*="${UMAMI_HOST}"]`).evaluateAll(nodes =>
@@ -102,6 +103,12 @@ test.describe('analytics', () => {
 				declared.map(one => one.src),
 				'the wrong scripts, or in the wrong order'
 			).toEqual([...umamiScripts])
+			// Named on its own, because this is the one that would change the answer to
+			// whether the site needs a consent banner.
+			expect(
+				declared.filter(one => one.src.includes('recorder')),
+				'the session recorder is on the page'
+			).toEqual([])
 			// Without the id the script loads and measures nothing, which is the failure
 			// that looks like success.
 			expect(

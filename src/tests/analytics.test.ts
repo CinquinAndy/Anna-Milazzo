@@ -44,12 +44,14 @@ describe('umami', () => {
 		expect(umamiWebsiteId).toBe('11111111-2222-3333-4444-555555555555')
 	})
 
-	it('names the recorder before the tracker', async () => {
-		// The order is not cosmetic: the tracker drives the recorder, so the recorder has
-		// to have registered itself first. Reversing these silently loses session replay
-		// while still reporting page views, which looks like it works.
+	it('loads the tracker and nothing else', async () => {
+		// The assertion that matters is the absence. `recorder.js` replays how one person
+		// moved through a page, which is the half of Umami that would need a consent
+		// banner; this site does not ship it, and the legal notice says so. A change that
+		// adds it back has to come past this line.
 		const { umamiScripts } = await loadWith('any')
-		expect(umamiScripts).toEqual(['https://umami.wadefade.fr/recorder.js', 'https://umami.wadefade.fr/script.js'])
+		expect(umamiScripts).toEqual(['https://umami.wadefade.fr/script.js'])
+		expect(umamiScripts.some(src => src.includes('recorder'))).toBe(false)
 	})
 
 	it('reports a host the request matcher can compare against', async () => {

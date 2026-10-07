@@ -6,6 +6,12 @@
  * to an advertising network. That is what makes it an acceptable exception to the rule
  * `e2e/third-party.spec.ts` enforces, and the rule still holds for everything else.
  *
+ * The tracker only. Umami also ships `recorder.js`, which replays how an individual
+ * moved through a page, and that is a different question under ePrivacy than counting
+ * page views without a cookie: the CNIL's audience-measurement exemption is written for
+ * the latter. Keeping the tracker alone is what lets this site measure its audience with
+ * no consent banner, so the recorder stays out. See ADR-0010.
+ *
  * Off unless `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is set, which is the whole gate:
  *
  * - local development does not count your own page loads as traffic;
@@ -29,8 +35,11 @@ const CONFIGURED = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID?.trim()
 export const umamiWebsiteId = CONFIGURED !== undefined && CONFIGURED.length > 0 ? CONFIGURED : null
 
 /**
- * The two scripts, in the order Umami wants them: the recorder registers itself and the
- * tracker then drives it. `defer` on both, so neither competes with the page for the
- * main thread while it is still arriving.
+ * What gets loaded. One entry, and the list shape is the point: it is what
+ * `e2e/third-party.spec.ts` asserts the page declares, so adding `recorder.js` back here
+ * would fail the test that says exactly which scripts the exception buys, rather than
+ * slipping in. Deliberately re-enabling it means reading ADR-0010 and the legal notice.
+ *
+ * `defer`, so it does not compete with the page for the main thread while it is arriving.
  */
-export const umamiScripts = [`${UMAMI_ORIGIN}/recorder.js`, `${UMAMI_ORIGIN}/script.js`] as const
+export const umamiScripts = [`${UMAMI_ORIGIN}/script.js`] as const
