@@ -1,6 +1,7 @@
 # Anna Milazzo, landing page
 
-Bilingual (EN/FR) landing page for Italian musician Anna Milazzo.
+Bilingual landing page for Italian musician Anna Milazzo: Italian is the default
+locale and English falls back to it (src/payload.config.ts).
 Neo-brutalist visual direction. Self-hosted on Coolify.
 
 ## Agent skills
