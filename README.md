@@ -130,14 +130,14 @@ uses them.
 | Script | What it does |
 | --- | --- |
 | `bun run dev` | Development server |
-| `bun run build` / `bun run start` | Production build, then serve it |
+| `bun run build` / `bun run start` | Apply pending migrations, production build, then serve it |
 | `bun run lint` | Biome, check-only |
 | `bun run check` / `bun run format` | Biome, writing fixes / formatting only |
 | `bun run typecheck` | `tsc --noEmit` |
 | `bun run test` | Vitest, `src/tests/**/*.test.ts` |
 | `bun run test:e2e` | Playwright, `e2e/**/*.spec.ts`, needs a build first |
 | `bun run validate` | The gate: lint, typecheck, unit tests, build, e2e |
-| `bun run migrate` | Apply pending migrations |
+| `bun run migrate` | Apply pending migrations, the step `build` starts with |
 | `bun run migrate:create <name>` | Generate a migration from the current Payload config |
 | `bun run migrate:status` | What has run and what has not |
 | `bun run seed` | Fill a NEW database with placeholder content. Refuses without `SEED_OVERWRITE_LIVE_CONTENT=yes`, because it would overwrite the live site |
@@ -155,9 +155,23 @@ build:
 Both are deterministic: a regenerated asset that differed from the committed one would be a
 binary diff nobody could review.
 
-Migrations are deliberately their own script, run neither by `build` nor by `start`, so a
-deployment pipeline can call them at the point it chooses. `push` is off, schema changes
-always travel as a committed migration.
+`bun run build` applies the pending migrations and then builds, so a deployment migrates
+the database by itself and a migration that fails stops the build before it starts.
+`push` is off, schema changes always travel as a committed migration.
+
+**That means a build writes to the database in `DATABASE_URL`**, and in this repository's
+`.env` that is the live one. It is safe because of two rules, both in
+[ADR-0011](docs/adr/0011-migrations-run-at-deploy-and-the-old-ones-never-replay.md):
+
+- The sixteen migrations that existed before 2026-10-13 are never executed on a database
+  that already holds the site, whatever `payload_migrations` says. They only run on a
+  database with nothing in it.
+- A migration written since may only add, and must be safe to run twice. `migrate:create`
+  does not write `IF NOT EXISTS`, so edit what it generates; `src/tests/migration-plan.test.ts`
+  fails on anything that drops, rewrites or cannot be replayed.
+
+`payload migrate:down`, `migrate:refresh`, `migrate:reset` and `migrate:fresh` are guarded
+by none of this and drop tables. Do not run them against the live database.
 
 ## Testing
 
@@ -174,7 +188,10 @@ defects reading the source did not.
 ## Deployment
 
 Self-hosted on Coolify. There is deliberately no Dockerfile and no `output: 'standalone'`, the deployment shape is the operator's to choose, and this repository does not assume one.
-Run `bun run migrate` before starting the new build.
+Coolify runs the `build` script when `main` changes, and that is the whole deployment:
+the build migrates the database first ([ADR-0011](docs/adr/0011-migrations-run-at-deploy-and-the-old-ones-never-replay.md)),
+and the container already serving the site keeps serving it until the new one is ready, or
+for good if the migration or the build fails.
 
 ## Where the decisions are written down
 
