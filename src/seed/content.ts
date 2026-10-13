@@ -488,7 +488,7 @@ export const SEED_LEGALS: Record<Locale, LegalsCopy> = {
 
 			{ heading: 'Hosting' },
 			'netcup GmbH',
-			'Daimlerstraße 25, 76185 Karlsruhe, Germania',
+			'Emmy-Noether-Straße 10, 76131 Karlsruhe, Germania',
 
 			{ heading: 'Dati personali' },
 			'Il trattamento dei dati personali su questo sito è soggetto al Regolamento (UE) 2016/679, il GDPR.',
@@ -522,7 +522,7 @@ export const SEED_LEGALS: Record<Locale, LegalsCopy> = {
 
 			{ heading: 'Hosting' },
 			'netcup GmbH',
-			'Daimlerstraße 25, 76185 Karlsruhe, Germany',
+			'Emmy-Noether-Straße 10, 76131 Karlsruhe, Germany',
 
 			{ heading: 'Personal data' },
 			'The processing of personal data on this site is subject to Regulation (EU) 2016/679, the GDPR.',
