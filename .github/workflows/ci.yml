@@ -37,8 +37,8 @@ jobs:
     name: Lint, types, unit tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@v5.1.0
+      - uses: oven-sh/setup-bun@v2.2.0
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
@@ -64,8 +64,8 @@ jobs:
           --health-timeout 5s
           --health-retries 12
     steps:
-      - uses: actions/checkout@v5
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@v5.1.0
+      - uses: oven-sh/setup-bun@v2.2.0
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
@@ -86,7 +86,7 @@ jobs:
 
       - run: bun run test:e2e
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4.6.2
         if: failure()
         with:
           name: playwright-report
@@ -115,11 +115,11 @@ jobs:
           --health-timeout 5s
           --health-retries 12
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5.1.0
         with:
           # Both sides of the comparison have to be reachable.
           fetch-depth: 0
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@v2.2.0
         with:
           bun-version-file: package.json
 
@@ -173,7 +173,7 @@ jobs:
         continue-on-error: ${{ github.actor != 'renovate[bot]' }}
         run: bun ./.ci-render-diff.mjs "$RUNNER_TEMP/base.txt" "$RUNNER_TEMP/head.txt" "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4.6.2
         if: always()
         with:
           name: render-fingerprints
