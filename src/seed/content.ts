@@ -556,8 +556,20 @@ type SettingsCopy = {
  * A Fiverr profile is still to come. It goes in the admin as a fourth link; nothing here
  * has to change for it, though a re-seed would overwrite it, so add it here too.
  */
+/**
+ * A fixture, deliberately not Anna's address.
+ *
+ * This repository is public and a seed is committed forever, so a real person's address
+ * written here is harvested within days and cannot be taken back: it was exactly that, and
+ * she began receiving phishing mail traced to this site. `example.com` is reserved by RFC
+ * 2606 and can never be a real mailbox. CI seeds its own throwaway database from this, so
+ * the tests still have an address to lay out; the real one lives in the CMS and nowhere
+ * else, and is hers to show or hide in Settings.
+ */
+export const SEED_CONTACT_EMAIL = 'anna@example.com'
+
 export const SEED_SETTINGS: { contactEmail: string } & Record<Locale, SettingsCopy> = {
-	contactEmail: 'annamil012002n2@gmail.com',
+	contactEmail: SEED_CONTACT_EMAIL,
 	it: {
 		navHeading: 'Pagine',
 		elsewhereHeading: 'Altrove',
@@ -565,7 +577,7 @@ export const SEED_SETTINGS: { contactEmail: string } & Record<Locale, SettingsCo
 		socialLinks: [
 			{ label: 'Instagram', url: 'https://www.instagram.com/imannasound' },
 			{ label: 'LinkedIn', url: 'https://www.linkedin.com/in/anna-milazzo-118b413b7' },
-			{ label: 'Scrivetemi', url: 'mailto:annamil012002n2@gmail.com' },
+			{ label: 'Scrivetemi', url: `mailto:${SEED_CONTACT_EMAIL}` },
 		],
 	},
 	en: {
@@ -575,7 +587,7 @@ export const SEED_SETTINGS: { contactEmail: string } & Record<Locale, SettingsCo
 		socialLinks: [
 			{ label: 'Instagram', url: 'https://www.instagram.com/imannasound' },
 			{ label: 'LinkedIn', url: 'https://www.linkedin.com/in/anna-milazzo-118b413b7' },
-			{ label: 'Write to me', url: 'mailto:annamil012002n2@gmail.com' },
+			{ label: 'Write to me', url: `mailto:${SEED_CONTACT_EMAIL}` },
 		],
 	},
 }
