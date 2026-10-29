@@ -99,10 +99,19 @@ describe('the contact page has somewhere to get every word from', () => {
 })
 
 describe('the details Anna gave for the live site', () => {
-	it('carries her real address, and nothing that looks like a placeholder', () => {
-		expect(SEED_SETTINGS.contactEmail).toBe('annamil012002n2@gmail.com')
-		const serialised = JSON.stringify(SEED_SETTINGS)
-		expect(serialised, 'a placeholder survived into the seeded settings').not.toMatch(/example\.com|placeholder/i)
+	it('carries an address that can never be a real mailbox, and no other placeholder', () => {
+		// The opposite of what this once asserted. The repository is public, so the seed
+		// must never hold a real person's address: that is how this one got harvested.
+		expect(SEED_SETTINGS.contactEmail).toMatch(/@example\.(com|org|net)$/)
+		const withoutFixture = JSON.stringify(SEED_SETTINGS).replaceAll(SEED_SETTINGS.contactEmail, '')
+		expect(withoutFixture, 'a placeholder survived into the seeded settings').not.toMatch(/example\.com|placeholder/i)
+	})
+
+	it('holds no real-looking address anywhere in the seeded settings', () => {
+		const addresses = JSON.stringify(SEED_SETTINGS).match(/[\w.+-]+@[\w-]+\.[\w.]+/g) ?? []
+		for (const address of addresses) {
+			expect(address, 'a real address is committed to a public repository').toMatch(/@example\.(com|org|net)$/)
+		}
 	})
 
 	it('links to her profiles without the share tracking they arrived with', () => {

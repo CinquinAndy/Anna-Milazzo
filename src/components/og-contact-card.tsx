@@ -30,23 +30,27 @@ export function OgContactCard({
 
 			<div style={{ marginTop: 26, maxWidth: 940, fontSize: 33, lineHeight: 1.32, color: OG.ink }}>{who}</div>
 
-			<div tw="flex" style={{ marginTop: 34 }}>
-				<div
-					tw="flex"
-					style={{
-						backgroundColor: OG.sheet,
-						color: OG.ink,
-						fontFamily: 'Azeret',
-						fontSize: 30,
-						letterSpacing: '0.02em',
-						padding: '16px 24px',
-						border: `4px solid ${OG.ink}`,
-						boxShadow: `8px 8px 0 0 ${OG.ink}`,
-					}}
-				>
-					{email}
+			{/* No address, no box. The address is a field Anna can empty in the CMS, and an empty
+			    paper pill on a hard shadow reads as a broken card rather than a missing line. */}
+			{email === '' ? null : (
+				<div tw="flex" style={{ marginTop: 34 }}>
+					<div
+						tw="flex"
+						style={{
+							backgroundColor: OG.sheet,
+							color: OG.ink,
+							fontFamily: 'Azeret',
+							fontSize: 30,
+							letterSpacing: '0.02em',
+							padding: '16px 24px',
+							border: `4px solid ${OG.ink}`,
+							boxShadow: `8px 8px 0 0 ${OG.ink}`,
+						}}
+					>
+						{email}
+					</div>
 				</div>
-			</div>
+			)}
 		</OgFrame>
 	)
 }

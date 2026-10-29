@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { OgContactCard } from '@/components/og-contact-card'
 import { SEED_HOME } from '@/seed/content'
 
 /**
@@ -51,5 +52,23 @@ describe('the OG card row of disciplines', () => {
 		const entries = SEED_HOME.it.skills.entries
 		const taken = rowOf(entries)
 		expect(taken).toEqual(entries.slice(0, taken.length))
+	})
+})
+
+describe('the contact card without a public address', () => {
+	const draw = (email: string) =>
+		JSON.stringify(OgContactCard({ heading: 'Contatti', who: 'Anna Milazzo', email, domain: 'anna-milazzo.com' }))
+
+	it('draws the address in its pill when there is one', () => {
+		const card = draw('anna@example.com')
+		expect(card).toContain('anna@example.com')
+		expect(card).toContain('boxShadow')
+	})
+
+	it('draws no pill at all when the address has been cleared', () => {
+		// An empty bordered box on a hard shadow reads as a broken card.
+		const card = draw('')
+		expect(card).not.toContain('boxShadow')
+		expect(card).toContain('Contatti')
 	})
 })
