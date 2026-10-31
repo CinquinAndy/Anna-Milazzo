@@ -19,7 +19,9 @@ build, and the end-to-end suite against it.
 
 **render** answers the question the other two cannot: *did the page change?* It builds the
 pull request, fingerprints what the browser computes for every element, checks out the
-merge base, reinstalls, builds that, fingerprints it too, and compares. See below.
+merge base, reinstalls, builds that, fingerprints it too, and compares. Both sides are
+measured with one browser, the head's Playwright, installed once in its own directory. See
+below.
 
 ### What CI does not have, on purpose
 
@@ -93,20 +95,39 @@ Two steps, both on GitHub, both yours:
 
 ## What merges itself, and what does not
 
+Decided in ADR-0012: everything below a major, once the three checks are green, after a three
+day wait.
+
 | | |
 |---|---|
-| Merges itself | Toolchain patch and minor: biome, vitest, playwright, typescript, the type packages. They cannot change what a visitor sees, only whether the gate is honest about it, and the gate runs on the same pull request. |
-| Merges itself | Runtime patch, behind the render comparison. |
+| Merges itself | Every patch and every minor, runtime and toolchain alike: biome, vitest, playwright, typescript, the type packages, `next`, `react`, the Payload group, `bun`. |
 | Merges itself | The monthly lockfile refresh. |
 | Waits for you | Every major, labelled `major`. |
-| Waits for you | `payload` and the five `@payloadcms/*` packages, grouped, because a Payload minor can carry a schema change, which needs a migration rather than a merge. |
-| Waits for you | `next`, labelled `needs a read`. This project pins it, the framework's own agent notes warn that its APIs move, and a bump can change how every page renders. |
-| Waits for you | `sharp`, which compiles native binaries per platform. |
+| Waits for you | A 0.x minor, labelled `needs a read`: it is a breaking change by that ecosystem's convention. Today that is `sharp`. |
+| Never touched | `engines`. `engines.node` is a floor; the pin strategy once rewrote it to an exact Node the project does not run. |
 
-Security advisories ignore the schedule and open immediately.
+Security advisories ignore the schedule and the three day wait, and open immediately.
+
+`bun` and `oven/bun` are one group, because `package.json` and the Dockerfile name the same
+bun and `src/tests/toolchain.test.ts` fails if they differ.
 
 The dependency dashboard is an issue in the repository listing everything waiting, whether
 it has a pull request open or not.
+
+## When Renovate goes quiet
+
+The hosted app answers an invalid `renovate.json` by opening an issue titled "Action
+Required: Fix Renovate Configuration" and creating nothing, so a repository can go weeks
+with no update and no failing check. CI runs `renovate-config-validator --strict` in the
+`check` job for that reason. If the dependency dashboard has not moved in a week, look for
+that issue first.
+
+## The live site
+
+`.github/workflows/prod-smoke.yml` runs `scripts/prod-smoke.mjs` every six hours and on demand
+from the Actions tab: the pages, the CMS, the editor and the share card. It is read-only. It
+is the only thing that sees the real database and domain, so it is what notices a bump that
+passed everything before the merge and still broke the live site.
 
 ## When a bot's pull request goes red
 
