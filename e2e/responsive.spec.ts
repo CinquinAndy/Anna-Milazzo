@@ -53,6 +53,32 @@ async function survey(page: Page) {
 			const s = getComputedStyle(el)
 			return r.width > 0 && r.height > 0 && s.visibility !== 'hidden'
 		}
+		// What is actually on screen of an element: its box, less whatever an ancestor with
+		// `overflow: hidden` or `clip` cuts off. A clip that cuts its text on purpose, behind
+		// a button that opens it, still has a box that runs on into the lane below, and that
+		// box is not something anyone can see collide with anything.
+		const shown = (el: Element) => {
+			const r = el.getBoundingClientRect()
+			let left = r.left
+			let top = r.top
+			let right = r.right
+			let bottom = r.bottom
+			for (let up = el.parentElement; up !== null; up = up.parentElement) {
+				const s = getComputedStyle(up)
+				const cuts = (v: string) => v === 'hidden' || v === 'clip'
+				if (!cuts(s.overflowX) && !cuts(s.overflowY)) continue
+				const c = up.getBoundingClientRect()
+				if (cuts(s.overflowX)) {
+					left = Math.max(left, c.left)
+					right = Math.min(right, c.right)
+				}
+				if (cuts(s.overflowY)) {
+					top = Math.max(top, c.top)
+					bottom = Math.min(bottom, c.bottom)
+				}
+			}
+			return { left, top, right, bottom }
+		}
 		const hasText = (el: Element) =>
 			[...el.childNodes].some(n => n.nodeType === 3 && (n.textContent ?? '').trim().length > 0)
 		const describe = (el: Element) => {
@@ -88,11 +114,11 @@ async function survey(page: Page) {
 		const overlaps: string[] = []
 		for (let i = 0; i < textish.length && overlaps.length < 20; i++) {
 			const a = textish[i] as Element
-			const ra = a.getBoundingClientRect()
+			const ra = shown(a)
 			for (let j = i + 1; j < textish.length; j++) {
 				const b = textish[j] as Element
 				if (a.contains(b) || b.contains(a)) continue
-				const rb = b.getBoundingClientRect()
+				const rb = shown(b)
 				const x = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left)
 				const y = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top)
 				if (x > 4 && y > 4) overlaps.push(`${describe(a)} over ${describe(b)} by ${Math.round(x)}x${Math.round(y)}`)

@@ -1279,6 +1279,59 @@
 		letter-spacing: 0.06em;
 	}
 
+	/* The kind, in words, beside its colour. The clip's colour is the cue and this is the
+	 * text of it: colour alone is not something to ask a reader to rely on. */
+	.daw-kind {
+		display: flex;
+		align-items: center;
+		gap: calc(var(--spacing) * 1.5);
+		color: var(--card);
+		font-family: var(--font-mono);
+		font-size: 0.625rem;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.daw-swatch {
+		flex: none;
+		inline-size: 0.75rem;
+		block-size: 0.75rem;
+		border: 2px solid var(--card);
+	}
+
+	/* The key, above the strip and on the section's own ground. */
+	.daw-legend {
+		display: flex;
+		flex-wrap: wrap;
+		gap: calc(var(--spacing) * 2) calc(var(--spacing) * 5);
+		margin: 0 0 calc(var(--spacing) * 4);
+		padding: 0;
+		list-style: none;
+	}
+
+	.daw-legend-item {
+		display: flex;
+		align-items: center;
+		gap: calc(var(--spacing) * 2);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+
+	/* On a phone the gutter is 7rem and a long word and its swatch do not both fit. The swatch
+	 * goes there: the clip beside it is the same colour, the key above names the colours, and
+	 * the word stays, so nothing is left to colour alone. */
+	@media (width < 40rem) {
+		.daw-kind .daw-swatch {
+			display: none;
+		}
+	}
+
+	.daw-legend .daw-swatch {
+		border-color: var(--border);
+	}
+
 	.daw-switches {
 		display: flex;
 		gap: calc(var(--spacing) * 1.5);
@@ -1303,21 +1356,73 @@
 		padding-block: calc(var(--spacing) * 3);
 	}
 
-	/* Width is duration. This is the difference between a chart and an arrangement. */
+	/* Width is duration. This is the difference between a chart and an arrangement.
+	 *
+	 * In the flow of its track rather than absolutely positioned, which is what lets a clip that
+	 * has been opened make its lane taller: an absolute box takes no room, so there was nothing
+	 * for the lane to grow around. Closed, it is the height the lane always gave it, the lane's
+	 * minimum less the track's padding and the lane's own 2px rule, and it never makes the lane
+	 * taller than that. */
 	.daw-clip {
-		position: absolute;
-		inset-block: calc(var(--spacing) * 3);
-		inset-inline-start: calc(var(--offset) * var(--bar));
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		margin-inline-start: calc(var(--offset) * var(--bar));
 		/* Honest length, with a floor. Width means duration, three years really is three
 		 * times one, but a single-year clip at one bar leaves 128px for an Italian title,
 		 * and an unreadable clip is worse than a slightly generous one. The floor only ever
 		 * affects the shortest entries, so the proportion between the long ones survives. */
 		inline-size: max(calc(var(--length) * var(--bar) - var(--spacing) * 2), 12rem);
+		block-size: calc(9.5rem - 2px - var(--spacing) * 6);
 		overflow: hidden;
 		padding: calc(var(--spacing) * 3);
 		border: 3px solid var(--border);
 		color: var(--foreground);
 		box-shadow: var(--shadow-sm);
+	}
+
+	.daw-clip[data-open="true"] {
+		block-size: auto;
+	}
+
+	/* Closed, the body is what the box's height is spent on and the rest is cut off, with a
+	 * fade rather than a hard edge so it reads as "there is more" and not as a fault. Open, it
+	 * is just the text, as tall as the text is. */
+	.daw-clip-body {
+		flex: 1 1 0;
+		min-block-size: 0;
+		overflow: hidden;
+	}
+
+	.daw-clip-body[data-clipped="true"] {
+		mask-image: linear-gradient(to bottom, #000 calc(100% - 1.5rem), transparent);
+	}
+
+	.daw-clip[data-open="true"] .daw-clip-body {
+		flex: none;
+		overflow: visible;
+	}
+
+	/* The way to read the rest. A real button, and 24px tall at the least, WCAG 2.5.8. */
+	.daw-clip-toggle {
+		align-self: flex-start;
+		flex: none;
+		margin-block-start: calc(var(--spacing) * 2);
+		min-block-size: 1.5rem;
+		padding-inline: calc(var(--spacing) * 2);
+		border: 2px solid var(--border);
+		background-color: var(--foreground);
+		color: var(--card);
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+
+	.daw-clip-toggle:hover {
+		background-color: var(--card);
+		color: var(--foreground);
 	}
 
 	.daw-clip-title {
@@ -1328,14 +1433,10 @@
 		font-stretch: 88%;
 	}
 
-	/* Clamped to whole lines. Letting it simply overflow-hidden cut the last line through
-	 * the middle of the letterforms, which reads as a rendering fault rather than as a clip
-	 * that is too short for its text. */
+	/* Not clamped. A line clamp cut the description at two lines with an ellipsis and told
+	 * nothing about it: the clip's own overflow never saw the hidden lines, so there was
+	 * nothing to open. The body's fade is the cue now, and the button is the answer. */
 	.daw-clip-detail {
-		display: -webkit-box;
-		overflow: hidden;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
 		margin-block-start: calc(var(--spacing) * 2);
 		font-family: var(--font-sans);
 		font-size: 0.8125rem;

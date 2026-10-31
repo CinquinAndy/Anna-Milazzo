@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { hydrated } from './hydrated'
 
 test.describe('the timeline', () => {
 	test('renders Anna’s path as an ordered list from the CMS', async ({ page }) => {
@@ -154,5 +155,120 @@ test.describe('the arrangement on a small screen', () => {
 			return window.scrollX - before
 		})
 		expect(moved, 'the overshoot moved the document').toBe(0)
+	})
+})
+
+test.describe('the kinds of entry', () => {
+	test('each kind has a colour of its own and says its name in words', async ({ page }) => {
+		await page.goto('/')
+
+		const lanes = await page.locator('.daw-lane').evaluateAll(nodes =>
+			nodes.map(node => ({
+				kind: node.querySelector('.daw-kind')?.textContent?.trim() ?? '',
+				fill: getComputedStyle(node.querySelector('.daw-clip') as Element).backgroundColor,
+			}))
+		)
+
+		// The words are on every lane, so colour is never the only way to tell them apart.
+		expect(lanes.map(lane => lane.kind).sort()).toEqual(['Certificato', 'Esperienza', 'Laurea', 'Progetto', 'Progetto'])
+
+		// One colour per kind, and no colour shared between two kinds.
+		const fillOf = new Map<string, Set<string>>()
+		for (const { kind, fill } of lanes) {
+			fillOf.set(kind, (fillOf.get(kind) ?? new Set()).add(fill))
+		}
+		for (const [kind, fills] of fillOf) {
+			expect(fills.size, `${kind} is drawn in more than one colour`).toBe(1)
+		}
+		const distinct = new Set([...fillOf.values()].map(fills => [...fills][0]))
+		expect(distinct.size, 'two kinds share a colour').toBe(fillOf.size)
+	})
+
+	test('a key above the strip lists the kinds in use', async ({ page }) => {
+		await page.goto('/')
+
+		await expect(page.locator('.daw-legend-item')).toHaveText(['Laurea', 'Certificato', 'Progetto', 'Esperienza'])
+	})
+
+	test('the words follow the language', async ({ page }) => {
+		await page.goto('/en')
+
+		await expect(page.locator('.daw-legend-item')).toHaveText(['Degree', 'Certificate', 'Project', 'Experience'])
+	})
+})
+
+test.describe('a clip too short for its text', () => {
+	const PODCAST = 'Sigla per podcast indipendente'
+
+	test('opens to its full text, makes its lane taller, and closes again', async ({ page }) => {
+		await page.setViewportSize({ width: 1440, height: 900 })
+		await page.goto('/')
+		await hydrated(page)
+
+		const clip = page.locator('.daw-clip', { hasText: PODCAST })
+		const lane = page.locator('.daw-lane', { has: clip })
+		const toggle = clip.locator('.daw-clip-toggle')
+		const body = clip.locator('.daw-clip-body')
+		await toggle.scrollIntoViewIfNeeded()
+
+		// Closed: the text is cut, the button says how to read the rest.
+		await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+		await expect(toggle).toContainText('Leggi tutto')
+		const closed = { clip: (await clip.boundingBox())?.height ?? 0, lane: (await lane.boundingBox())?.height ?? 0 }
+		expect(await body.evaluate(el => el.scrollHeight > el.clientHeight + 1)).toBe(true)
+
+		await toggle.click()
+
+		// Open: all of it is there, in a taller clip in a taller lane.
+		await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+		await expect(toggle).toContainText('Riduci')
+		expect(await body.evaluate(el => el.scrollHeight <= el.clientHeight + 1)).toBe(true)
+		expect((await clip.boundingBox())?.height ?? 0).toBeGreaterThan(closed.clip)
+		expect((await lane.boundingBox())?.height ?? 0).toBeGreaterThan(closed.lane)
+		await expect(clip).toContainText('con le voci registrate in una stanza qualsiasi')
+
+		await toggle.click()
+
+		await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+		expect((await clip.boundingBox())?.height ?? 0).toBeCloseTo(closed.clip, 0)
+		expect((await lane.boundingBox())?.height ?? 0).toBeCloseTo(closed.lane, 0)
+	})
+
+	test('is operated from the keyboard, and the button says which clip it opens', async ({ page }) => {
+		await page.goto('/')
+		await hydrated(page)
+
+		const toggle = page.locator('.daw-clip', { hasText: PODCAST }).locator('.daw-clip-toggle')
+		await expect(toggle).toBeVisible()
+		// Nine of the same two words are nine unlabelled buttons to a screen reader.
+		await expect(toggle).toHaveAccessibleName(`Leggi tutto: ${PODCAST}`)
+
+		await toggle.focus()
+		await page.keyboard.press('Enter')
+		await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+		await page.keyboard.press('Space')
+		await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+	})
+
+	test('speaks English on the English page', async ({ page }) => {
+		await page.goto('/en')
+		await hydrated(page)
+
+		const toggle = page
+			.locator('.daw-clip', { hasText: 'Title theme, independent podcast' })
+			.locator('.daw-clip-toggle')
+		await expect(toggle).toContainText('Read more')
+		await toggle.click()
+		await expect(toggle).toContainText('Show less')
+	})
+
+	test('a clip whose text fits has no button', async ({ page }) => {
+		await page.setViewportSize({ width: 1440, height: 900 })
+		await page.goto('/')
+		await hydrated(page)
+
+		// The longest clip in the fixtures is also the roomiest: three years wide.
+		const conservatorio = page.locator('.daw-clip', { hasText: 'Conservatorio, composizione e musica elettronica' })
+		await expect(conservatorio.locator('.daw-clip-toggle')).toHaveCount(0)
 	})
 })
