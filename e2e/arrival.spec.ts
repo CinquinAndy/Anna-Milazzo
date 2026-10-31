@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test'
+import { hydrated } from './hydrated'
 
 /** `cubic-bezier(0, 0, 0.58, 1)` is exactly `ease-out`, and that is how it serialises. */
 const EASE_OUT = 'ease-out'
@@ -285,26 +286,31 @@ test.describe('the arrangement itself', () => {
 		expect(edges.barLeft, 'a year label is sliding over the lane names').toBeLessThanOrEqual(edges.gutterRight)
 	})
 
-	test('no clip cuts its own text', async ({ page }) => {
+	test('a clip that cuts its text says so, and can be opened to read it', async ({ page }) => {
 		for (const width of [375, 1024, 1440]) {
 			await page.setViewportSize({ width, height: 900 })
 			await page.goto('/')
 			await page.evaluate(() => document.fonts.ready)
+			await hydrated(page)
 
-			// The detail is clamped to whole lines on purpose. What must never happen is the
-			// clip being shorter than the clamped text, which cuts the last line through the
-			// middle of the letterforms and reads as a rendering fault.
-			const sliced = await page
-				.locator('.daw-clip')
-				.evaluateAll(nodes =>
+			// The text may be longer than the clip, that is what an arrangement drawn to scale
+			// does to a one-year entry. What must never happen is the cut being silent: every clip
+			// whose text runs past the box has a button that opens it, and a clip that fits has none.
+			// Polled: the button is drawn by an effect that measures, a tick after hydration.
+			const unanswered = () =>
+				page.locator('.daw-clip').evaluateAll(nodes =>
 					nodes
-						.filter(node => node.scrollHeight > node.clientHeight)
-						.map(
-							node =>
-								`${node.querySelector('.daw-clip-title')?.textContent}: ${node.scrollHeight} in ${node.clientHeight}`
-						)
+						.filter(node => {
+							const body = node.querySelector('.daw-clip-body') as HTMLElement
+							const cut = body.scrollHeight > body.clientHeight + 1
+							const button = node.querySelector('.daw-clip-toggle')
+							return cut !== (button !== null)
+						})
+						.map(node => node.querySelector('.daw-clip-title')?.textContent)
 				)
-			expect(sliced, `a clip is too short for its own text at ${width}px`).toEqual([])
+			await expect
+				.poll(unanswered, { message: `a clip cuts its text without a way to open it at ${width}px` })
+				.toEqual([])
 		}
 	})
 

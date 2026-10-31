@@ -1,10 +1,10 @@
 import { DawEdge } from '@/components/daw-edge'
 import { SectionTitle } from '@/components/section-title'
+import { TimelineClip } from '@/components/timeline-clip'
+import type { Locale } from '@/lib/locale'
+import { KIND_FILLS, KIND_LABELS, kindOf, TIMELINE_COPY, TIMELINE_KINDS } from '@/lib/timeline/kinds'
 import { arrange } from '@/lib/timeline/span'
 import type { Home } from '@/payload-types'
-
-/** The fills cycle so no two neighbouring clips share a colour on the dark ground. */
-const CLIP_FILLS = ['bg-sheet', 'bg-lemon', 'bg-spring', 'bg-accent'] as const
 
 /**
  * Anna's training and experience as a DAW arrangement.
@@ -24,13 +24,28 @@ const CLIP_FILLS = ['bg-sheet', 'bg-lemon', 'bg-spring', 'bg-accent'] as const
  * of it, and drawing it as an image would put Anna's whole history out of reach of a
  * screen reader.
  */
-export function Timeline({ timeline, scrollLabel }: { timeline: Home['timeline']; scrollLabel: string }) {
+export function Timeline({
+	timeline,
+	scrollLabel,
+	locale,
+}: {
+	timeline: Home['timeline']
+	scrollLabel: string
+	locale: Locale
+}) {
 	const entries = timeline?.entries ?? []
 	const arrangement = arrange(entries, entry => entry.period)
 
 	if (entries.length === 0 || arrangement === null) {
 		return null
 	}
+
+	// The colour of a clip is the kind of thing it is: a degree, a certificate, a project, or
+	// an experience. Said in words in the lane's gutter as well, because a colour on its own
+	// is not something a reader can be asked to rely on, and keyed once above the strip, but
+	// only the kinds Anna has actually used, and only when there is more than one to tell apart.
+	const kinds = TIMELINE_KINDS.filter(kind => arrangement.lanes.some(lane => kindOf(lane.entry.kind) === kind))
+	const copy = TIMELINE_COPY[locale]
 
 	// The playhead parks where the most recent entry begins, "now" in her arrangement. The
 	// ruler counts DOWN, so now is the smallest offset rather than the largest.
@@ -52,6 +67,17 @@ export function Timeline({ timeline, scrollLabel }: { timeline: Home['timeline']
 
 			<div className="relative px-5 py-14 sm:px-8 md:py-20">
 				<div className="shell">
+					{kinds.length > 1 ? (
+						<ul className="daw-legend" aria-hidden="true">
+							{kinds.map(kind => (
+								<li key={kind} className="daw-legend-item">
+									<span className={`daw-swatch ${KIND_FILLS[kind]}`} />
+									{KIND_LABELS[kind][locale]}
+								</li>
+							))}
+						</ul>
+					) : null}
+
 					{/* The arrangement scrolls inside its own container, never the page.
 					    `tabIndex` is what makes a scrollable region reachable without a pointer. */}
 					{/* biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region has to be
@@ -71,26 +97,37 @@ export function Timeline({ timeline, scrollLabel }: { timeline: Home['timeline']
 							</div>
 
 							<ol className="daw-lanes">
-								{arrangement.lanes.map((lane, index) => (
-									<li key={lane.entry.id ?? lane.entry.period} className="daw-lane">
-										<div className="daw-lane-header">
-											<span className="daw-period">{lane.entry.period}</span>
-											<span className="daw-switches" aria-hidden="true">
-												<span className="daw-switch">S</span>
-												<span className="daw-switch">M</span>
-											</span>
-										</div>
-										<div className="daw-track">
-											<div
-												className={`daw-clip ${CLIP_FILLS[index % CLIP_FILLS.length]}`}
-												style={{ '--offset': lane.offset, '--length': lane.length } as React.CSSProperties}
-											>
-												<h3 className="daw-clip-title">{lane.entry.label}</h3>
-												{lane.entry.detail ? <p className="daw-clip-detail">{lane.entry.detail}</p> : null}
+								{arrangement.lanes.map(lane => {
+									const kind = kindOf(lane.entry.kind)
+
+									return (
+										<li key={lane.entry.id ?? lane.entry.period} className="daw-lane">
+											<div className="daw-lane-header">
+												<span className="daw-period">{lane.entry.period}</span>
+												<span className="daw-kind">
+													<span className={`daw-swatch ${KIND_FILLS[kind]}`} aria-hidden="true" />
+													{KIND_LABELS[kind][locale]}
+												</span>
+												<span className="daw-switches" aria-hidden="true">
+													<span className="daw-switch">S</span>
+													<span className="daw-switch">M</span>
+												</span>
 											</div>
-										</div>
-									</li>
-								))}
+											<div className="daw-track">
+												<TimelineClip
+													className={`daw-clip ${KIND_FILLS[kind]}`}
+													style={{ '--offset': lane.offset, '--length': lane.length } as React.CSSProperties}
+													title={lane.entry.label}
+													expandLabel={copy.expand}
+													collapseLabel={copy.collapse}
+												>
+													<h3 className="daw-clip-title">{lane.entry.label}</h3>
+													{lane.entry.detail ? <p className="daw-clip-detail">{lane.entry.detail}</p> : null}
+												</TimelineClip>
+											</div>
+										</li>
+									)
+								})}
 							</ol>
 
 							{/* Static, and unmistakable anyway. Lemon rather than magenta: on grape,

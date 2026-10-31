@@ -15,6 +15,7 @@ import * as migration_20260905_221112_drop_check_label from './20260905_221112_d
 import * as migration_20260905_235515_add_songs_pager_labels from './20260905_235515_add_songs_pager_labels';
 import * as migration_20260905_235525_drop_songs_intro from './20260905_235525_drop_songs_intro';
 import * as migration_20261013_185114_payload_3_90_columns from './20261013_185114_payload_3_90_columns';
+import * as migration_20261031_225148_timeline_entry_kind from './20261031_225148_timeline_entry_kind';
 
 export const migrations = [
   {
@@ -100,6 +101,11 @@ export const migrations = [
   {
     up: migration_20261013_185114_payload_3_90_columns.up,
     down: migration_20261013_185114_payload_3_90_columns.down,
-    name: '20261013_185114_payload_3_90_columns'
+    name: '20261013_185114_payload_3_90_columns',
+  },
+  {
+    up: migration_20261031_225148_timeline_entry_kind.up,
+    down: migration_20261031_225148_timeline_entry_kind.down,
+    name: '20261031_225148_timeline_entry_kind'
   },
 ];

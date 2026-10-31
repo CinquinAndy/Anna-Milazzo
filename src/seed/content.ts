@@ -9,6 +9,7 @@
  */
 
 import type { Locale } from '@/lib/locale'
+import type { TimelineKind } from '@/lib/timeline/kinds'
 
 export type SeedSong = {
 	/** Stable handle. The seed upserts on it and the tests select by it. */
@@ -141,7 +142,7 @@ type HomeCopy = {
 	timeline: {
 		heading: string
 		scrollLabel: string
-		entries: readonly { period: string; label: string; detail: string }[]
+		entries: readonly { kind: TimelineKind; period: string; label: string; detail: string }[]
 	}
 	contactCta: { heading: string; body: string; buttonLabel: string }
 }
@@ -186,26 +187,32 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 			scrollLabel: 'Percorso di Anna, in ordine cronologico',
 			entries: [
 				{
+					kind: 'certificate',
 					period: '2019–2022',
 					label: 'Liceo musicale, pianoforte principale',
 					detail: 'Diploma con lode. Tre anni di teoria, armonia e prassi esecutiva.',
 				},
 				{
+					kind: 'degree',
 					period: '2022–2026',
 					label: 'Conservatorio, composizione e musica elettronica',
 					detail: 'Tesi sulla registrazione sul campo come materiale compositivo anziché come sfondo.',
 				},
 				{
+					kind: 'experience',
 					period: '2024',
 					label: 'Installazione sonora, festival cittadino',
 					detail: 'Otto minuti in loop per un cortile, costruiti sulle registrazioni del cortile stesso.',
 				},
 				{
+					kind: 'project',
 					period: '2025',
 					label: 'Sigla per podcast indipendente',
-					detail: 'Prima commissione retribuita. Trentacinque secondi, riconoscibili entro i primi tre.',
+					detail:
+						'Prima commissione retribuita. Trentacinque secondi, riconoscibili entro i primi tre. Un tema in tre versioni (piena, ridotta e solo ritmo) per aprire, chiudere e accompagnare ogni puntata, con le voci registrate in una stanza qualsiasi.',
 				},
 				{
+					kind: 'project',
 					period: '2026',
 					label: 'Colonna sonora per cortometraggio',
 					detail: 'Dodici minuti di musica per un film di diciotto. Selezionato in due festival.',
@@ -256,26 +263,32 @@ export const SEED_HOME: Record<Locale, HomeCopy> = {
 			scrollLabel: 'Anna’s path, in chronological order',
 			entries: [
 				{
+					kind: 'certificate',
 					period: '2019–2022',
 					label: 'Music high school, principal study piano',
 					detail: 'Graduated with distinction. Three years of theory, harmony and performance practice.',
 				},
 				{
+					kind: 'degree',
 					period: '2022–2026',
 					label: 'Conservatoire, composition and electronic music',
 					detail: 'Thesis on field recording as compositional material rather than as backdrop.',
 				},
 				{
+					kind: 'experience',
 					period: '2024',
 					label: 'Sound installation, city festival',
 					detail: 'Eight looping minutes for a courtyard, built from recordings of that courtyard.',
 				},
 				{
+					kind: 'project',
 					period: '2025',
 					label: 'Title theme, independent podcast',
-					detail: 'First paid commission. Thirty-five seconds, recognisable inside the first three.',
+					detail:
+						'First paid commission. Thirty-five seconds, recognisable inside the first three. A theme in three versions (full, reduced and rhythm only) to open, close and carry every episode, with voices recorded in whatever room was to hand.',
 				},
 				{
+					kind: 'project',
 					period: '2026',
 					label: 'Score for a short film',
 					detail: 'Twelve minutes of music for an eighteen-minute film. Selected by two festivals.',

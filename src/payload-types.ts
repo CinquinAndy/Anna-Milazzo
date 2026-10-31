@@ -169,8 +169,6 @@ export interface Song {
 export interface Media {
   id: number;
   alt: string;
-  prefix?: string | null;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -191,8 +189,6 @@ export interface Audio {
   id: number;
   peaks?: number[];
   tone?: number[];
-  prefix?: string | null;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -333,8 +329,6 @@ export interface SongsSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
-  prefix?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -354,8 +348,6 @@ export interface MediaSelect<T extends boolean = true> {
 export interface AudioSelect<T extends boolean = true> {
   peaks?: T;
   tone?: T;
-  prefix?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -482,6 +474,10 @@ export interface Home {
     scrollLabel?: string | null;
     entries?:
       | {
+          /**
+           * Sets the colour of the entry on the timeline: one colour for each kind.
+           */
+          kind?: ('degree' | 'certificate' | 'project' | 'experience') | null;
           /**
            * For example 2021–2024.
            */
@@ -686,6 +682,7 @@ export interface HomeSelect<T extends boolean = true> {
         entries?:
           | T
           | {
+              kind?: T;
               period?: T;
               label?: T;
               detail?: T;

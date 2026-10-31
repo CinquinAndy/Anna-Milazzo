@@ -11,11 +11,12 @@ import { BASELINE, BASELINE_TABLES, type DatabaseFacts, planMigrations } from '@
  * migration is executed on a database with no table in it, and on no other. ADR-0011.
  */
 const MIGRATIONS = path.resolve(import.meta.dirname, '../migrations')
-const NEWER = '20261013_185114_payload_3_90_columns'
-
 const names = [...readFileSync(path.join(MIGRATIONS, 'index.ts'), 'utf8').matchAll(/name: '([^']+)'/g)].map(
 	match => match[1] ?? ''
 )
+
+/** Everything written after the baseline: the migrations that DO run on the live database. */
+const NEWER = names.slice(BASELINE.length)
 
 const live = (recorded: readonly string[]): DatabaseFacts => ({
 	migrations: names,
@@ -34,7 +35,7 @@ describe('what a deployment does with each migration', () => {
 	it('lists the baseline by name, and the repository still starts with it', () => {
 		expect(BASELINE).toHaveLength(16)
 		expect(names.slice(0, BASELINE.length)).toEqual([...BASELINE])
-		expect(names).toContain(NEWER)
+		expect(NEWER.length).toBeGreaterThan(0)
 	})
 
 	it('lists the tables the baseline creates, all of them', () => {
@@ -58,7 +59,7 @@ describe('what a deployment does with each migration', () => {
 	])('never executes a baseline migration on the live database when %s', (_, recorded) => {
 		const plan = planMigrations(live(recorded))
 
-		expect(executed(live(recorded))).toEqual([NEWER])
+		expect(executed(live(recorded))).toEqual(NEWER)
 		for (const name of BASELINE) {
 			const step = plan.find(candidate => candidate.name === name)
 			expect(step?.action).toBe(recorded.includes(name) ? 'skip' : 'record')
@@ -68,12 +69,12 @@ describe('what a deployment does with each migration', () => {
 	it('never executes one either when payload_migrations does not exist beside the tables', () => {
 		const facts = { ...live([]), migrationsTable: false }
 
-		expect(executed(facts)).toEqual([NEWER])
+		expect(executed(facts)).toEqual(NEWER)
 		expect(planMigrations(facts).filter(step => step.action === 'record')).toHaveLength(BASELINE.length)
 	})
 
 	it('still knows the live database once a later migration has added a table', () => {
-		expect(executed({ ...live([...BASELINE]), otherRelations: ['public.a_table_added_later'] })).toEqual([NEWER])
+		expect(executed({ ...live([...BASELINE]), otherRelations: ['public.a_table_added_later'] })).toEqual(NEWER)
 	})
 
 	it('does nothing the second time', () => {

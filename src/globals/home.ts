@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload'
+import { DEFAULT_KIND, KIND_LABELS, TIMELINE_KINDS } from '@/lib/timeline/kinds'
 
 /**
  * Every word on the landing page (ADR-0003), headings included, not only the copy
@@ -154,6 +155,19 @@ export const Home: GlobalConfig = {
 					label: { en: 'Entries', it: 'Tappe' },
 					labels: { singular: { en: 'Entry', it: 'Tappa' }, plural: { en: 'Entries', it: 'Tappe' } },
 					fields: [
+						{
+							name: 'kind',
+							type: 'select',
+							defaultValue: DEFAULT_KIND,
+							label: { en: 'Kind', it: 'Tipo' },
+							options: TIMELINE_KINDS.map(kind => ({ value: kind, label: KIND_LABELS[kind] })),
+							admin: {
+								description: {
+									en: 'Sets the colour of the entry on the timeline: one colour for each kind.',
+									it: 'Decide il colore della tappa nel percorso: un colore per ogni tipo.',
+								},
+							},
+						},
 						{
 							name: 'period',
 							type: 'text',
