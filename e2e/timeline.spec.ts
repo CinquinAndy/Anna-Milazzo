@@ -200,6 +200,14 @@ test.describe('the kinds of entry', () => {
 test.describe('a clip too short for its text', () => {
 	const PODCAST = 'Sigla per podcast indipendente'
 
+	test.beforeEach(async ({ page }) => {
+		// The section slides in as it is scrolled to, and Playwright clicks at the coordinates
+		// it measured a frame earlier. Mid-slide the button is no longer there and the click
+		// lands on the clip behind it: measured at 16 of 40 runs without this, 0 of 40 with
+		// it. A reader does not click a button in the middle of a half-second entrance.
+		await page.emulateMedia({ reducedMotion: 'reduce' })
+	})
+
 	test('opens to its full text, makes its lane taller, and closes again', async ({ page }) => {
 		await page.setViewportSize({ width: 1440, height: 900 })
 		await page.goto('/')

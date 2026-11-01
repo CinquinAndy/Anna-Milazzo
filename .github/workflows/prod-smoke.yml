@@ -1,0 +1,27 @@
+# A look at the live site every few hours. Dependencies merge themselves and Coolify deploys
+# whatever reaches main (ADR-0012), so something has to notice if the running site stops being
+# the site: the real database, the real bucket and the real domain are the one thing the
+# pre-merge checks cannot see. A failing run is the alarm, GitHub tells whoever owns the
+# repository, and it can be started by hand from the Actions tab after a deploy.
+name: Live site
+
+on:
+  schedule:
+    # Not on the hour, when every other scheduled job in the world starts.
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Is the live site up
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - run: bun scripts/prod-smoke.mjs

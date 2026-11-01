@@ -3,15 +3,19 @@
 	"extends": ["config:recommended", ":dependencyDashboard", ":semanticCommits"],
 	"timezone": "Europe/Paris",
 	"description": [
+		"Everything below a major merges itself once the three required checks are green, and nothing above one does. The checks are the safety: type-check and unit tests, a production build with the 300-odd end-to-end tests against a real database, and a comparison of what the browser computes for every element on every page, which fails a bot's pull request if a single one moved. See ADR-0012.",
 		"All of Monday, not a narrow window inside it. A schedule is the time at which Renovate must itself be RUNNING to create a branch, not a window a pending update waits inside. The first version of this file said 'before 6am on monday'; the hosted app runs this repository a few times a day, never happened to run between midnight and 6am on a Monday, and so produced nothing at all for a month while the dashboard listed eighteen updates as 'Awaiting Schedule'. Twenty-four hours is wide enough to be hit and still batches everything into one day a week.",
-		"Same reasoning for lockFileMaintenance: the whole first day of the month, not the first six hours of it."
+		"Same reasoning for lockFileMaintenance: the whole first day of the month, not the first six hours of it.",
+		"There is no postUpdateOptions on purpose. The value 'bunlock' that used to be here is not one Renovate allows, and the hosted app answers an invalid file by opening an issue and creating nothing at all, which is how this repository went from 22 October to the day this was fixed without a single update. Renovate updates bun.lock by itself. CI now runs the validator in strict mode so it cannot happen again."
 	],
 	"schedule": ["* * * * 1"],
-	"prConcurrentLimit": 4,
-	"prHourlyLimit": 2,
+	"prConcurrentLimit": 5,
+	"prHourlyLimit": 4,
 	"rangeStrategy": "pin",
 	"labels": ["dependencies"],
-	"postUpdateOptions": ["bunlock"],
+	"automerge": true,
+	"minimumReleaseAge": "3 days",
+	"internalChecksFilter": "strict",
 	"lockFileMaintenance": {
 		"enabled": true,
 		"schedule": ["* * 1 * *"],
@@ -19,16 +23,14 @@
 	},
 	"packageRules": [
 		{
-			"description": "Never merge a major on its own. A major is a reading job, and the dashboard is where it waits.",
-			"matchUpdateTypes": ["major"],
-			"automerge": false,
-			"addLabels": ["major"]
+			"description": "Not Renovate's to touch. `engines.node` is a floor, '>=20.9.0', and the pin strategy rewrote it to the exact version 'v26.12.1', which is a Node this project does not run (the image is Node 24) and which would refuse to install anywhere else. The runtime is decided in the Dockerfile.",
+			"matchDepTypes": ["engines"],
+			"enabled": false
 		},
 		{
-			"description": "Payload is one product across six packages and they must move together; a mismatch does not build. Manual because a Payload minor can carry a schema change, which needs a migration rather than a merge.",
+			"description": "Payload is one product across six packages and they must move together; a mismatch does not build. A minor can carry a schema change: that fails the build's migration step (it checks every column the config reads is there) before an image exists, and the live site keeps serving.",
 			"matchPackageNames": ["payload", "@payloadcms/**"],
-			"groupName": "payload",
-			"automerge": false
+			"groupName": "payload"
 		},
 		{
 			"description": "React and its types move together or the build disagrees with itself.",
@@ -41,32 +43,28 @@
 			"groupName": "tailwind"
 		},
 		{
-			"description": "Next is read by hand. This project pins it, the framework's own agent notes warn that its APIs move, and a bump here can change how every page is rendered.",
-			"matchPackageNames": ["next"],
+			"description": "The bun that runs the tests (package.json) and the bun in the production image (Dockerfile) are the same version or the lockfile means two things. They moved in two pull requests once; src/tests/toolchain.test.ts fails if they ever differ.",
+			"matchPackageNames": ["bun", "oven/bun"],
+			"groupName": "bun"
+		},
+		{
+			"description": "A 0.x minor is a breaking change by the convention of the ecosystem, and this project has two of them in the path of what a visitor sees (sharp resizes and encodes every image, including the share cards). They wait to be read.",
+			"matchCurrentVersion": "/^0\\./",
+			"matchUpdateTypes": ["minor"],
 			"automerge": false,
 			"addLabels": ["needs a read"]
 		},
 		{
-			"description": "The toolchain cannot change what a visitor sees, only whether the gate is honest about it, and the gate runs on the same pull request. Patch and minor merge themselves once CI is green.",
-			"matchDepTypes": ["devDependencies"],
-			"matchUpdateTypes": ["patch", "minor"],
-			"automerge": true
-		},
-		{
-			"description": "Runtime dependencies merge themselves on a patch only, and only behind the render comparison, which fails a bot's pull request if a single element on any page moved.",
-			"matchDepTypes": ["dependencies"],
-			"matchUpdateTypes": ["patch"],
-			"automerge": true
-		},
-		{
-			"description": "Sharp compiles native binaries per platform and the build machine is not this laptop. Read it.",
-			"matchPackageNames": ["sharp"],
-			"automerge": false
+			"description": "Last, so it wins. Never merge a major on its own. A major is a reading job, and the dashboard is where it waits.",
+			"matchUpdateTypes": ["major"],
+			"automerge": false,
+			"addLabels": ["major"]
 		}
 	],
 	"vulnerabilityAlerts": {
-		"description": "A security fix does not wait for Monday.",
+		"description": "A security fix does not wait for Monday, or for three days.",
 		"schedule": ["at any time"],
+		"minimumReleaseAge": null,
 		"labels": ["security"]
 	}
 }
