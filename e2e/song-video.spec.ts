@@ -5,8 +5,8 @@ import { hydrated } from './hydrated'
  * The videos on the works: a link Anna pastes, a player that exists only after a press
  * (ADR-0013).
  *
- * The seed gives two of its works a link, a Vimeo one on the first page of the pager and a
- * YouTube one on the second, and leaves the rest without. The provider's hosts are
+ * The seed gives two of its works a link, a Vimeo one and a YouTube one, both on the first page of
+ * the pager, and leaves the rest without. The provider's hosts are
  * intercepted so nothing here depends on, or reaches, anybody's servers.
  */
 const VIMEO_SONG = 'notturno-per-tram-vuoto'
@@ -81,9 +81,6 @@ test.describe('a video on a work', () => {
 		await page.goto('/')
 		await hydrated(page)
 
-		// The second page of the pager: paging is not fetching, so the play button was
-		// already in the document, hidden.
-		await page.locator('.song-pager-page').nth(1).click()
 		await song(page, YOUTUBE_SONG).locator('.song-video-start').click()
 
 		await expect(song(page, YOUTUBE_SONG).locator('iframe')).toHaveAttribute(
