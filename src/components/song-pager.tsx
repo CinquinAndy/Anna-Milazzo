@@ -3,10 +3,11 @@
 import { Children, type ReactNode, useEffect, useRef, useState } from 'react'
 
 /**
- * How many works one page holds. Three: a Folder is tall, and three of them is about
- * as much as anyone reads before they want to know whether there is more.
+ * How many works one page holds. Four: the Folders sit two to a row from tablet width up,
+ * so four is two full rows, and an odd count would leave a gap on the last one. On a phone
+ * they stack and four is a long scroll, but still a page rather than the whole body of work.
  */
-const PER_PAGE = 3
+const PER_PAGE = 4
 
 /** Two digits, so the pages read as a set rather than as a running count. */
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -78,11 +79,11 @@ export function SongPager({
 			<ul
 				ref={listRef}
 				tabIndex={-1}
-				className="song-list mt-10 flex list-none flex-col gap-[clamp(2.5rem,8vw,4rem)] p-0"
+				className="song-list mt-10 grid list-none grid-cols-1 items-stretch gap-[clamp(2.5rem,8vw,4rem)] p-0 md:grid-cols-2"
 			>
 				{items.map((item, index) => (
 					// biome-ignore lint/suspicious/noArrayIndexKey: position in the stack is the identity here
-					<li key={index} hidden={index < first || index >= first + PER_PAGE}>
+					<li key={index} className="flex" hidden={index < first || index >= first + PER_PAGE}>
 						{item}
 					</li>
 				))}

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 /** Matches PER_PAGE in src/components/song-pager.tsx. */
-const PER_PAGE = 3
+const PER_PAGE = 4
 
 const items = (page: import('@playwright/test').Page) => page.locator('[data-song-pager] > ul > li')
 const shown = (page: import('@playwright/test').Page) => page.locator('[data-song-pager] > ul > li:not([hidden])')

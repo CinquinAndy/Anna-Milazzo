@@ -1,7 +1,7 @@
 import { expect, type Page, test } from '@playwright/test'
 
 /** Matches PER_PAGE in src/components/song-pager.tsx. */
-const PER_PAGE = 3
+const PER_PAGE = 4
 
 /**
  * Runs `check` once for every page of works, stepping the pager between them.
@@ -165,14 +165,22 @@ test.describe('the Folder stack', () => {
 		await eachPage(page, async pageIndex => {
 			const boxes = await page
 				.locator('[data-song-stack] li:not([hidden]) .folder')
-				.evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect()).map(b => ({ top: b.top, bottom: b.bottom })))
+				.evaluateAll(nodes =>
+					nodes
+						.map(n => n.getBoundingClientRect())
+						.map(b => ({ top: b.top, bottom: b.bottom, left: b.left, right: b.right }))
+				)
 
 			expect(boxes.length, `page ${pageIndex + 1} shows no works`).toBeGreaterThan(0)
-			for (let i = 1; i < boxes.length; i++) {
-				expect(
-					boxes[i]?.top ?? 0,
-					`on page ${pageIndex + 1}, Folder ${i + 1} overlaps the one above it`
-				).toBeGreaterThan(boxes[i - 1]?.bottom ?? 0)
+			// Two to a row from tablet width up, one to a row below it: either way, no box
+			// may share any area with another.
+			for (let i = 0; i < boxes.length; i++) {
+				for (let j = i + 1; j < boxes.length; j++) {
+					const a = boxes[i]
+					const b = boxes[j]
+					const apart = !a || !b || a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top
+					expect(apart, `on page ${pageIndex + 1}, Folder ${j + 1} overlaps Folder ${i + 1}`).toBe(true)
+				}
 			}
 		})
 	})

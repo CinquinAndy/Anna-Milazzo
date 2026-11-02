@@ -596,6 +596,22 @@
 		 * instead puts a black notch inside the silhouette where they join, and
 		 * steps where the tab's right edge meets the body. */
 		filter: drop-shadow(var(--folder-shadow) var(--folder-shadow) 0 var(--border));
+		/* Two to a row from tablet width up: the card fills its list item, so a row of
+		 * Folders reads as a shelf of the same height. */
+		inline-size: 100%;
+	}
+
+	.folder-body {
+		flex: 1;
+	}
+
+	/* On the shelf every tab sits at the start, as on a row of real folders; alternating
+	 * sides only made sense down a single column. */
+	@media (width >= 48rem) {
+		.folder[data-tab="end"] .folder-tab {
+			margin-inline-start: 1.5rem;
+			margin-inline-end: 0;
+		}
 	}
 
 	/* `<`, not `<=`. Tailwind's sm: is `(width >= 40rem)` and md: is `(width >= 48rem)`, both

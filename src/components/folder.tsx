@@ -96,8 +96,8 @@ export function Folder({
 				{position}
 			</div>
 
-			<div className="folder-body grid gap-6 p-5 sm:p-7 md:grid-cols-[minmax(0,16rem)_1fr] md:gap-10">
-				<div className="folder-sleeve relative w-full max-w-[16rem] justify-self-center md:justify-self-start">
+			<div className="folder-body grid content-start gap-6 p-5 sm:p-7">
+				<div className="folder-sleeve relative w-full max-w-[16rem] justify-self-center">
 					{/* Turning only while this Song plays. A disc that spins regardless is
 					    wallpaper; one that spins exactly when there is sound is the clearest
 					    "this is playing" signal there is, and it answers the complaint that you
