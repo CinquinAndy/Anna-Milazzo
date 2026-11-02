@@ -69,7 +69,7 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
 				<About about={home.about} />
 				<Skills skills={home.skills} />
 				<Marquee skills={home.skills} />
-				<SongStack songs={songs} labels={home.songs} />
+				<SongStack songs={songs} labels={home.songs} locale={locale} />
 				<Timeline timeline={home.timeline} scrollLabel={home.timeline?.scrollLabel ?? ''} locale={locale} />
 
 				<ContactCta cta={home.contactCta} locale={locale} />

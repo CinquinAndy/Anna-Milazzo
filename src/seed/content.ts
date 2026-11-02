@@ -17,6 +17,8 @@ export type SeedSong = {
 	order: number
 	durationSeconds: number
 	platformUrl?: string
+	/** A YouTube or Vimeo link, shown as a video that loads on click. */
+	videoUrl?: string
 	it: { title: string; story: string }
 	/** `story` absent means untranslated: English must fall back to the Italian. */
 	en: { title: string; story?: string }
@@ -28,6 +30,7 @@ export const SEED_SONGS: readonly SeedSong[] = [
 		order: 1,
 		durationSeconds: 24,
 		platformUrl: 'https://open.spotify.com/track/placeholder-notturno',
+		videoUrl: 'https://vimeo.com/76979871',
 		it: {
 			title: 'Notturno per tram vuoto',
 			story:
@@ -89,6 +92,7 @@ export const SEED_SONGS: readonly SeedSong[] = [
 		order: 4,
 		durationSeconds: 27,
 		platformUrl: 'https://open.spotify.com/track/placeholder-studio',
+		videoUrl: 'https://youtu.be/M7lc1UVf-VE',
 		it: {
 			title: 'Studio per due mani',
 			story:
@@ -510,6 +514,7 @@ export const SEED_LEGALS: Record<Locale, LegalsCopy> = {
 			'Il modulo è protetto da Cloudflare Turnstile, che tratta dati tecnici del vostro browser al solo scopo di distinguere una persona da un programma automatico.',
 			'Questo sito non usa cookie pubblicitari e non profila nessuno. I caratteri tipografici sono ospitati qui e non vengono richiesti a terzi, quindi visualizzarli non comporta alcun trasferimento di dati.',
 			'La misurazione del pubblico è affidata a Umami, ospitato su un server del titolare e non presso un fornitore terzo. Non usa cookie, non salva nulla sul vostro dispositivo, non assegna un identificatore permanente e non registra il percorso di una singola persona: produce soltanto statistiche aggregate, cioè pagine viste, pagina di provenienza, tipo di dispositivo e paese. Per questo il sito non vi chiede alcun consenso per i cookie: non ce ne sono.',
+			'Alcuni brani hanno un video, ospitato su YouTube o su Vimeo. Finché non premete il tasto per guardarlo, il vostro browser non contatta nessuno dei due servizi: non viene inviato loro alcun dato e non viene salvato nulla sul vostro dispositivo. Se lo avviate, il video viene caricato dal fornitore, in modalità senza cookie per YouTube (youtube-nocookie.com) e con il rifiuto del tracciamento per Vimeo, e da quel momento il trattamento dei dati è regolato dalla sua informativa: YouTube è un servizio di Google Ireland Limited, Vimeo di Vimeo, Inc.',
 			'Avete diritto di accedere ai vostri dati, di rettificarli, di chiederne la cancellazione, di limitarne il trattamento e di opporvi. Per esercitarli, scrivete dalla pagina contatti o all’indirizzo indicato sopra.',
 			'Se ritenete che i vostri diritti non siano rispettati, potete presentare reclamo all’autorità di controllo competente: il Garante per la protezione dei dati personali in Italia, o la CNIL in Francia.',
 		],
@@ -544,6 +549,7 @@ export const SEED_LEGALS: Record<Locale, LegalsCopy> = {
 			'The form is protected by Cloudflare Turnstile, which processes technical data from your browser for the sole purpose of telling a person from an automated program.',
 			'This site uses no advertising cookies and profiles nobody. The typefaces are hosted here and are not requested from a third party, so displaying them transfers no data.',
 			'Audience measurement is done with Umami, running on the controller’s own server rather than at a third-party provider. It sets no cookie, stores nothing on your device, assigns no permanent identifier and records no individual’s path through the site: it produces aggregate figures only, meaning pages viewed, referring page, device type and country. That is why this site never asks you to accept cookies: there are none.',
+			'Some works have a video, hosted on YouTube or Vimeo. Until you press the button to watch it, your browser contacts neither service: nothing is sent to them and nothing is stored on your device. If you start it, the video is loaded from the provider, in YouTube’s no-cookie mode (youtube-nocookie.com) and with Vimeo’s do-not-track setting, and from that moment its handling of data is governed by its own privacy policy: YouTube is a service of Google Ireland Limited, Vimeo of Vimeo, Inc.',
 			'You have the right to access your data, to correct it, to ask for it to be erased, to restrict its processing and to object. To exercise those rights, write from the contact page or to the address above.',
 			'If you believe your rights are not being respected, you may lodge a complaint with the competent supervisory authority: the Garante per la protezione dei dati personali in Italy, or the CNIL in France.',
 		],

@@ -108,6 +108,7 @@ async function upsertSong(payload: Payload, song: SeedSong): Promise<void> {
 		// Explicitly null rather than omitted: an omitted key leaves whatever is stored,
 		// so a Song that is meant to have no link would keep an old one forever.
 		platformUrl: song.platformUrl ?? null,
+		videoUrl: song.videoUrl ?? null,
 		reference: song.reference,
 	}
 

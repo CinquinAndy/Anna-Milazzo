@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { validateVideoUrl } from '@/lib/video'
 
 /**
  * One audio work by Anna: a title, a story, a cover, the audio itself, and an optional
@@ -84,6 +85,21 @@ export const Songs: CollectionConfig = {
 				description: {
 					en: 'Optional. Left empty, no link is shown.',
 					it: 'Facoltativo. Se vuoto, non viene mostrato alcun link.',
+				},
+			},
+		},
+		{
+			name: 'videoUrl',
+			type: 'text',
+			// Optional and not localized, like the streaming link: one video is one address. A link
+			// and not an upload on purpose: a file is hundreds of megabytes through the admin and
+			// out of the bucket, and the video already lives on a platform built to serve it.
+			validate: validateVideoUrl,
+			label: { en: 'Video link', it: 'Link al video' },
+			admin: {
+				description: {
+					en: 'Optional. A YouTube or Vimeo link. The video loads only when a visitor presses play.',
+					it: 'Facoltativo. Un link di YouTube o Vimeo. Il video si carica solo quando chi visita preme play.',
 				},
 			},
 		},

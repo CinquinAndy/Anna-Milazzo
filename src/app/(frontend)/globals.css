@@ -1443,6 +1443,55 @@
 		line-height: 1.25;
 	}
 
+	/* A video that loads on request (ADR-0013). Closed it is one button drawn on the page's own
+	 * ground, with nothing fetched for it; open it is the provider's player in the same box, so
+	 * nothing moves when it arrives. */
+	.song-video {
+		position: relative;
+		margin-block-start: calc(var(--spacing) * 6);
+		max-inline-size: 36rem;
+		aspect-ratio: 16 / 9;
+		border: var(--border-brutal) solid var(--border);
+		background-color: var(--foreground);
+		box-shadow: var(--shadow-sm);
+	}
+
+	.song-video-start {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: calc(var(--spacing) * 3);
+		inline-size: 100%;
+		block-size: 100%;
+		background-color: var(--foreground);
+		color: var(--card);
+		font-family: var(--font-mono);
+		font-size: 0.875rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+
+	.song-video-start:hover {
+		background-color: var(--card);
+		color: var(--foreground);
+	}
+
+	/* A play triangle drawn in CSS: no icon file and no request. */
+	.song-video-play {
+		inline-size: 2.5rem;
+		block-size: 2.5rem;
+		background-color: var(--lemon);
+		clip-path: polygon(22% 12%, 22% 88%, 90% 50%);
+	}
+
+	.song-video-frame {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		border: 0;
+	}
+
 	.daw-playhead {
 		position: absolute;
 		inset-block: 0;
