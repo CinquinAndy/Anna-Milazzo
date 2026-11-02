@@ -31,17 +31,17 @@
 		"generate:importmap": "bun run payload generate:importmap"
 	},
 	"dependencies": {
-		"@payloadcms/db-postgres": "3.90.2",
-		"@payloadcms/next": "3.90.2",
-		"@payloadcms/richtext-lexical": "3.90.2",
-		"@payloadcms/storage-s3": "3.90.2",
-		"@payloadcms/ui": "3.90.2",
+		"@payloadcms/db-postgres": "3.92.1",
+		"@payloadcms/next": "3.92.1",
+		"@payloadcms/richtext-lexical": "3.92.1",
+		"@payloadcms/storage-s3": "3.92.1",
+		"@payloadcms/ui": "3.92.1",
 		"@react-email/components": "1.0.12",
 		"@react-email/render": "2.2.0",
 		"graphql": "16.14.2",
 		"mpg123-decoder": "1.0.3",
 		"next": "16.4.3",
-		"payload": "3.90.2",
+		"payload": "3.92.1",
 		"react": "19.2.8",
 		"react-dom": "19.2.8",
 		"sharp": "0.34.5"
