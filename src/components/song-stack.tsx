@@ -2,6 +2,7 @@ import { Folder } from '@/components/folder'
 import { Ornament } from '@/components/ornament'
 import { SectionTitle } from '@/components/section-title'
 import { SongPager } from '@/components/song-pager'
+import type { Locale } from '@/lib/locale'
 import type { Home, Song } from '@/payload-types'
 
 /**
@@ -13,7 +14,7 @@ import type { Home, Song } from '@/payload-types'
  * three works the stack is dealt out in pages by SongPager, because a Recruiter who has
  * to scroll through everything to find the end reads none of it.
  */
-export function SongStack({ songs, labels }: { songs: Song[]; labels: Home['songs'] }) {
+export function SongStack({ songs, labels, locale }: { songs: Song[]; labels: Home['songs']; locale: Locale }) {
 	if (songs.length === 0) {
 		return null
 	}
@@ -40,7 +41,7 @@ export function SongStack({ songs, labels }: { songs: Song[]; labels: Home['song
 				<div className="shell">
 					<SongPager previousLabel={labels?.previousLabel} nextLabel={labels?.nextLabel}>
 						{songs.map((song, index) => (
-							<Folder key={song.id} song={song} index={index} labels={labels} />
+							<Folder key={song.id} song={song} index={index} labels={labels} locale={locale} />
 						))}
 					</SongPager>
 				</div>

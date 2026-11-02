@@ -20,6 +20,9 @@ test.describe('the admin panel', () => {
 	test.skip(!process.env.CI, 'creates an administrator, in a database that is thrown away')
 
 	test('creates the first administrator, signs out and back in, and opens the landing page form', async ({ page }) => {
+		// Creating an account hashes a password and signs in, and the suite runs this beside a
+		// dozen other workers. It is slow on a loaded machine, not wrong.
+		test.setTimeout(90_000)
 		const broken: string[] = []
 		page.on('pageerror', error => broken.push(error.message))
 
@@ -38,7 +41,7 @@ test.describe('the admin panel', () => {
 		await page.getByRole('button', { name: 'Create' }).click()
 
 		// The dashboard lists what she can edit.
-		await expect(page).toHaveURL(/\/admin\/?$/)
+		await expect(page).toHaveURL(/\/admin\/?$/, { timeout: 30_000 })
 		await expect(page.getByRole('link', { name: /Landing page/ }).first()).toBeVisible()
 		await expect(page.getByRole('link', { name: /Songs/ }).first()).toBeVisible()
 
@@ -50,7 +53,7 @@ test.describe('the admin panel', () => {
 		await page.locator('input[name="email"]').fill(email)
 		await page.locator('input[name="password"]').fill(password)
 		await page.getByRole('button', { name: 'Login' }).click()
-		await expect(page).toHaveURL(/\/admin\/?$/)
+		await expect(page).toHaveURL(/\/admin\/?$/, { timeout: 30_000 })
 		const me = await page.evaluate(() => fetch('/api/users/me').then(response => response.json()))
 		expect(me.user?.email).toBe(email)
 

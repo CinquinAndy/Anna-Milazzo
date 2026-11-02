@@ -22,8 +22,9 @@ _Avoid_: prestation, gig, service, freelance work
 
 **Song**:
 One audio work by Anna, shown on the Portfolio with a title, a story, a cover image,
-the audio itself, and an optional outbound link to a streaming platform. Covers a
-composition, a study exercise and a Commission alike.
+the audio itself, an optional outbound link to a streaming platform, and an optional
+video: a YouTube or Vimeo link that becomes a player only when a visitor presses play
+(ADR-0013). Covers a composition, a study exercise and a Commission alike.
 _Avoid_: Track, Piece, Project
 
 **Folder**:

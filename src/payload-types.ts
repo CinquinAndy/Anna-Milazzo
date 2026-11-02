@@ -155,6 +155,10 @@ export interface Song {
    */
   platformUrl?: string | null;
   /**
+   * Optional. A YouTube or Vimeo link. The video loads only when a visitor presses play.
+   */
+  videoUrl?: string | null;
+  /**
    * Lowest first. Anna’s strongest work goes at the top.
    */
   order: number;
@@ -318,6 +322,7 @@ export interface SongsSelect<T extends boolean = true> {
   track?: T;
   durationSeconds?: T;
   platformUrl?: T;
+  videoUrl?: T;
   order?: T;
   reference?: T;
   updatedAt?: T;

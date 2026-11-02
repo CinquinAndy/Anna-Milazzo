@@ -1,7 +1,10 @@
 import { Portrait } from '@/components/portrait'
 import { SongTransport } from '@/components/song-transport'
+import { SongVideo } from '@/components/song-video'
 import { Vinyl } from '@/components/vinyl'
+import type { Locale } from '@/lib/locale'
 import type { PlayableSong } from '@/lib/player/controller'
+import { parseVideo, VIDEO_COPY } from '@/lib/video'
 import type { Home, Song } from '@/payload-types'
 
 /**
@@ -45,7 +48,17 @@ function tapeAngle(index: number, side: 'start' | 'end'): number {
  * promise arrow-key navigation between mutually exclusive panels and announce "tab 1 of
  * 5, selected" for something that is simply always there.
  */
-export function Folder({ song, index, labels }: { song: Song; index: number; labels: Home['songs'] }) {
+export function Folder({
+	song,
+	index,
+	labels,
+	locale,
+}: {
+	song: Song
+	index: number
+	labels: Home['songs']
+	locale: Locale
+}) {
 	// Alternating down the column, so tabs never collide as the stack scrolls.
 	const tabSide = index % 2 === 0 ? 'start' : 'end'
 	const position = String(index + 1).padStart(2, '0')
@@ -59,6 +72,10 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 	// Measured beside the waveform on upload: where the track's energy sits in the spectrum
 	// over its length, which is what gives each bar its colour.
 	const trackTone = typeof song.track === 'object' ? (song.track.tone ?? null) : null
+
+	// The link Anna pasted, or nothing: a link that is not a video this site embeds is not
+	// shown, rather than shown broken. The admin refuses one when she saves.
+	const video = parseVideo(song.videoUrl)
 
 	// `Portrait` renders nothing for an upload that is missing or that came back as a bare
 	// id, and a record with no sleeve in front of it is a black circle sitting on the paper.
@@ -130,6 +147,15 @@ export function Folder({ song, index, labels }: { song: Song; index: number; lab
 							playLabel={labels?.listenLabel ?? 'Play'}
 							pauseLabel={labels?.pauseLabel ?? 'Pause'}
 							seekLabel={labels?.seekLabel ?? 'Seek'}
+						/>
+					)}
+
+					{video === null ? null : (
+						<SongVideo
+							embedUrl={video.embedUrl}
+							watchUrl={video.watchUrl}
+							title={song.title}
+							label={VIDEO_COPY[locale].watch}
 						/>
 					)}
 
