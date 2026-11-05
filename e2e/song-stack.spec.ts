@@ -150,9 +150,11 @@ test.describe('the Folder', () => {
 			}
 		})
 
-		// The row is pulled down by exactly one keyline, the open Tab is drawn over the body,
-		// and its fill runs to its bottom edge in the body's own colour: that is the weld.
-		expect(geometry.overlap).toBeCloseTo(geometry.keyline, 1)
+		// The open Tab runs one keyline and one pixel into the body, is drawn over it, and its
+		// fill runs to its bottom edge in the body's own colour: that is the weld. The pixel
+		// past the keyline lies on the body's fill, so a fractional position never smooths
+		// the clipped edge over the black keyline.
+		expect(geometry.overlap).toBeCloseTo(geometry.keyline + 1, 1)
 		expect(geometry.fillReachesBottom).toBe(0)
 		expect(geometry.tabAbove).toBe(true)
 		expect(geometry.sameColour).toBe(true)
@@ -254,6 +256,11 @@ test.describe('the Folder', () => {
 			0
 		)
 
+		// The scrollbar is hidden, so the edge past which Tabs are hidden says so instead.
+		const row = page.locator('.song-tabs')
+		await expect(row).toHaveAttribute('data-more-end', 'true')
+		await expect(row).not.toHaveAttribute('data-more-start')
+
 		// The last Tab is brought into the row when it is opened from the keyboard.
 		await page.getByRole('tab').first().focus()
 		await page.keyboard.press('End')
@@ -263,6 +270,25 @@ test.describe('the Folder', () => {
 			return row !== undefined && last !== undefined && last.left >= row.left - 1 && last.right <= row.right + 1
 		})
 		expect(inRow, 'the opened Tab is scrolled out of the row').toBe(true)
+		await expect(row).toHaveAttribute('data-more-start', 'true')
+		await expect(row).not.toHaveAttribute('data-more-end')
+	})
+
+	test('at desktop width every Tab fits in the row: the titles give way before it scrolls', async ({ page }) => {
+		await page.setViewportSize({ width: 1440, height: 900 })
+		await page.goto('/')
+		await hydrated(page)
+
+		const row = page.locator('.song-tabs')
+		await expect(row).not.toHaveAttribute('data-more-end')
+		expect(await row.evaluate(node => node.scrollWidth - node.clientWidth)).toBeLessThanOrEqual(1)
+		// And a title is drawn, not only its number.
+		expect(
+			await page
+				.locator('.song-tab-title')
+				.first()
+				.evaluate(node => node.clientWidth)
+		).toBeGreaterThan(40)
 	})
 })
 
