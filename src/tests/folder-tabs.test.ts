@@ -64,7 +64,7 @@ describe('the fragment each Song answers to', () => {
 	it('is short enough to read in an address bar, and never ends on a hyphen', () => {
 		const slug = slugify('Nocturnal Ashes (Original Soundtrack by Phiboux Adventures) and a great deal more')
 		expect(slug.length).toBeLessThanOrEqual(48)
-		expect(slug).not.toMatch(/-$/)
+		expect(slug).toBe('nocturnal-ashes-original-soundtrack-by-phiboux')
 	})
 
 	it('falls back to the record id when the title leaves nothing', () => {

@@ -1758,9 +1758,14 @@
 		inset-block-end: 0.25rem;
 	}
 
+	/* The cue sits in a corner, as a label stuck on the print, so it hides as little of the
+	 * picture as it can. */
 	.song-video-screen .song-video-start {
 		position: relative;
 		overflow: hidden;
+		align-items: flex-end;
+		justify-content: flex-start;
+		padding: calc(var(--spacing) * 3);
 	}
 
 	.song-video-poster {
@@ -1773,7 +1778,9 @@
 
 	.song-video-screen .song-video-cue {
 		position: relative;
-		padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+		gap: calc(var(--spacing) * 2);
+		padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2.5);
+		font-size: 0.75rem;
 		border: 2px solid var(--card);
 		background-color: var(--foreground);
 		color: var(--card);
@@ -1781,6 +1788,11 @@
 
 	.song-video-screen .song-video-start:hover {
 		background-color: var(--foreground);
+	}
+
+	.song-video-screen .song-video-play {
+		inline-size: 1.5rem;
+		block-size: 1.5rem;
 	}
 
 	.song-video-screen .song-video-start:hover .song-video-cue {

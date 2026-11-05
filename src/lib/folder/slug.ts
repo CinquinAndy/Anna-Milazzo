@@ -1,3 +1,6 @@
+/** The longest fragment, in characters. */
+const MAX = 48
+
 /**
  * The fragment each Song answers to, `/#nocturnal-ashes`, so a Tab can be linked to.
  *
@@ -11,18 +14,21 @@
  * a second Song with the same title is told apart by a counter.
  */
 export function slugify(title: string): string {
-	return (
-		title
-			.normalize('NFKD')
-			// The combining marks the decomposition split off the letters: è becomes e.
-			.replace(/[̀-ͯ]/g, '')
-			.toLowerCase()
-			.replace(/[^a-z0-9]+/g, '-')
-			.replace(/^-+|-+$/g, '')
-			// Long enough to say which work it is, short enough to read in an address bar.
-			.slice(0, 48)
-			.replace(/-+$/g, '')
-	)
+	const slug = title
+		.normalize('NFKD')
+		// The combining marks the decomposition split off the letters: è becomes e.
+		.replace(/[\u0300-\u036f]/g, '')
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-+|-+$/g, '')
+	if (slug.length <= MAX) {
+		return slug
+	}
+	// Long enough to say which work it is, short enough to read in an address bar, and cut
+	// between two words rather than through one.
+	const cut = slug.slice(0, MAX + 1)
+	const lastBreak = cut.lastIndexOf('-')
+	return (lastBreak > MAX / 3 ? cut.slice(0, lastBreak) : slug.slice(0, MAX)).replace(/-+$/g, '')
 }
 
 /** One fragment per Song, in order, never two the same. */
