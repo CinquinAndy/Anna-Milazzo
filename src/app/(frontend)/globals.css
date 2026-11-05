@@ -613,14 +613,17 @@
 		}
 	}
 
-	/* The row scrolls sideways on a phone once there are more Tabs than fit, rather than
-	 * wrapping into a second row that would no longer touch the folder. Scrolling clips in
-	 * both directions, so the row keeps room above the Tabs for the lift on hover. */
+	/* The row scrolls sideways once there are more Tabs than fit, rather than wrapping into
+	 * a second row that would no longer touch the folder. Scrolling clips in both
+	 * directions, so the row keeps room above the Tabs for the lift on hover, and one pixel
+	 * below the body's top border: the open Tab runs that pixel into the body, onto the
+	 * same colour, so where the folder lands on a fractional pixel the clipped edge is
+	 * smoothed over fill and not over the black keyline. */
 	.song-tabs {
 		display: flex;
 		align-items: flex-end;
-		padding-block-start: 0.5rem;
-		margin-block-end: calc(var(--border-brutal) * -1);
+		padding-block: 0.5rem 1px;
+		margin-block-end: calc(var(--border-brutal) * -1 - 1px);
 		overflow-x: auto;
 		overflow-y: hidden;
 		overscroll-behavior-x: contain;
@@ -628,10 +631,27 @@
 		scrollbar-width: none;
 	}
 
+	/* The scrollbar is hidden, so an edge with Tabs past it fades out instead: a row cut off
+	 * cleanly at a Tab boundary would look like the whole set. `Folder` sets the attributes
+	 * from the scroll position. */
+	.song-tabs[data-more-end] {
+		mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent);
+	}
+
+	.song-tabs[data-more-start] {
+		mask-image: linear-gradient(to left, #000 calc(100% - 3rem), transparent);
+	}
+
+	.song-tabs[data-more-start][data-more-end] {
+		mask-image: linear-gradient(to right, transparent, #000 3rem, #000 calc(100% - 3rem), transparent);
+	}
+
 	.song-tab {
 		position: relative;
 		z-index: var(--tab-z, 1);
-		flex: none;
+		/* Shrinks, down to its number, before the row has to scroll: the titles give way
+		 * first, and only once every Tab is down to its number does the row overflow. */
+		flex: 0 1 auto;
 		display: inline-flex;
 		align-items: center;
 		gap: calc(var(--spacing) * 2);
@@ -704,6 +724,7 @@
 	}
 
 	.song-tab-number {
+		flex: none;
 		font-weight: 600;
 	}
 
@@ -719,12 +740,14 @@
 		outline-offset: 3px;
 	}
 
-	/* From tablet width the title is drawn beside the number, cut short with an ellipsis.
-	 * Below it the number is the label and the title is read but not drawn (`sr-only` in
-	 * the markup). */
+	/* From tablet width the title is drawn beside the number, whole while the row has room
+	 * and cut short with an ellipsis once it has not. The cap only keeps one long title from
+	 * taking the row from the others. Below tablet width the number is the label and the
+	 * title is read but not drawn (`sr-only` in the markup). */
 	@media (width >= 48rem) {
 		.song-tab-title {
-			max-inline-size: 18ch;
+			min-inline-size: 0;
+			max-inline-size: 40ch;
 			overflow: hidden;
 			text-overflow: ellipsis;
 		}

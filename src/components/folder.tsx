@@ -64,6 +64,11 @@ export function Folder({ tabs, label, children }: { tabs: readonly FolderTab[]; 
 	const [live, setLive] = useState(false)
 	const tabRefs = useRef<(HTMLAnchorElement | null)[]>([])
 	const folderRef = useRef<HTMLDivElement>(null)
+	const rowRef = useRef<HTMLDivElement>(null)
+	// Which ends of the row have Tabs scrolled out of sight past them, so the stylesheet can
+	// fade that edge. The scrollbar is hidden, and a row cut off cleanly at a Tab boundary
+	// otherwise looks like the whole set.
+	const [more, setMore] = useState({ start: false, end: false })
 	const { state } = useAudioEngine()
 
 	const show = useCallback(
@@ -107,6 +112,27 @@ export function Folder({ tabs, label, children }: { tabs: readonly FolderTab[]; 
 		return () => window.removeEventListener('hashchange', fromAddress)
 	}, [tabs])
 
+	useEffect(() => {
+		const row = rowRef.current
+		if (row === null) {
+			return
+		}
+		const measure = () => {
+			// A pixel of slack: a fractional scroll position never quite reaches the end.
+			const start = row.scrollLeft > 1
+			const end = row.scrollLeft + row.clientWidth < row.scrollWidth - 1
+			setMore(previous => (previous.start === start && previous.end === end ? previous : { start, end }))
+		}
+		measure()
+		const observer = new ResizeObserver(measure)
+		observer.observe(row)
+		row.addEventListener('scroll', measure, { passive: true })
+		return () => {
+			observer.disconnect()
+			row.removeEventListener('scroll', measure)
+		}
+	}, [])
+
 	const onKeyDown = (event: KeyboardEvent<HTMLAnchorElement>, index: number) => {
 		const last = tabs.length - 1
 		const moves: Record<string, number> = {
@@ -144,7 +170,14 @@ export function Folder({ tabs, label, children }: { tabs: readonly FolderTab[]; 
 			style={{ '--folder-fill': current?.fill, '--folder-ink': current?.ink } as React.CSSProperties}
 		>
 			{/* biome-ignore lint/a11y/useAriaPropsSupportedByRole: the role is `tablist` once hydrated, and the label is only set then. */}
-			<div className="song-tabs" role={live ? 'tablist' : undefined} aria-label={live ? label : undefined}>
+			<div
+				ref={rowRef}
+				className="song-tabs"
+				role={live ? 'tablist' : undefined}
+				aria-label={live ? label : undefined}
+				data-more-start={more.start ? 'true' : undefined}
+				data-more-end={more.end ? 'true' : undefined}
+			>
 				{tabs.map((tab, index) => {
 					const selected = index === open
 					const sounding = tab.playId !== null && isPlaying(state, tab.playId)
