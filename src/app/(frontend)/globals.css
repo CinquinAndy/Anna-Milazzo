@@ -635,9 +635,10 @@
 		display: inline-flex;
 		align-items: center;
 		gap: calc(var(--spacing) * 2);
-		/* 44 by 36 at the least, the size a thumb wants (the closed ones are a keyline
-		 * shorter than this and still clear 36). */
+		/* 44 by 36 at the least, the size a thumb wants, on a closed Tab. The open one is a
+		 * keyline taller. */
 		min-inline-size: 4.75rem;
+		min-block-size: 2.375rem;
 		padding-block: 0.6rem 0.5rem;
 		padding-inline: 1rem calc(var(--tab-slant) + 0.6rem);
 		margin-inline-start: calc(var(--tab-overlap) * -1);
@@ -651,40 +652,41 @@
 		white-space: nowrap;
 		scroll-snap-align: start;
 		cursor: pointer;
+		/* The Tab's own box is clipped to the slanted shape too, which the two layers below
+		 * draw: where one Tab lies on the next, a press lands on the Tab that is seen there,
+		 * not on the rectangle of the one in front. Nothing is lost by it, the keyline is
+		 * inside. */
+		clip-path: polygon(0 0, calc(100% - var(--tab-slant)) 0, 100% 100%, 0 100%);
 	}
 
 	.song-tab:first-child {
 		margin-inline-start: 0;
 	}
 
-	/* The slanted edge with its keyline intact. `clip-path` on the Tab itself would cut the
-	 * border off along with the corner, which is why `.folder` never uses it, so the shape
-	 * is two clipped layers instead: ink underneath, the Tab's colour on top, set in by one
-	 * keyline on every side but the bottom. What shows of the ink is the keyline. */
-	.song-tab::before,
-	.song-tab::after {
-		content: "";
-		position: absolute;
-		z-index: -1;
-		clip-path: polygon(0 0, calc(100% - var(--tab-slant)) 0, 100% 100%, 0 100%);
-	}
-
-	.song-tab::before {
-		inset: 0;
+	/* The slanted edge with its keyline intact. The Tab is ink, clipped to its shape, and its
+	 * colour is a second layer clipped the same way and set in by one keyline on every side
+	 * but the bottom: what shows of the ink is the keyline. A border would be cut off along
+	 * the slant, which is why `.folder` never clips. */
+	.song-tab {
 		background-color: var(--border);
 	}
 
 	.song-tab::after {
+		content: "";
+		position: absolute;
+		z-index: -1;
 		/* A hair more on the slanted side: measured across a slope, one keyline of offset
 		 * draws a line thinner than the others. */
 		inset: var(--border-brutal) calc(var(--border-brutal) + 1px) 0 var(--border-brutal);
 		background-color: var(--tab-fill);
+		clip-path: polygon(0 0, calc(100% - var(--tab-slant)) 0, 100% 100%, 0 100%);
 	}
 
 	/* The open one: in front of the body, a keyline taller, its fill running down over the
 	 * body's top border, which is the weld. */
 	.song-tab[data-open="true"] {
 		z-index: 100;
+		min-block-size: calc(2.375rem + var(--border-brutal));
 		padding-block-start: calc(0.6rem + var(--border-brutal));
 	}
 
@@ -701,35 +703,29 @@
 		}
 	}
 
-	/* Drawn inside the Tab and in its own type colour. The site's blue ring sits outside a
-	 * control, and here it would be clipped by the scrolling row and lost against the blue
-	 * Tab. */
-	.song-tab:focus-visible {
-		outline: 3px solid var(--tab-ink);
-		outline-offset: -9px;
-	}
-
 	.song-tab-number {
 		font-weight: 600;
 	}
 
-	/* Below tablet width the number is the label, and the title is read but not drawn. */
-	.song-tab-title {
-		position: absolute;
-		inline-size: 1px;
-		block-size: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
+	/* Round the number, in the Tab's own type colour. The site's blue ring sits outside a
+	 * control, where the Tab's clipped shape and the scrolling row would both cut it off, and
+	 * it would vanish against the blue Tab anyway. */
+	.song-tab:focus-visible {
+		outline: none;
 	}
 
+	.song-tab:focus-visible .song-tab-number {
+		outline: 2px solid var(--tab-ink);
+		outline-offset: 3px;
+	}
+
+	/* From tablet width the title is drawn beside the number, cut short with an ellipsis.
+	 * Below it the number is the label and the title is read but not drawn (`sr-only` in
+	 * the markup). */
 	@media (width >= 48rem) {
 		.song-tab-title {
-			position: static;
-			inline-size: auto;
-			block-size: auto;
 			max-inline-size: 18ch;
-			clip-path: none;
+			overflow: hidden;
 			text-overflow: ellipsis;
 		}
 	}
@@ -1315,8 +1311,10 @@
 	}
 
 	/* Below the width at which the cover stops being capped at 16rem, the runway is the
-	 * sheet's own padding rather than a column gap. */
-	@media (width < 23rem) {
+	 * sheet's own padding rather than a column gap. 25rem rather than the 23 it was before
+	 * the Folder: the sheet now sits inside the Folder's own border and padding, and at
+	 * 375px the full travel left the rim 2px from the sheet's edge. */
+	@media (width < 25rem) {
 		.folder-disc {
 			--disc-out: 0.75rem;
 		}
