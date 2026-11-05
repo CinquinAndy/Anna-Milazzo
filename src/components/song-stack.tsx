@@ -1,23 +1,39 @@
-import { Folder } from '@/components/folder'
+import { Folder, type FolderTab } from '@/components/folder'
 import { Ornament } from '@/components/ornament'
 import { SectionTitle } from '@/components/section-title'
-import { SongPager } from '@/components/song-pager'
+import { pad, SongSheet } from '@/components/song-sheet'
+import { songSlugs } from '@/lib/folder/slug'
+import { tabColour } from '@/lib/folder/tab-colours'
 import type { Locale } from '@/lib/locale'
 import type { Home, Song } from '@/payload-types'
 
+/** The Tabs' group name when the section has no heading: what a screen reader calls the row. */
+const TABS_LABEL: Record<Locale, string> = { it: 'Brani', en: 'Works' }
+
 /**
- * Every Song, each in its own Folder, stacked down the page in the order Anna set.
+ * Every Song, filed in one Folder in the order Anna set, one numbered Tab each (ADR-0014).
  *
- * A list of articles. Every Folder on the page is fully visible with nothing to open or
- * expand, which is also why the stack does not overlap: an overlapping card puts one tap
- * target under another, and at 375px the top one wins in ways nobody can predict. Past
- * three works the stack is dealt out in pages by SongPager, because a Recruiter who has
- * to scroll through everything to find the end reads none of it.
+ * The sheets are rendered here, on the server, and handed to the Folder as they are: the
+ * Folder only decides which one is open.
  */
 export function SongStack({ songs, labels, locale }: { songs: Song[]; labels: Home['songs']; locale: Locale }) {
 	if (songs.length === 0) {
 		return null
 	}
+
+	const slugs = songSlugs(songs)
+	const tabs: FolderTab[] = songs.map((song, index) => {
+		const colour = tabColour(index)
+		const hasAudio = song.track !== null && song.track !== undefined
+		return {
+			slug: slugs[index] ?? `song-${song.id}`,
+			number: pad(index + 1),
+			title: song.title,
+			playId: hasAudio ? (song.reference ?? String(song.id)) : null,
+			fill: colour.fill,
+			ink: colour.ink,
+		}
+	})
 
 	return (
 		<section
@@ -39,11 +55,11 @@ export function SongStack({ songs, labels, locale }: { songs: Song[]; labels: Ho
 					className="top-10 right-4 h-8 w-8 sm:right-8 sm:h-11 sm:w-11"
 				/>
 				<div className="shell">
-					<SongPager previousLabel={labels?.previousLabel} nextLabel={labels?.nextLabel}>
+					<Folder tabs={tabs} label={labels?.heading ?? TABS_LABEL[locale]}>
 						{songs.map((song, index) => (
-							<Folder key={song.id} song={song} index={index} labels={labels} locale={locale} />
+							<SongSheet key={song.id} song={song} index={index} count={songs.length} labels={labels} locale={locale} />
 						))}
-					</SongPager>
+					</Folder>
 				</div>
 			</div>
 		</section>
