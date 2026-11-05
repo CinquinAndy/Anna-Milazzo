@@ -3,7 +3,7 @@ import { SongTransport } from '@/components/song-transport'
 import { SongVideo } from '@/components/song-video'
 import { Vinyl } from '@/components/vinyl'
 import type { Locale } from '@/lib/locale'
-import type { PlayableSong } from '@/lib/player/controller'
+import { playableSong } from '@/lib/song-sound'
 import { parseVideo, VIDEO_COPY } from '@/lib/video'
 import type { Audio, Home, Media, Song } from '@/payload-types'
 
@@ -80,8 +80,6 @@ export function SongSheet({
 	locale: Locale
 }) {
 	const track = populated<Audio>(song.track)
-	// The audio URL comes from the record, already pointing at the bucket's public domain.
-	const trackUrl = track?.url ?? null
 	// Measured from the file on upload and stored on the audio record, so the waveform is
 	// right on the first frame and costs the visitor nothing to draw.
 	const trackPeaks = track?.peaks ?? null
@@ -96,12 +94,9 @@ export function SongSheet({
 	// `Portrait` renders nothing for an upload that is missing or that came back as a bare
 	// id, and a record with no sleeve in front of it is a black circle sitting on the paper.
 	const cover = populated<Media>(song.cover)
-	// `reference` is a seed handle and a test selector, hidden from the admin, so every
-	// Song Anna creates herself has none. Falling back to the record id keeps the player
-	// present for those.
 	const handle = song.reference ?? String(song.id)
-	const playable: PlayableSong | null =
-		trackUrl && song.durationSeconds ? { id: handle, source: trackUrl, durationSeconds: song.durationSeconds } : null
+	// The same answer the Tab gets in `SongStack`, so the two never disagree.
+	const playable = playableSong(song)
 
 	// The cover is the video's screen when the video is all there is to play.
 	const screen = playable === null && video !== null

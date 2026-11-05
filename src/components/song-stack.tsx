@@ -5,6 +5,7 @@ import { pad, SongSheet } from '@/components/song-sheet'
 import { songSlugs } from '@/lib/folder/slug'
 import { tabColour } from '@/lib/folder/tab-colours'
 import type { Locale } from '@/lib/locale'
+import { playableSong } from '@/lib/song-sound'
 import type { Home, Song } from '@/payload-types'
 
 /** The Tabs' group name when the section has no heading: what a screen reader calls the row. */
@@ -24,12 +25,11 @@ export function SongStack({ songs, labels, locale }: { songs: Song[]; labels: Ho
 	const slugs = songSlugs(songs)
 	const tabs: FolderTab[] = songs.map((song, index) => {
 		const colour = tabColour(index)
-		const hasAudio = song.track !== null && song.track !== undefined
 		return {
 			slug: slugs[index] ?? `song-${song.id}`,
 			number: pad(index + 1),
 			title: song.title,
-			playId: hasAudio ? (song.reference ?? String(song.id)) : null,
+			playId: playableSong(song)?.id ?? null,
 			fill: colour.fill,
 			ink: colour.ink,
 		}

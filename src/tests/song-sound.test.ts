@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { hasTrack, validateDuration, validateTrack } from '@/lib/song-sound'
+import {
+	hasTrack,
+	playableSong,
+	validateDuration,
+	validateTrack,
+} from '@/lib/song-sound'
+import type { Audio } from '@/payload-types'
 
 const VIDEO = 'https://youtu.be/M7lc1UVf-VE'
 
@@ -45,5 +51,28 @@ describe('the running time', () => {
 		expect(hasTrack({ track: null })).toBe(false)
 		expect(hasTrack({ track: 17 })).toBe(true)
 		expect(hasTrack({ track: { id: 17 } })).toBe(true)
+	})
+})
+
+describe('what the player can play', () => {
+	const audio = { id: 17, url: 'https://media.example/track.mp3' } as Audio
+
+	it('is a Song with a track it can reach and a running time', () => {
+		expect(playableSong({ id: 4, reference: 'nocturnal', track: audio, durationSeconds: 192 })).toEqual({
+			id: 'nocturnal',
+			source: 'https://media.example/track.mp3',
+			durationSeconds: 192,
+		})
+	})
+
+	it('answers to the record id when the Song has no reference', () => {
+		expect(playableSong({ id: 4, reference: null, track: audio, durationSeconds: 192 })?.id).toBe('4')
+	})
+
+	it('is nothing for a Song with no track, a bare id, no URL, or no running time', () => {
+		expect(playableSong({ id: 4, track: null, durationSeconds: 192 })).toBeNull()
+		expect(playableSong({ id: 4, track: 17, durationSeconds: 192 })).toBeNull()
+		expect(playableSong({ id: 4, track: { ...audio, url: null }, durationSeconds: 192 })).toBeNull()
+		expect(playableSong({ id: 4, track: audio, durationSeconds: null })).toBeNull()
 	})
 })
