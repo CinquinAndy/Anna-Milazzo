@@ -550,7 +550,8 @@ E due che **non spariscono**, ma restano vuote, che è peggio: l'"Etichetta del 
 | Cercare il punto focale di un'immagine | Su questo sito non compare | Ritaglia prima di caricare |
 | Aspettarti che l'immagine di anteprima del link cambi quando salvi | Quell'immagine viene creata quando il sito viene messo online, non quando salvi | Chiedi ad Andy di rimettere online il sito. Poi dai tempo alle piattaforme, che tengono in memoria la loro copia |
 | Duplicare un brano già presente | Viene rifiutato al salvataggio, per via del codice "Reference" che deve essere unico | Crea un brano nuovo |
-| Cancellare un'immagine o un MP3 usati da un brano | Rifiutato, con un messaggio tecnico incomprensibile | Prima cambia il file nel brano, poi cancella il vecchio |
+| Cancellare un'immagine usata da un brano | Rifiutato, con un messaggio tecnico incomprensibile | Prima cambia l'immagine nel brano, poi cancella la vecchia |
+| Cancellare un MP3 usato da un brano senza video | Rifiutato, con un messaggio che nomina il brano | Prima togli il file dal brano (o scegline un altro) e salva, poi cancella l'MP3. Se il brano ha un link al video, l'MP3 si può cancellare: il brano resta con il suo video |
 
 ---
 
@@ -591,8 +592,11 @@ La pagina ordina le tappe dagli anni del "Periodo", dalla più recente in alto a
 **Il pannello dice che il documento è bloccato da un altro utente.**
 Hai lo stesso documento aperto in un'altra scheda del browser. Chiudi l'altra scheda e aspetta cinque minuti: tanto dura il blocco. Poi riprova da questa. Se hai fretta, il pannello ti offre di forzare il blocco, ma fallo solo dalla scheda dove ci sono le modifiche che vuoi tenere.
 
-**Provo a cancellare un'immagine o un MP3 e compare un messaggio di errore incomprensibile.**
-È una protezione, non un guasto: quel file è ancora usato da un brano e il sistema si rifiuta di lasciarti creare un buco. L'ordine giusto è: apri il brano, scegli un file diverso, salva, e solo dopo cancella quello vecchio. Oppure cancella prima il brano.
+**Provo a cancellare un'immagine e compare un messaggio di errore incomprensibile.**
+È una protezione, non un guasto: quell'immagine è ancora usata da un brano e il sistema si rifiuta di lasciarti creare un buco. L'ordine giusto è: apri il brano, scegli un'immagine diversa, salva, e solo dopo cancella quella vecchia. Oppure cancella prima il brano.
+
+**Provo a cancellare un MP3 e compare "Questo audio è ancora usato da …".**
+Anche questa è una protezione: il brano nominato nel messaggio resterebbe senza niente da ascoltare. Apri quel brano, togli il file dal campo "Audio" (o scegline un altro), salva, e poi cancella l'MP3. Un brano che ha un link al video non blocca la cancellazione: resta con il suo video.
 
 **Ho cancellato un brano per sbaglio.**
 Il titolo e la storia sono persi, non c'è modo di riaverli. La copertina e l'MP3 invece non sono stati cancellati: sono ancora in "Media" e in "Audio". Puoi ricreare il brano e ricollegare gli stessi file.

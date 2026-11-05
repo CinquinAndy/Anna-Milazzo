@@ -105,7 +105,10 @@ are `songs.track_id` and `songs.duration_seconds`, for a Song whose video carrie
 (ADR-0006).
 
 It passes the test the rules above exist for. It rewrites no row and moves nothing: the
-table only accepts more than it did. Postgres runs it twice without an error, so it is
+table only accepts more than it did. Accepting more is not always free, though: a foreign key
+with `ON DELETE set null` on that column could not fire before and can now, so a relaxation
+must be read beside the column's foreign keys. On `songs.track_id` it can, and the guard
+that replaces the old NOT NULL is in ADR-0006. Postgres runs it twice without an error, so it is
 replayable without `IF NOT EXISTS`, which this statement does not have. And the build still
 serving reads only values that are all still there.
 

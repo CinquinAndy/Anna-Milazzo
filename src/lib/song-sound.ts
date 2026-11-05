@@ -69,3 +69,30 @@ export function playableSong(song: Pick<Song, 'id' | 'reference' | 'track' | 'du
 	}
 	return { id: song.reference ?? String(song.id), source, durationSeconds: song.durationSeconds }
 }
+
+/** What `songsLeftSilent` needs to know of a Song that points at an audio file. */
+type Dependant = { id: number | string; title?: string | null; videoUrl?: string | null }
+
+/**
+ * The Songs that deleting an audio file would leave with nothing to play.
+ *
+ * Postgres answers the deletion of an Audio record with `ON DELETE set null` on
+ * `songs.track_id`, without passing through Payload, so `validateTrack` never sees the
+ * Song it empties. While the audio was required, the column's NOT NULL refused it; since
+ * it is optional the deletion goes through, and a Song without a video is left with a
+ * cover and no sound. The Audio collection asks this before it deletes, and refuses while
+ * the answer is not empty. A Song that has a video it can fall back on is not counted: it
+ * becomes a video-only Song, which is a Song the site knows how to show. ADR-0006.
+ */
+export function songsLeftSilent<T extends Dependant>(songs: readonly T[]): T[] {
+	return songs.filter(song => parseVideo(song.videoUrl) === null)
+}
+
+/** The refusal Anna reads in the admin, in both languages, naming the Songs to change first. */
+export function silentSongsMessage(songs: readonly Dependant[]): string {
+	const titles = songs.map(song => `“${song.title || `#${song.id}`}”`).join(', ')
+	return (
+		`This audio is still used by ${titles}. Remove it from the work first, or add a video link to the work. · ` +
+		`Questo audio è ancora usato da ${titles}. Toglilo prima dal brano, oppure aggiungi al brano un link a un video.`
+	)
+}

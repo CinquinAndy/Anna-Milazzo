@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
 	hasTrack,
 	playableSong,
+	silentSongsMessage,
+	songsLeftSilent,
 	validateDuration,
 	validateTrack,
 } from '@/lib/song-sound'
@@ -74,5 +76,30 @@ describe('what the player can play', () => {
 		expect(playableSong({ id: 4, track: 17, durationSeconds: 192 })).toBeNull()
 		expect(playableSong({ id: 4, track: { ...audio, url: null }, durationSeconds: 192 })).toBeNull()
 		expect(playableSong({ id: 4, track: audio, durationSeconds: null })).toBeNull()
+	})
+})
+
+describe('deleting an audio file', () => {
+	it('is held back by a Song it would leave with nothing to play', () => {
+		const songs = [
+			{ id: 1, title: 'Nocturnal Ashes', videoUrl: null },
+			{ id: 2, title: 'Electric Logo', videoUrl: VIDEO },
+			{ id: 3, title: 'Study', videoUrl: 'https://example.com/not-a-video' },
+		]
+		expect(songsLeftSilent(songs).map(song => song.id)).toEqual([1, 3])
+	})
+
+	it('is not held back by a Song with a video to fall back on, or by no Song at all', () => {
+		expect(songsLeftSilent([{ id: 2, videoUrl: VIDEO }])).toEqual([])
+		expect(songsLeftSilent([])).toEqual([])
+	})
+
+	it('says which Songs to change first, in both languages', () => {
+		const message = silentSongsMessage([
+			{ id: 1, title: 'Nocturnal Ashes' },
+			{ id: 9, title: '' },
+		])
+		expect(message).toMatch(/still used by “Nocturnal Ashes”, “#9”/)
+		expect(message).toMatch(/ancora usato da/)
 	})
 })

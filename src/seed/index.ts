@@ -65,8 +65,10 @@ async function upsertUpload(
 		// `overwriteExistingFiles` is what keeps the name. Without it Payload sees the old
 		// object still in the bucket and sidesteps the collision by appending `-1`, after
 		// which this function can no longer find the record by filename and the next run
-		// creates a duplicate. Deleting the record first is not an option either:
-		// `songs.track` is required, so Postgres refuses while a Song still points at it.
+		// creates a duplicate. Deleting the record first is not an option either: the Audio
+		// collection refuses while a Song with no video still points at it, and for a Song
+		// with one, Postgres would empty `songs.track_id` (`ON DELETE set null`) and detach
+		// the audio from the Song it belongs to.
 		//
 		// Only ever touches a name this seed owns. Anna's own uploads are named by Payload
 		// and never collide with `track-<reference>.mp3`.

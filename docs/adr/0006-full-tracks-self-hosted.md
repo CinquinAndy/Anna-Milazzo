@@ -27,3 +27,12 @@ the Songs that do carry audio, which remain self-hosted in full.
 
 The two columns become nullable through the one kind of column change ADR-0011 allows a
 deploy to run, relaxing a NOT NULL.
+
+That relaxation has one side effect, and it is guarded in code. `songs.track_id` carries
+`ON DELETE set null`: while the column was NOT NULL, deleting an Audio file a Song still
+used failed in Postgres; once it is nullable, Postgres would empty the Song's track on its
+own, past every rule of the Songs collection, and a Song without a video would be left with
+a cover and nothing to play. So the Audio collection refuses that deletion in a
+`beforeDelete` hook, naming the Songs to change first (`songsLeftSilent` in
+`src/lib/song-sound.ts`). A Song with a valid video does not hold the file: deleting it
+turns that Song into a video-only one, which is a Song the site knows how to show.
