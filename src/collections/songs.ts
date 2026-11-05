@@ -1,4 +1,5 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, NumberFieldSingleValidation, UploadFieldSingleValidation } from 'payload'
+import { number, upload } from 'payload/shared'
 import { hasTrack, validateDuration, validateTrack } from '@/lib/song-sound'
 import { validateVideoUrl } from '@/lib/video'
 
@@ -61,8 +62,13 @@ export const Songs: CollectionConfig = {
 			type: 'upload',
 			relationTo: 'audio',
 			// Optional when the video carries the sound, and only then: `validateTrack` refuses
-			// a Song with neither. ADR-0006.
-			validate: (value: unknown, { siblingData }: { siblingData: unknown }) => validateTrack(value, siblingData),
+			// a Song with neither. ADR-0006. A `validate` replaces Payload's own rather than
+			// adding to it, so Payload's is run first: it is the one that checks the value is an
+			// Audio record that exists, and answers a stray id with a sentence, not a SQL error.
+			validate: (async (value, args) => {
+				const own = await upload(value, args)
+				return own === true ? validateTrack(value, args.siblingData) : own
+			}) satisfies UploadFieldSingleValidation,
 			label: { en: 'Audio', it: 'Audio' },
 			admin: {
 				description: {
@@ -75,8 +81,12 @@ export const Songs: CollectionConfig = {
 			name: 'durationSeconds',
 			type: 'number',
 			min: 1,
-			// Required beside an audio file, and hidden without one.
-			validate: (value: unknown, { siblingData }: { siblingData: unknown }) => validateDuration(value, siblingData),
+			// Required beside an audio file, and hidden without one. Payload's own rule first, for
+			// the same reason as on `track`: it is what enforces `min`.
+			validate: ((value, args) => {
+				const own = number(value, args)
+				return own === true ? validateDuration(value, args.siblingData) : own
+			}) satisfies NumberFieldSingleValidation,
 			label: { en: 'Duration in seconds', it: 'Durata in secondi' },
 			admin: {
 				condition: (_, siblingData) => hasTrack(siblingData),
