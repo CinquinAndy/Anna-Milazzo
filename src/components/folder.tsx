@@ -124,6 +124,11 @@ export function Folder({ tabs, label, children }: { tabs: readonly FolderTab[]; 
 	}
 
 	const onClick = (event: MouseEvent<HTMLAnchorElement>, index: number) => {
+		// A link opened in a new tab or window is the browser's to handle: the Tab is a real
+		// link, and its address is worth keeping.
+		if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+			return
+		}
 		// A link without the script, a Tab with it.
 		event.preventDefault()
 		show(index, false)
