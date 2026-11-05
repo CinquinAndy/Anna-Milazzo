@@ -598,19 +598,12 @@
 	 * a keyline shorter, the way the ones at the back of a real folder do. One drop shadow for
 	 * the whole silhouette, for the reason `.folder` gives. */
 	.song-folder {
-		--folder-shadow: 8px;
 		/* The run of the slanted edge on the right of each Tab, and how far each Tab lies on
 		 * the next. */
 		--tab-slant: 1.25rem;
 		--tab-overlap: 0.75rem;
 		position: relative;
 		filter: drop-shadow(var(--folder-shadow) var(--folder-shadow) 0 var(--border));
-	}
-
-	@media (width < 40rem) {
-		.song-folder {
-			--folder-shadow: 5px;
-		}
 	}
 
 	/* The row scrolls sideways once there are more Tabs than fit, rather than wrapping into
@@ -631,19 +624,45 @@
 		scrollbar-width: none;
 	}
 
-	/* The scrollbar is hidden, so an edge with Tabs past it fades out instead: a row cut off
-	 * cleanly at a Tab boundary would look like the whole set. `Folder` sets the attributes
-	 * from the scroll position. */
-	.song-tabs[data-more-end] {
-		mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent);
+	/* The scrollbar is hidden, so an edge with Tabs past it fades into the ground instead: a
+	 * row cut off cleanly at a Tab boundary would look like the whole set. `Folder` draws
+	 * the fades from the scroll position. They cover the row down to the body's top edge
+	 * and no further, so the body's keyline runs on underneath. */
+	.song-folder-frame {
+		/* A closed Tab's height, 44 by 36 at the least, the size a thumb wants. Here and not
+		 * on the Folder, because the fades beside it are measured by it too. */
+		--tab-block: 2.375rem;
+		/* Set here for the same reason: the end fade reaches over the shadow as well. */
+		--folder-shadow: 8px;
+		position: relative;
 	}
 
-	.song-tabs[data-more-start] {
-		mask-image: linear-gradient(to left, #000 calc(100% - 3rem), transparent);
+	@media (width < 40rem) {
+		.song-folder-frame {
+			--folder-shadow: 5px;
+		}
 	}
 
-	.song-tabs[data-more-start][data-more-end] {
-		mask-image: linear-gradient(to right, transparent, #000 3rem, #000 calc(100% - 3rem), transparent);
+	.song-tabs-fade {
+		position: absolute;
+		inset-block-start: 0;
+		/* The row's lift room and a closed Tab: where the body begins (see `.song-tabs`). */
+		block-size: calc(0.5rem + var(--tab-block) - 1px);
+		inline-size: 3rem;
+		pointer-events: none;
+		--fade-ground: var(--accent);
+	}
+
+	.song-tabs-fade[data-side="start"] {
+		inset-inline-start: 0;
+		background: linear-gradient(to left, transparent, var(--fade-ground) 85%);
+	}
+
+	.song-tabs-fade[data-side="end"] {
+		/* Over the drop shadow too, which would otherwise stand as a black bar past the fade. */
+		inset-inline-end: calc(var(--folder-shadow) * -1);
+		inline-size: calc(3rem + var(--folder-shadow));
+		background: linear-gradient(to right, transparent, var(--fade-ground) 85%);
 	}
 
 	.song-tab {
@@ -658,7 +677,7 @@
 		/* 44 by 36 at the least, the size a thumb wants, on a closed Tab. The open one is a
 		 * keyline taller. */
 		min-inline-size: 4.75rem;
-		min-block-size: 2.375rem;
+		min-block-size: var(--tab-block);
 		padding-block: 0.6rem 0.5rem;
 		padding-inline: 1rem calc(var(--tab-slant) + 0.6rem);
 		margin-inline-start: calc(var(--tab-overlap) * -1);
@@ -688,7 +707,10 @@
 	 * but the bottom: what shows of the ink is the keyline. A border would be cut off along
 	 * the slant, which is why `.folder` never clips. */
 	.song-tab {
-		background-color: var(--border);
+		/* Ink, but for the last pixel, which is the Tab's own colour: on the open Tab that
+		 * pixel lies on the body's fill (`.song-tabs`), and ink there would draw the stub of
+		 * a keyline into the body, and a dark hairline where the fill's edge is smoothed. */
+		background: linear-gradient(to top, var(--tab-fill) 1px, var(--border) 1px);
 	}
 
 	.song-tab::after {
@@ -706,7 +728,10 @@
 	 * body's top border, which is the weld. */
 	.song-tab[data-open="true"] {
 		z-index: 100;
-		min-block-size: calc(2.375rem + var(--border-brutal));
+		/* Into the pixel of room the row keeps below the body's top border (see
+		 * `.song-tabs`). */
+		margin-block-end: -1px;
+		min-block-size: calc(var(--tab-block) + var(--border-brutal));
 		padding-block-start: calc(0.6rem + var(--border-brutal));
 	}
 

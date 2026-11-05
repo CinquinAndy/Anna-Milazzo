@@ -163,87 +163,96 @@ export function Folder({ tabs, label, children }: { tabs: readonly FolderTab[]; 
 	const current = tabs[open] ?? tabs[0]
 
 	return (
-		<div
-			ref={folderRef}
-			className="song-folder"
-			data-folder
-			style={{ '--folder-fill': current?.fill, '--folder-ink': current?.ink } as React.CSSProperties}
-		>
-			{/* biome-ignore lint/a11y/useAriaPropsSupportedByRole: the role is `tablist` once hydrated, and the label is only set then. */}
+		// The frame holds the Folder and, outside its drop shadow, the fades that say the row
+		// of Tabs goes on past an edge.
+		<div className="song-folder-frame">
 			<div
-				ref={rowRef}
-				className="song-tabs"
-				role={live ? 'tablist' : undefined}
-				aria-label={live ? label : undefined}
-				data-more-start={more.start ? 'true' : undefined}
-				data-more-end={more.end ? 'true' : undefined}
+				ref={folderRef}
+				className="song-folder"
+				data-folder
+				style={{ '--folder-fill': current?.fill, '--folder-ink': current?.ink } as React.CSSProperties}
 			>
-				{tabs.map((tab, index) => {
-					const selected = index === open
-					const sounding = tab.playId !== null && isPlaying(state, tab.playId)
-					return (
-						// biome-ignore lint/a11y/useAriaPropsSupportedByRole: the link is a `tab` once hydrated, and the ARIA state is only set then.
-						<a
-							key={tab.slug}
-							ref={node => {
-								tabRefs.current[index] = node
-							}}
-							href={`#${tab.slug}`}
-							id={tabId(tab.slug)}
-							className="song-tab"
-							role={live ? 'tab' : undefined}
-							aria-selected={live ? selected : undefined}
-							aria-controls={live ? tab.slug : undefined}
-							// The roving tab stop: Tab reaches the open one, the arrows the rest.
-							tabIndex={live && !selected ? -1 : undefined}
-							data-open={selected ? 'true' : 'false'}
-							data-sounding={sounding ? 'true' : 'false'}
-							style={
-								{
-									'--tab-fill': tab.fill,
-									'--tab-ink': tab.ink,
-									// Each Tab lies on the one after it, as in the reference.
-									'--tab-z': tabs.length - index,
-								} as React.CSSProperties
-							}
-							onClick={event => onClick(event, index)}
-							onKeyDown={event => onKeyDown(event, index)}
-						>
-							<span className="song-tab-number">{tab.number}</span>
-							{/* Read after the number, so the name starts with what is drawn (WCAG
+				{/* biome-ignore lint/a11y/useAriaPropsSupportedByRole: the role is `tablist` once hydrated, and the label is only set then. */}
+				<div
+					ref={rowRef}
+					className="song-tabs"
+					role={live ? 'tablist' : undefined}
+					aria-label={live ? label : undefined}
+					data-more-start={more.start ? 'true' : undefined}
+					data-more-end={more.end ? 'true' : undefined}
+				>
+					{tabs.map((tab, index) => {
+						const selected = index === open
+						const sounding = tab.playId !== null && isPlaying(state, tab.playId)
+						return (
+							// biome-ignore lint/a11y/useAriaPropsSupportedByRole: the link is a `tab` once hydrated, and the ARIA state is only set then.
+							<a
+								key={tab.slug}
+								ref={node => {
+									tabRefs.current[index] = node
+								}}
+								href={`#${tab.slug}`}
+								id={tabId(tab.slug)}
+								className="song-tab"
+								role={live ? 'tab' : undefined}
+								aria-selected={live ? selected : undefined}
+								aria-controls={live ? tab.slug : undefined}
+								// The roving tab stop: Tab reaches the open one, the arrows the rest.
+								tabIndex={live && !selected ? -1 : undefined}
+								data-open={selected ? 'true' : 'false'}
+								data-sounding={sounding ? 'true' : 'false'}
+								style={
+									{
+										'--tab-fill': tab.fill,
+										'--tab-ink': tab.ink,
+										// Each Tab lies on the one after it, as in the reference.
+										'--tab-z': tabs.length - index,
+									} as React.CSSProperties
+								}
+								onClick={event => onClick(event, index)}
+								onKeyDown={event => onKeyDown(event, index)}
+							>
+								<span className="song-tab-number">{tab.number}</span>
+								{/* Read after the number, so the name starts with what is drawn (WCAG
 							    2.5.3) and "click 02" works by voice. Shown, truncated, from tablet
 							    width up, where a title chooses better than a number does. */}
-							<span className="song-tab-title max-md:sr-only">{tab.title}</span>
-							{/* The Song that is sounding, wherever the reader has gone since. */}
-							<span className="song-tab-disc" aria-hidden="true" />
-						</a>
-					)
-				})}
-			</div>
+								<span className="song-tab-title max-md:sr-only">{tab.title}</span>
+								{/* The Song that is sounding, wherever the reader has gone since. */}
+								<span className="song-tab-disc" aria-hidden="true" />
+							</a>
+						)
+					})}
+				</div>
 
-			<div className="song-folder-body">
-				{sheets.map((sheet, index) => {
-					const tab = tabs[index]
-					if (tab === undefined) {
-						return null
-					}
-					const selected = index === open
-					return (
-						<section
-							key={tab.slug}
-							id={tab.slug}
-							className="song-panel"
-							role={live ? 'tabpanel' : undefined}
-							aria-labelledby={live ? tabId(tab.slug) : undefined}
-							// Focusable so a keyboard reader can step from the Tab into the sheet.
-							tabIndex={live ? 0 : undefined}
-							data-open={selected ? 'true' : 'false'}
-						>
-							<SheetOpen.Provider value={selected}>{sheet}</SheetOpen.Provider>
-						</section>
-					)
-				})}
+				<div className="song-folder-body">
+					{sheets.map((sheet, index) => {
+						const tab = tabs[index]
+						if (tab === undefined) {
+							return null
+						}
+						const selected = index === open
+						return (
+							<section
+								key={tab.slug}
+								id={tab.slug}
+								className="song-panel"
+								role={live ? 'tabpanel' : undefined}
+								aria-labelledby={live ? tabId(tab.slug) : undefined}
+								// Focusable so a keyboard reader can step from the Tab into the sheet.
+								tabIndex={live ? 0 : undefined}
+								data-open={selected ? 'true' : 'false'}
+							>
+								<SheetOpen.Provider value={selected}>{sheet}</SheetOpen.Provider>
+							</section>
+						)
+					})}
+				</div>
 			</div>
+			{/* Not a mask on the row: a mask makes the row a stacking context of its own, and
+			    the open Tab could no longer be drawn over the body it is welded to. Not inside
+			    the Folder either, where the drop shadow would draw one under the fade too. */}
+			{more.start ? <span className="song-tabs-fade" data-side="start" aria-hidden="true" /> : null}
+			{more.end ? <span className="song-tabs-fade" data-side="end" aria-hidden="true" /> : null}
 		</div>
 	)
 }
