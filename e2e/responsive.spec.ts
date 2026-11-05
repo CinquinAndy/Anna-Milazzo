@@ -47,7 +47,14 @@ async function open(page: Page, path: string, width: number, height: number) {
 async function survey(page: Page) {
 	return page.evaluate(() => {
 		const vw = document.documentElement.clientWidth
-		const decorative = (el: Element) => el.closest('[aria-hidden="true"]') !== null || el.closest('.sr-only') !== null
+		// Read aloud and never drawn: hidden from the eye by the `sr-only` pattern, whether the
+		// class is on the element itself or applied at one width only (`max-md:sr-only`).
+		const readOnly = (el: Element) => {
+			const s = getComputedStyle(el)
+			return s.position === 'absolute' && Number.parseFloat(s.width) <= 1 && Number.parseFloat(s.height) <= 1
+		}
+		const decorative = (el: Element) =>
+			el.closest('[aria-hidden="true"]') !== null || el.closest('.sr-only') !== null || readOnly(el)
 		const visible = (el: Element) => {
 			const r = el.getBoundingClientRect()
 			const s = getComputedStyle(el)

@@ -174,7 +174,7 @@ export function Folder({ tabs, label, children }: { tabs: readonly FolderTab[]; 
 							{/* Read after the number, so the name starts with what is drawn (WCAG
 							    2.5.3) and "click 02" works by voice. Shown, truncated, from tablet
 							    width up, where a title chooses better than a number does. */}
-							<span className="song-tab-title sr-only md:not-sr-only">{tab.title}</span>
+							<span className="song-tab-title max-md:sr-only">{tab.title}</span>
 							{/* The Song that is sounding, wherever the reader has gone since. */}
 							<span className="song-tab-disc" aria-hidden="true" />
 						</a>
