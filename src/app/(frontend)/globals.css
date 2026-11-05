@@ -869,9 +869,11 @@
 			align-items: start;
 		}
 
-		/* A screen is wider than a sleeve: a 16:9 picture at 16rem is a postage stamp. */
+		/* A screen is wider than a sleeve: a 16:9 picture at 16rem is a postage stamp. Up to
+		 * 22rem, and never more than a little under half the sheet, so on a tablet the words
+		 * beside it keep a column worth reading. */
 		.song-sheet[data-kind="video"] .sheet-body {
-			grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+			grid-template-columns: minmax(0, min(22rem, 45%)) minmax(0, 1fr);
 		}
 	}
 
@@ -1814,6 +1816,19 @@
 	.song-video-screen .song-video-play {
 		inline-size: 1.5rem;
 		block-size: 1.5rem;
+	}
+
+	/* On a phone the screen is a few centimetres wide and a worded label would cover the
+	 * middle of the picture: the triangle alone says play. The button keeps its full name
+	 * in `aria-label`. */
+	@media (width < 40rem) {
+		.song-video-screen .song-video-cue {
+			padding: calc(var(--spacing) * 1.5);
+		}
+
+		.song-video-screen .song-video-cue-label {
+			display: none;
+		}
 	}
 
 	.song-video-screen .song-video-start:hover .song-video-cue {

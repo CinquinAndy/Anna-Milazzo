@@ -99,7 +99,7 @@ export function SongVideo({
 					) : null}
 					<span className="song-video-cue">
 						<span className="song-video-play" aria-hidden="true" />
-						<span>{label}</span>
+						<span className="song-video-cue-label">{label}</span>
 					</span>
 				</button>
 			)}
