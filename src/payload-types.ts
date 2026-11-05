@@ -145,17 +145,20 @@ export interface Song {
    */
   story?: string | null;
   cover: number | Media;
-  track: number | Audio;
+  /**
+   * Optional when a video link is given: the video already carries the sound. Without audio, the work shows its video in place of a record.
+   */
+  track?: (number | null) | Audio;
   /**
    * Stored here so the page can show a running time without loading the audio.
    */
-  durationSeconds: number;
+  durationSeconds?: number | null;
   /**
    * Optional. Left empty, no link is shown.
    */
   platformUrl?: string | null;
   /**
-   * Optional. A YouTube or Vimeo link. The video loads only when a visitor presses play.
+   * Optional. A YouTube or Vimeo link. The video loads only when a visitor presses play. With a video, the audio above may be left empty.
    */
   videoUrl?: string | null;
   /**
@@ -456,13 +459,7 @@ export interface Home {
   songs?: {
     heading?: string | null;
     listenLabel?: string | null;
-    /**
-     * Names the control that steps back through the works. Announced, not drawn.
-     */
     previousLabel?: string | null;
-    /**
-     * Names the control that steps forward through the works. Announced, not drawn.
-     */
     nextLabel?: string | null;
     platformLabel?: string | null;
     pauseLabel?: string | null;
