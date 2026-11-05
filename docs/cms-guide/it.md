@@ -100,7 +100,7 @@ Ecco tutto quello che è obbligatorio. Non c'è altro:
 
 | Dove | Cosa serve per forza |
 |---|---|
-| **Songs** | "Titolo", "Copertina", "Audio", "Durata in secondi", "Ordine". La "Storia" e il "Link alla piattaforma" sono facoltativi |
+| **Songs** | "Titolo", "Copertina", "Ordine", e l'"Audio" (con la sua "Durata in secondi") oppure un "Link al video", o tutti e due. La "Storia" e il "Link alla piattaforma" sono facoltativi |
 | **Media** | Il file, e il "Testo alternativo" |
 | **Audio** | Solo il file. Non c'è niente da riempire |
 | **Home** | "Nome" e "Frase di posizionamento" nell'apertura; il "Nome" di ogni competenza; il "Periodo" e il "Titolo" di ogni tappa del percorso. Tutto il resto, ritratto compreso, è facoltativo |
@@ -173,8 +173,6 @@ Questo gruppo si chiama "Brani", ma non contiene i tuoi lavori: contiene i **tit
 |---|---|
 | **"Titolo"** | Quattro posti insieme: la parola gigante nella fascia nera sopra la sezione arancione, il pulsante arancione nell'apertura, una pastiglia nella barra in alto delle pagine, e una riga nel piè di pagina |
 | **"Etichetta del comando di ascolto"** | Il nome del pulsante con il triangolo. Non si vede mai sullo schermo: viene letto ad alta voce a chi non vede |
-| **"Comando pagina precedente"** | Il nome della freccia a sinistra sotto i lavori. Anche questo solo letto, mai visibile |
-| **"Comando pagina successiva"** | Il nome della freccia a destra. Come sopra |
 | **"Etichetta del link alla piattaforma"** | La parola scritta sul pulsante bianco che porta a Spotify. Questa si vede, e compare solo sui brani che hanno un link. **Se la svuoti il pulsante viene comunque disegnato su ogni brano che ha un link, senza nessuna parola sopra** |
 | **"Etichetta del comando di pausa"** | Il nome dello stesso pulsante del triangolo mentre la musica sta suonando. Solo letto |
 | **"Etichetta del cursore di avanzamento"** | Il nome della barra colorata che si trascina per spostarsi dentro un brano. Solo letto |
@@ -239,13 +237,16 @@ Ogni brano è una scheda di carta sulla home, con la copertina a sinistra e il t
 | **"Titolo"** | Il titolo in maiuscolo accanto alla copertina |
 | **"Storia"** | Il paragrafo sotto il titolo. Facoltativo. Gli a capo vengono mantenuti |
 | **"Copertina"** | L'immagine quadrata a sinistra nella scheda. Decide anche se dietro viene disegnato il disco nero: senza copertina, niente disco |
-| **"Audio"** | Il suono che parte con il triangolo, e l'origine delle barrette colorate sotto |
-| **"Durata in secondi"** | Il secondo numero dell'orologino sotto le barrette |
+| **"Audio"** | Il suono che parte con il triangolo, e l'origine delle barrette colorate sotto. **Facoltativo se c'è un "Link al video"**: il video porta già il suono. Senza audio non c'è disco né triangolo, e la copertina diventa lo schermo del video |
+| **"Durata in secondi"** | Il secondo numero dell'orologino sotto le barrette. Compare solo quando c'è un audio |
+| **"Link al video"** | Facoltativo. Un link di YouTube o Vimeo. Il video si carica solo quando chi visita preme play |
 | **"Link alla piattaforma"** | Facoltativo. Se c'è, sotto il brano compare il pulsante bianco che porta a Spotify. Se è vuoto, non compare nessun pulsante, mai un link rotto |
 | **"Ordine"** | La posizione nella pila. Arriva già compilato con 0 |
 | **"Reference"** | Un codice interno che serve allo script di installazione. Lascialo com'è |
 
-Il numeretto sulla linguetta di ogni scheda ("01", "02") lo mette la pagina in base alla posizione. Non lo scrivi tu.
+Tutti i lavori stanno in un'unica cartella, con una linguetta colorata per lavoro ("01", "02"…) in fila sul bordo in alto: chi visita preme una linguetta e la cartella mostra quel lavoro. Il numero lo mette la pagina in base alla posizione, non lo scrivi tu.
+
+**Togliere l'audio da un lavoro che ha già un video** (un cortometraggio, un logo sonoro): apri il lavoro, nel campo "Audio" premi la piccola X accanto al file per scollegarlo, e salva. Il campo "Durata in secondi" sparisce da solo. Il pannello rifiuta il salvataggio solo se il lavoro resta senza audio e senza un link al video valido. Il file MP3 non viene cancellato: resta in "Audio", e lo puoi eliminare da lì se non ti serve più.
 
 ### "Durata in secondi": leggi questo
 
@@ -261,7 +262,7 @@ Se sbagli, la musica suona lo stesso ma la barra sotto va per conto suo: metti 2
 
 Un brano nuovo **arriva già con 0 nel campo**, e 0 è più basso di tutti i numeri già usati dai tuoi lavori, quindi un brano nuovo che lasci così va in cima alla pila da solo. Non devi fare niente perché sia il primo.
 
-Sulla home i lavori si vedono **tre per volta**, con i numeri di pagina sotto. I lavori dal quarto al sesto stanno sulla seconda pagina, dal settimo al nono sulla terza. Quindi l'ordine non decide solo la posizione: decide anche su quale pagina finisce un lavoro, e chi arriva sul sito vede per primi i primi tre.
+Sulla home le linguette seguono l'ordine da sinistra a destra, e la cartella si apre sulla prima. Quindi chi arriva sul sito vede per primo il lavoro con il numero più basso.
 
 Dai a ogni brano un numero suo. Se due brani hanno lo stesso numero, l'ordine fra loro è casuale. Due cose rendono la faccenda facile:
 
@@ -525,7 +526,7 @@ E due che **non spariscono**, ma restano vuote, che è peggio: l'"Etichetta del 
 - **"Users".** Sono gli account per entrare nel pannello, non è contenuto. Se cancelli il tuo, resti fuori dal pannello e non c'è modo di rientrare, perché il sistema non sa mandarti una mail di recupero.
 - **Il pulsante di cancellazione multipla negli elenchi.** È la maniera più veloce di togliere molte cose con una sola conferma, quindi è la maniera più veloce di perderle. Cancella una cosa per volta, dalla sua schermata.
 - **Il file dentro una scheda di "Media" già esistente.** Sostituirlo cambia l'immagine in tutti i posti dove quella scheda è usata, non solo in quello che stai guardando. Se due brani condividono una copertina, cambiano tutti e due. Vale lo stesso per il ritaglio dentro il pannello. Per cambiare la copertina di un solo brano: carica un'immagine nuova in "Media", poi apri il brano e scegli quella.
-- **Le etichette che non si vedono** ("Comando pagina precedente", "Comando pagina successiva", "Etichetta del cursore di avanzamento", "Etichetta della striscia", "Etichetta del comando di ascolto", "Etichetta del comando di pausa"). Svuotarle toglie il nome a un comando alle persone che non vedono, e a te non mostra niente in cambio.
+- **Le etichette che non si vedono** ("Etichetta del cursore di avanzamento", "Etichetta della striscia", "Etichetta del comando di ascolto", "Etichetta del comando di pausa"). Svuotarle toglie il nome a un comando alle persone che non vedono, e a te non mostra niente in cambio.
 - **Il campo "Reference" di un brano.** È un codice interno che serve allo script di installazione, e deve essere diverso per ogni brano.
 - **Lo stesso documento aperto in due schede.** Il pannello blocca un documento mentre è aperto. Ti troveresti un messaggio che dice che il documento è bloccato da un altro utente, e quell'altro utente saresti tu. Peggio: forzando il blocco dalla scheda vecchia riscriveresti i valori vecchi sopra quelli nuovi. Una scheda per volta.
 - **Lo "script di installazione".** Non lo trovi nel pannello, è una cosa di Andy, ma potrebbe essere nominato in una conversazione. Serviva a riempire il sito la prima volta con i testi provvisori. **Se viene eseguito di nuovo, rimette i testi provvisori al posto dei tuoi**: tutta la home, tutta la pagina contatti, le note legali, le impostazioni con il vecchio indirizzo email, i cinque brani iniziali con le loro copertine e il ritratto di partenza. Le competenze, le tappe e i link che hai aggiunto oltre a quelli iniziali vengono tolti. I brani che hai creato tu e i file che hai caricato tu restano. Se qualcuno ti propone di "rilanciare il seed" o di "rimettere i dati iniziali", **di' di no e chiedi cosa succede ai tuoi testi.** Esiste anche uno script di azzeramento, che cancella tutti i brani e tutti i file: quello non deve essere eseguito mai su questo sito.
@@ -549,7 +550,8 @@ E due che **non spariscono**, ma restano vuote, che è peggio: l'"Etichetta del 
 | Cercare il punto focale di un'immagine | Su questo sito non compare | Ritaglia prima di caricare |
 | Aspettarti che l'immagine di anteprima del link cambi quando salvi | Quell'immagine viene creata quando il sito viene messo online, non quando salvi | Chiedi ad Andy di rimettere online il sito. Poi dai tempo alle piattaforme, che tengono in memoria la loro copia |
 | Duplicare un brano già presente | Viene rifiutato al salvataggio, per via del codice "Reference" che deve essere unico | Crea un brano nuovo |
-| Cancellare un'immagine o un MP3 usati da un brano | Rifiutato, con un messaggio tecnico incomprensibile | Prima cambia il file nel brano, poi cancella il vecchio |
+| Cancellare un'immagine usata da un brano | Rifiutato, con un messaggio tecnico incomprensibile | Prima cambia l'immagine nel brano, poi cancella la vecchia |
+| Cancellare un MP3 usato da un brano senza video | Rifiutato, con un messaggio che nomina il brano | Prima togli il file dal brano (o scegline un altro) e salva, poi cancella l'MP3. Se il brano ha un link al video, l'MP3 si può cancellare: il brano resta con il suo video |
 
 ---
 
@@ -590,8 +592,11 @@ La pagina ordina le tappe dagli anni del "Periodo", dalla più recente in alto a
 **Il pannello dice che il documento è bloccato da un altro utente.**
 Hai lo stesso documento aperto in un'altra scheda del browser. Chiudi l'altra scheda e aspetta cinque minuti: tanto dura il blocco. Poi riprova da questa. Se hai fretta, il pannello ti offre di forzare il blocco, ma fallo solo dalla scheda dove ci sono le modifiche che vuoi tenere.
 
-**Provo a cancellare un'immagine o un MP3 e compare un messaggio di errore incomprensibile.**
-È una protezione, non un guasto: quel file è ancora usato da un brano e il sistema si rifiuta di lasciarti creare un buco. L'ordine giusto è: apri il brano, scegli un file diverso, salva, e solo dopo cancella quello vecchio. Oppure cancella prima il brano.
+**Provo a cancellare un'immagine e compare un messaggio di errore incomprensibile.**
+È una protezione, non un guasto: quell'immagine è ancora usata da un brano e il sistema si rifiuta di lasciarti creare un buco. L'ordine giusto è: apri il brano, scegli un'immagine diversa, salva, e solo dopo cancella quella vecchia. Oppure cancella prima il brano.
+
+**Provo a cancellare un MP3 e compare "Questo audio è ancora usato da …".**
+Anche questa è una protezione: il brano nominato nel messaggio resterebbe senza niente da ascoltare. Apri quel brano, togli il file dal campo "Audio" (o scegline un altro), salva, e poi cancella l'MP3. Un brano che ha un link al video non blocca la cancellazione: resta con il suo video.
 
 **Ho cancellato un brano per sbaglio.**
 Il titolo e la storia sono persi, non c'è modo di riaverli. La copertina e l'MP3 invece non sono stati cancellati: sono ancora in "Media" e in "Audio". Puoi ricreare il brano e ricollegare gli stessi file.

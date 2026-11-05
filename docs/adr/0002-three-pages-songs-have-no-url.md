@@ -1,7 +1,8 @@
 # Three pages only; a Song has no URL of its own
 
 The Portfolio is a landing page, a contact page and a legals page. Every Song lives
-inside the landing page's Folder stack rather than on a page of its own.
+inside the landing page's Folder rather than on a page of its own. Since ADR-0014 each
+Song answers to a fragment of the landing page: a link, still not a page.
 
 Recorded because the obvious move for a portfolio built to get someone hired is a
 per-Song page, an indexable, shareable URL Anna can paste into an application, and we

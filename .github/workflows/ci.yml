@@ -169,6 +169,14 @@ jobs:
           # have different packages, and a stale node_modules would compare nothing. No
           # browser to install: the measuring is done by the one above.
           bun install --frozen-lockfile
+          # The base is measured on its own schema and its own seed. The database was filled
+          # by the pull request's migrations and seed, and a seed that adds a kind of content
+          # the base cannot render (a Song with no audio, the first) crashed the base's page
+          # and failed the gate on a change that had nothing wrong with it. Starting over from
+          # an empty schema keeps each side on what it shipped with.
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
+          bun run migrate
+          SEED_OVERWRITE_LIVE_CONTENT=yes bun run seed
           bun run build
           PORT=3111 bun run start &
           npx --yes wait-on -t 120000 http://localhost:3111/

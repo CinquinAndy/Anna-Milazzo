@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 /**
  * The bar is sticky on every page, so its height is a tax on every screen, and three other
  * things read it: the hero's full-screen height, the scroll padding that keeps an anchor
- * jump from landing underneath it, and the works pager.
+ * jump from landing underneath it, and the Tabs of the works.
  */
 test.describe('the sticky bar', () => {
 	for (const path of ['/', '/en'] as const) {

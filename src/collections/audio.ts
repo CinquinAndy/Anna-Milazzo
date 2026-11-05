@@ -1,5 +1,6 @@
-import type { CollectionConfig } from 'payload'
+import { APIError, type CollectionConfig } from 'payload'
 import { readTrack } from '@/lib/player/decode-track'
+import { silentSongsMessage, songsLeftSilent } from '@/lib/song-sound'
 
 /** One full track per record. Anna holds the masters, see ADR-0006. */
 export const Audio: CollectionConfig = {
@@ -35,6 +36,25 @@ export const Audio: CollectionConfig = {
 		},
 	],
 	hooks: {
+		// Deleting a file a Song still plays would leave that Song with nothing to play:
+		// Postgres empties `songs.track_id` on its own (`ON DELETE set null`), past every rule
+		// of the Songs collection. Refused while it would, and the refusal says which Song to
+		// change first. A Song with a video to fall back on does not hold the file. ADR-0006.
+		beforeDelete: [
+			async ({ id, req }) => {
+				const { docs } = await req.payload.find({
+					collection: 'songs',
+					where: { track: { equals: id } },
+					depth: 0,
+					pagination: false,
+					req,
+				})
+				const silent = songsLeftSilent(docs)
+				if (silent.length > 0) {
+					throw new APIError(silentSongsMessage(silent), 409, null, true)
+				}
+			},
+		],
 		beforeChange: [
 			async ({ data, req }) => {
 				const upload = req.file

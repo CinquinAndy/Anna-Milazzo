@@ -47,7 +47,14 @@ async function open(page: Page, path: string, width: number, height: number) {
 async function survey(page: Page) {
 	return page.evaluate(() => {
 		const vw = document.documentElement.clientWidth
-		const decorative = (el: Element) => el.closest('[aria-hidden="true"]') !== null || el.closest('.sr-only') !== null
+		// Read aloud and never drawn: hidden from the eye by the `sr-only` pattern, whether the
+		// class is on the element itself or applied at one width only (`max-md:sr-only`).
+		const readOnly = (el: Element) => {
+			const s = getComputedStyle(el)
+			return s.position === 'absolute' && Number.parseFloat(s.width) <= 1 && Number.parseFloat(s.height) <= 1
+		}
+		const decorative = (el: Element) =>
+			el.closest('[aria-hidden="true"]') !== null || el.closest('.sr-only') !== null || readOnly(el)
 		const visible = (el: Element) => {
 			const r = el.getBoundingClientRect()
 			const s = getComputedStyle(el)
@@ -93,7 +100,9 @@ async function survey(page: Page) {
 		for (const el of all) {
 			if (!visible(el) || !hasText(el) || decorative(el)) continue
 			const s = getComputedStyle(el)
-			if (el.scrollWidth - el.clientWidth > 2 && el.clientWidth > 0)
+			// An ellipsis is a cut made on purpose too, the Tabs' titles carry one, and their full
+			// text is still the Tab's name.
+			if (el.scrollWidth - el.clientWidth > 2 && el.clientWidth > 0 && s.textOverflow !== 'ellipsis')
 				clipped.push(`${describe(el)} is ${el.scrollWidth - el.clientWidth}px wider than its box`)
 			else if (
 				el.scrollHeight - el.clientHeight > 2 &&
@@ -118,6 +127,10 @@ async function survey(page: Page) {
 			for (let j = i + 1; j < textish.length; j++) {
 				const b = textish[j] as Element
 				if (a.contains(b) || b.contains(a)) continue
+				// The Folder's Tabs lie on each other on purpose, as the dividers in a file do.
+				// Each is clipped to its own slanted shape, so a press lands on the Tab that is
+				// seen, and the label stays clear of the slant by its padding.
+				if (a.matches('.song-tab') && b.matches('.song-tab')) continue
 				const rb = shown(b)
 				const x = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left)
 				const y = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top)

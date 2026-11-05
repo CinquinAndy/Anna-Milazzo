@@ -1,178 +1,258 @@
-import { Portrait } from '@/components/portrait'
-import { SongTransport } from '@/components/song-transport'
-import { SongVideo } from '@/components/song-video'
-import { Vinyl } from '@/components/vinyl'
-import type { Locale } from '@/lib/locale'
-import type { PlayableSong } from '@/lib/player/controller'
-import { parseVideo, VIDEO_COPY } from '@/lib/video'
-import type { Home, Song } from '@/payload-types'
+'use client'
 
-/**
- * Tape angles, by position in the stack.
- *
- * Deterministic rather than random: a random angle differs between the server render and
- * the client, and the same value on every strip reads as a repeated component, which is
- * the tell the design is trying to avoid. Never zero, never the same twice in a row.
- */
-const TAPE_ANGLES = [-44, -39, -47, -41, -45, -38] as const
+import {
+	Children,
+	createContext,
+	type KeyboardEvent,
+	type MouseEvent,
+	type ReactNode,
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react'
+import { useAudioEngine } from '@/components/audio-engine'
+import { tabId } from '@/lib/folder/slug'
+import { isPlaying } from '@/lib/player/controller'
 
-/**
- * Tape tints, cycled down the stack. Deterministic for the same reason as the angles, and
- * paired so the two strips on one cover are never the same colour, real tape comes off
- * whichever roll is nearest, and a matched pair reads as a printed graphic.
- */
-const TAPE_TINTS = [
-	['var(--spring)', 'var(--lemon)'],
-	['var(--blue)', 'var(--magenta)'],
-	['var(--lemon)', 'var(--spring)'],
-	['var(--magenta)', 'var(--blue)'],
-] as const
-
-function tapeTint(index: number, side: 'start' | 'end'): string {
-	const pair = TAPE_TINTS[index % TAPE_TINTS.length] ?? TAPE_TINTS[0]
-	return side === 'start' ? pair[0] : pair[1]
+/** What the Folder needs to draw one Tab. Everything else is on the sheet it opens. */
+export type FolderTab = {
+	/** The fragment the Song answers to, and the id of its sheet. */
+	slug: string
+	/** `01`, `02`… */
+	number: string
+	/** The Song's full title, in the language of the page. */
+	title: string
+	/** The handle the player knows the Song by, or null for a Song with no audio. */
+	playId: string | null
+	/** A colour token and the type colour that goes on it, from `tabColour`. */
+	fill: string
+	ink: string
 }
 
-function tapeAngle(index: number, side: 'start' | 'end'): number {
-	const base = TAPE_ANGLES[index % TAPE_ANGLES.length] ?? -43
-	// The two strips mirror each other across the cover.
-	return side === 'start' ? base : -base + 3
+/** Whether the sheet this is rendered in is the one open in the Folder. */
+const SheetOpen = createContext(true)
+
+/** For what lives on a sheet and must stop when the sheet is put away: the video player. */
+export function useSheetOpen(): boolean {
+	return useContext(SheetOpen)
 }
 
 /**
- * One Song, presented as a paper folder: a tabbed shape with the cover taped on and the
- * title, story and link beside it.
+ * The one Folder every Song is filed in, with a numbered Tab per Song along its top edge.
  *
- * An `<article>` inside a list item, never a tab interface. The shape is a filing
- * metaphor; the content is a body of work that is all visible at once. `role="tab"` would
- * promise arrow-key navigation between mutually exclusive panels and announce "tab 1 of
- * 5, selected" for something that is simply always there.
+ * Anna's reference, and what she asked for on 5 November: one folder, the tabs side by
+ * side above it, each its own colour. Pressing a Tab pulls it forward and shows its Song on
+ * the sheet inside. ADR-0014.
+ *
+ * It is a tab interface and says so: `tablist`, `tab` and `tabpanel`, the arrow keys move
+ * between Tabs and select as they go, Home and End reach the ends. Every sheet is rendered
+ * on the server and stays in the document, so the whole body of work is still there to be
+ * indexed, and the one that is playing keeps its transport wired to the single audio
+ * element when another Tab is opened.
+ *
+ * Without JavaScript nothing is hidden. The Tabs are links to each sheet's fragment and the
+ * sheets are stacked one under the other; the stylesheet hides the closed ones only under
+ * `@media (scripting: enabled)`. The roles are added once the page has hydrated, so a
+ * reader without the script is never told about a tab interface that does nothing.
  */
-export function Folder({
-	song,
-	index,
-	labels,
-	locale,
-}: {
-	song: Song
-	index: number
-	labels: Home['songs']
-	locale: Locale
-}) {
-	// Alternating down the column, so tabs never collide as the stack scrolls.
-	const tabSide = index % 2 === 0 ? 'start' : 'end'
-	const position = String(index + 1).padStart(2, '0')
+export function Folder({ tabs, label, children }: { tabs: readonly FolderTab[]; label: string; children: ReactNode }) {
+	const sheets = Children.toArray(children)
+	const [open, setOpen] = useState(0)
+	// False on the server and for the first client render, so the two agree.
+	const [live, setLive] = useState(false)
+	const tabRefs = useRef<(HTMLAnchorElement | null)[]>([])
+	const folderRef = useRef<HTMLDivElement>(null)
+	const rowRef = useRef<HTMLDivElement>(null)
+	// Which ends of the row have Tabs scrolled out of sight past them, so the stylesheet can
+	// fade that edge. The scrollbar is hidden, and a row cut off cleanly at a Tab boundary
+	// otherwise looks like the whole set.
+	const [more, setMore] = useState({ start: false, end: false })
+	const { state } = useAudioEngine()
 
-	// The audio URL comes from the record, already pointing at the bucket's public
-	// domain. A Song without one has nothing to play.
-	const trackUrl = typeof song.track === 'object' ? song.track.url : null
-	// Measured from the file on upload and stored on the audio record, so the waveform
-	// is right on the first frame and costs the visitor nothing to draw.
-	const trackPeaks = typeof song.track === 'object' ? (song.track.peaks ?? null) : null
-	// Measured beside the waveform on upload: where the track's energy sits in the spectrum
-	// over its length, which is what gives each bar its colour.
-	const trackTone = typeof song.track === 'object' ? (song.track.tone ?? null) : null
+	const show = useCallback(
+		(index: number, focus: boolean) => {
+			const tab = tabs[index]
+			if (tab === undefined) {
+				return
+			}
+			setOpen(index)
+			// The address follows the open Tab, so it can be copied and sent. Replaced, not
+			// pushed: flicking through five Tabs should not take five presses of Back to undo,
+			// and assigning `location.hash` would scroll the page to the sheet.
+			history.replaceState(history.state, '', `#${tab.slug}`)
+			const node = tabRefs.current[index]
+			if (focus) {
+				node?.focus({ preventScroll: true })
+			}
+			// On a phone the row scrolls sideways, and the open Tab must be in it.
+			node?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+		},
+		[tabs]
+	)
 
-	// The link Anna pasted, or nothing: a link that is not a video this site embeds is not
-	// shown, rather than shown broken. The admin refuses one when she saves.
-	const video = parseVideo(song.videoUrl)
+	// After hydration, never during it: the server cannot know the fragment, so it renders
+	// the first Tab, and the one the address names is opened here.
+	useEffect(() => {
+		setLive(true)
+		const fromAddress = () => {
+			const slug = decodeURIComponent(location.hash.slice(1))
+			const index = tabs.findIndex(tab => tab.slug === slug)
+			if (index < 0) {
+				return
+			}
+			setOpen(index)
+			// The browser tried to scroll to the sheet while it was hidden. The Folder is
+			// brought into view instead, under the sticky bar (`scroll-padding`).
+			folderRef.current?.scrollIntoView({ block: 'start' })
+		}
+		fromAddress()
+		window.addEventListener('hashchange', fromAddress)
+		return () => window.removeEventListener('hashchange', fromAddress)
+	}, [tabs])
 
-	// `Portrait` renders nothing for an upload that is missing or that came back as a bare
-	// id, and a record with no sleeve in front of it is a black circle sitting on the paper.
-	// Both or neither, decided from the same value.
-	const cover = song.cover !== null && song.cover !== undefined && typeof song.cover !== 'number' ? song.cover : null
-	// `reference` is a seed handle and a test selector, hidden from the admin, so every
-	// Song Anna creates herself has none. Falling back to the record id keeps the player
-	// present for those: gating on `reference` meant her own Songs arrived silently
-	// unplayable, with nothing to tell her why.
-	const playable: PlayableSong | null = trackUrl
-		? { id: song.reference ?? String(song.id), source: trackUrl, durationSeconds: song.durationSeconds }
-		: null
+	useEffect(() => {
+		const row = rowRef.current
+		if (row === null) {
+			return
+		}
+		const measure = () => {
+			// A pixel of slack: a fractional scroll position never quite reaches the end.
+			const start = row.scrollLeft > 1
+			const end = row.scrollLeft + row.clientWidth < row.scrollWidth - 1
+			setMore(previous => (previous.start === start && previous.end === end ? previous : { start, end }))
+		}
+		measure()
+		const observer = new ResizeObserver(measure)
+		observer.observe(row)
+		row.addEventListener('scroll', measure, { passive: true })
+		return () => {
+			observer.disconnect()
+			row.removeEventListener('scroll', measure)
+		}
+	}, [])
+
+	const onKeyDown = (event: KeyboardEvent<HTMLAnchorElement>, index: number) => {
+		const last = tabs.length - 1
+		const moves: Record<string, number> = {
+			ArrowRight: index === last ? 0 : index + 1,
+			ArrowLeft: index === 0 ? last : index - 1,
+			Home: 0,
+			End: last,
+		}
+		const target = moves[event.key]
+		if (target === undefined) {
+			return
+		}
+		event.preventDefault()
+		show(target, true)
+	}
+
+	const onClick = (event: MouseEvent<HTMLAnchorElement>, index: number) => {
+		// A link opened in a new tab or window is the browser's to handle: the Tab is a real
+		// link, and its address is worth keeping.
+		if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+			return
+		}
+		// A link without the script, a Tab with it.
+		event.preventDefault()
+		show(index, false)
+	}
+
+	const current = tabs[open] ?? tabs[0]
 
 	return (
-		<article className="folder" data-song={song.reference ?? String(song.id)} data-tab={tabSide}>
-			{/* Decorative repetition: the number carries no information the heading does not. */}
-			<div className="folder-tab" aria-hidden="true">
-				{position}
-			</div>
-
-			<div className="folder-body grid content-start gap-6 p-5 sm:p-7">
-				<div className="folder-sleeve relative w-full max-w-[16rem] justify-self-center">
-					{/* Turning only while this Song plays. A disc that spins regardless is
-					    wallpaper; one that spins exactly when there is sound is the clearest
-					    "this is playing" signal there is, and it answers the complaint that you
-					    could not tell the control was a play control. */}
-					{cover === null ? null : <Vinyl className="folder-disc" label="var(--lemon)" />}
-					<Portrait
-						image={cover}
-						sizes="(min-width: 768px) 16rem, 70vw"
-						className="relative z-10 block w-full border-brutal border-border bg-sheet"
-					/>
-					{/* Siblings that overflow the cover, not children clipped by it: the strip
-					    has to bridge the image and the paper behind it or the illusion dies. */}
-					<span
-						aria-hidden="true"
-						className="tape -top-2 -left-5"
-						style={
-							{
-								transform: `rotate(${tapeAngle(index, 'start')}deg)`,
-								'--tape-tint': tapeTint(index, 'start'),
-							} as React.CSSProperties
-						}
-					/>
-					<span
-						aria-hidden="true"
-						className="tape -top-2 -right-5"
-						style={
-							{
-								transform: `rotate(${tapeAngle(index, 'end')}deg)`,
-								'--tape-tint': tapeTint(index, 'end'),
-							} as React.CSSProperties
-						}
-					/>
+		// The frame holds the Folder and, outside its drop shadow, the fades that say the row
+		// of Tabs goes on past an edge.
+		<div className="song-folder-frame">
+			<div
+				ref={folderRef}
+				className="song-folder"
+				data-folder
+				style={{ '--folder-fill': current?.fill, '--folder-ink': current?.ink } as React.CSSProperties}
+			>
+				{/* biome-ignore lint/a11y/useAriaPropsSupportedByRole: the role is `tablist` once hydrated, and the label is only set then. */}
+				<div
+					ref={rowRef}
+					className="song-tabs"
+					role={live ? 'tablist' : undefined}
+					aria-label={live ? label : undefined}
+					data-more-start={more.start ? 'true' : undefined}
+					data-more-end={more.end ? 'true' : undefined}
+				>
+					{tabs.map((tab, index) => {
+						const selected = index === open
+						const sounding = tab.playId !== null && isPlaying(state, tab.playId)
+						return (
+							// biome-ignore lint/a11y/useAriaPropsSupportedByRole: the link is a `tab` once hydrated, and the ARIA state is only set then.
+							<a
+								key={tab.slug}
+								ref={node => {
+									tabRefs.current[index] = node
+								}}
+								href={`#${tab.slug}`}
+								id={tabId(tab.slug)}
+								className="song-tab"
+								role={live ? 'tab' : undefined}
+								aria-selected={live ? selected : undefined}
+								aria-controls={live ? tab.slug : undefined}
+								// The roving tab stop: Tab reaches the open one, the arrows the rest.
+								tabIndex={live && !selected ? -1 : undefined}
+								data-open={selected ? 'true' : 'false'}
+								data-sounding={sounding ? 'true' : 'false'}
+								style={
+									{
+										'--tab-fill': tab.fill,
+										'--tab-ink': tab.ink,
+										// Each Tab lies on the one after it, as in the reference.
+										'--tab-z': tabs.length - index,
+									} as React.CSSProperties
+								}
+								onClick={event => onClick(event, index)}
+								onKeyDown={event => onKeyDown(event, index)}
+							>
+								<span className="song-tab-number">{tab.number}</span>
+								{/* Read after the number, so the name starts with what is drawn (WCAG
+							    2.5.3) and "click 02" works by voice. Shown, truncated, from tablet
+							    width up, where a title chooses better than a number does. */}
+								<span className="song-tab-title max-md:sr-only">{tab.title}</span>
+								{/* The Song that is sounding, wherever the reader has gone since. */}
+								<span className="song-tab-disc" aria-hidden="true" />
+							</a>
+						)
+					})}
 				</div>
 
-				<div className="min-w-0">
-					<h3 className="font-display uppercase [font-stretch:88%]">{song.title}</h3>
-
-					{song.story ? (
-						<p className="mt-4 max-w-prose font-sans leading-relaxed whitespace-pre-line">{song.story}</p>
-					) : null}
-
-					{playable === null ? null : (
-						<SongTransport
-							song={playable}
-							peaks={trackPeaks}
-							tone={trackTone}
-							playLabel={labels?.listenLabel ?? 'Play'}
-							pauseLabel={labels?.pauseLabel ?? 'Pause'}
-							seekLabel={labels?.seekLabel ?? 'Seek'}
-						/>
-					)}
-
-					{video === null ? null : (
-						<SongVideo
-							embedUrl={video.embedUrl}
-							watchUrl={video.watchUrl}
-							title={song.title}
-							label={VIDEO_COPY[locale].watch}
-						/>
-					)}
-
-					{/* No link at all rather than a dead one. */}
-					{song.platformUrl ? (
-						<a
-							href={song.platformUrl}
-							className="control control-paper mt-4 inline-flex"
-							rel="noreferrer noopener"
-							target="_blank"
-							data-platform-link
-						>
-							{labels?.platformLabel}
-						</a>
-					) : null}
+				<div className="song-folder-body">
+					{sheets.map((sheet, index) => {
+						const tab = tabs[index]
+						if (tab === undefined) {
+							return null
+						}
+						const selected = index === open
+						return (
+							<section
+								key={tab.slug}
+								id={tab.slug}
+								className="song-panel"
+								role={live ? 'tabpanel' : undefined}
+								aria-labelledby={live ? tabId(tab.slug) : undefined}
+								// Focusable so a keyboard reader can step from the Tab into the sheet.
+								tabIndex={live ? 0 : undefined}
+								data-open={selected ? 'true' : 'false'}
+							>
+								<SheetOpen.Provider value={selected}>{sheet}</SheetOpen.Provider>
+							</section>
+						)
+					})}
 				</div>
 			</div>
-		</article>
+			{/* Not a mask on the row: a mask makes the row a stacking context of its own, and
+			    the open Tab could no longer be drawn over the body it is welded to. Not inside
+			    the Folder either, where the drop shadow would draw one under the fade too. */}
+			{more.start ? <span className="song-tabs-fade" data-side="start" aria-hidden="true" /> : null}
+			{more.end ? <span className="song-tabs-fade" data-side="end" aria-hidden="true" /> : null}
+		</div>
 	)
 }

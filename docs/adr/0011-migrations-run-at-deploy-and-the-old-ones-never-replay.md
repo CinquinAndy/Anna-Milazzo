@@ -94,6 +94,30 @@ the whole guarantee, and it does not depend on any bookkeeping being right.
   applies it to production before the branch is merged. That is safe only because of the
   rule two above, and it is worth knowing.
 
+## Amended 2026-11-05: relaxing a NOT NULL counts as adding
+
+Status: proposed, and not to be merged until Andy has agreed to it. It loosens the rule his
+condition of 2026-10-13 rests on, so it is his to accept.
+
+`ALTER TABLE … ALTER COLUMN … DROP NOT NULL` is allowed to run at deploy, on the columns
+named in `RELAXED` in `src/tests/migration-plan.test.ts`, and nowhere else. The first two
+are `songs.track_id` and `songs.duration_seconds`, for a Song whose video carries the sound
+(ADR-0006).
+
+It passes the test the rules above exist for. It rewrites no row and moves nothing: the
+table only accepts more than it did. Accepting more is not always free, though: a foreign key
+with `ON DELETE set null` on that column could not fire before and can now, so a relaxation
+must be read beside the column's foreign keys. On `songs.track_id` it can, and the guard
+that replaces the old NOT NULL is in ADR-0006. Postgres runs it twice without an error, so it is
+replayable without `IF NOT EXISTS`, which this statement does not have. And the build still
+serving reads only values that are all still there.
+
+The test keeps the exception narrow on purpose. `RELAXED` is a list of whole statements,
+not a pattern, so each new one is added by hand by someone who has read this. `SET NOT
+NULL`, a type change, or a `DROP NOT NULL` on another column still fails, and is still a
+decision rather than a file. Recorded here because the migration it lets through is the
+first one in this repository to alter a column.
+
 ## What this does not cover
 
 `payload migrate:down`, `migrate:refresh`, `migrate:reset` and `migrate:fresh` are still

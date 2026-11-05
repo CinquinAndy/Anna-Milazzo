@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { openSong } from './folder'
 import { hydrated } from './hydrated'
 
 const FIRST = 'notturno-per-tram-vuoto'
@@ -28,7 +29,7 @@ test.describe('audio playback', () => {
 		await page.goto('/')
 
 		const audio = await element(page)
-		expect(audio?.count, 'one element for the whole page, not one per Folder').toBe(1)
+		expect(audio?.count, 'one element for the whole page, not one per Song').toBe(1)
 		expect(audio?.preload).toBe('none')
 		expect(audio?.src, 'a source was assigned before anyone asked for one').toBe('')
 	})
@@ -63,6 +64,7 @@ test.describe('audio playback', () => {
 		await page.locator(`[data-play="${FIRST}"]`).click()
 		await expect.poll(async () => (await element(page))?.paused).toBe(false)
 
+		await openSong(page, SECOND)
 		await page.locator(`[data-play="${SECOND}"]`).click()
 		await expect.poll(async () => (await element(page))?.paused).toBe(false)
 
@@ -71,7 +73,7 @@ test.describe('audio playback', () => {
 		expect(audio?.src, 'the first Song is still loaded').toContain(`track-${SECOND}.mp3`)
 		expect(audio?.src).not.toContain(`track-${FIRST}.mp3`)
 
-		// And the first Folder no longer reads as playing.
+		// And the first Song no longer reads as playing.
 		await expect(page.locator(`[data-play="${FIRST}"]`)).toHaveAttribute('data-playing', 'false')
 		await expect(page.locator(`[data-play="${SECOND}"]`)).toHaveAttribute('data-playing', 'true')
 	})
@@ -167,6 +169,7 @@ test.describe('audio playback', () => {
 		await page.goto('/')
 
 		// The shortest Song is 18 seconds; seek near its end rather than waiting.
+		await openSong(page, 'citta-alle-quattro')
 		await page.locator('[data-play="citta-alle-quattro"]').click()
 		await expect.poll(async () => (await element(page))?.paused).toBe(false)
 

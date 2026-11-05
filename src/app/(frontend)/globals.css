@@ -468,72 +468,6 @@
 		}
 	}
 
-	/* ---- the works pager ----------------------------------------------
-	 * Built on .nav-pill because it is the same object as the header's: a small mono
-	 * control that has to hold a row of siblings at 375px. It sits below the works,
-	 * where you arrive from reading them.
-	 *
-	 * Cantaloupe is behind it, so the pills keep their sheet fill and read as paper
-	 * laid on the field rather than as holes cut in it. */
-	.song-pager {
-		display: flex;
-		flex-wrap: wrap;
-		/* Stretch, not center: the arrows hold a 10px triangle and the numbers hold a
-		 * line of type, so centring leaves the two arrows visibly short of the pills
-		 * between them. */
-		align-items: stretch;
-		gap: calc(var(--spacing) * 2);
-		/* A keyline across the shell, so the strip reads as the end of the works rather
-		 * than as four loose pills dropped on the field. */
-		border-block-start: var(--border-brutal) solid var(--border);
-		padding-block-start: calc(var(--spacing) * 5);
-	}
-
-	.song-pager-step {
-		/* The triangle is 8px wide against the pills' 2ch of type, so the padding is
-		 * squared up by hand or the two arrows read as narrower than the numbers. */
-		padding-inline: calc(var(--spacing) * 3.5);
-	}
-
-	.song-pager-page {
-		justify-content: center;
-		/* Two digits at a fixed width, so stepping through the pages does not reflow
-		 * the row under the finger that is stepping. */
-		min-width: calc(var(--spacing) * 9);
-	}
-
-	/* The page you are on is not somewhere you can go, so it stops reading as a
-	 * control. Filled rather than outlined: at this size a 2px keyline change is not
-	 * a state anybody notices. */
-	.song-pager-page[aria-current="page"] {
-		background-color: var(--foreground);
-		color: var(--card);
-	}
-
-	/* The ends of the run. Still focusable and still announced, because a button that
-	 * goes inert under the finger that pressed it drops focus to the body: it is the
-	 * press that does nothing, not the button that disappears. */
-	.song-pager-step[aria-disabled="true"] {
-		background-color: var(--muted);
-		box-shadow: 0 0 0 0 var(--border);
-		color: color-mix(in oklab, var(--foreground) 45%, var(--muted));
-		cursor: default;
-	}
-
-	.song-pager-step[aria-disabled="true"]:hover,
-	.song-pager-step[aria-disabled="true"]:active {
-		transform: none;
-		box-shadow: 0 0 0 0 var(--border);
-	}
-
-	/* The list takes focus when the page changes, which is how the new page's first
-	 * work gets scrolled to the top and how a screen reader is put at the start of
-	 * what changed. It cannot be reached by tabbing, so the outline would only ever
-	 * be a 3px blue box drawn round the whole stack on the way past. */
-	.song-list:focus {
-		outline: none;
-	}
-
 	/* The sticky bar must never land on what the browser just scrolled to.
 	 *
 	 * Scroll padding on the scroller rather than scroll margin on the target: margin only
@@ -596,8 +530,7 @@
 		 * instead puts a black notch inside the silhouette where they join, and
 		 * steps where the tab's right edge meets the body. */
 		filter: drop-shadow(var(--folder-shadow) var(--folder-shadow) 0 var(--border));
-		/* Two to a row from tablet width up: the card fills its list item, so a row of
-		 * Folders reads as a shelf of the same height. */
+		/* Fills its grid cell, so a row of facts reads as a shelf of the same height. */
 		inline-size: 100%;
 	}
 
@@ -605,8 +538,8 @@
 		flex: 1;
 	}
 
-	/* On the shelf every tab sits at the start, as on a row of real folders; alternating
-	 * sides only made sense down a single column. */
+	/* On a shelf every tab sits at the start, as on a row of real folders; alternating
+	 * sides only makes sense down a single column. */
 	@media (width >= 48rem) {
 		.folder[data-tab="end"] .folder-tab {
 			margin-inline-start: 1.5rem;
@@ -652,6 +585,336 @@
 		z-index: 1;
 		border: var(--border-brutal) solid var(--border);
 		background: var(--card);
+	}
+
+	/* ---- the Folder of Songs ------------------------------------------
+	 * One folder, every Song filed in it, a numbered Tab per Song side by side along its top
+	 * edge: Anna's reference of 5 November. ADR-0014.
+	 *
+	 * The open Tab is welded to the body with the same negative-margin trick as `.folder`:
+	 * the row is pulled down by one keyline, the open Tab sits above the body and paints its
+	 * fill over the body's top border for exactly its own width, and the body takes the open
+	 * Tab's colour, so the two read as one piece of card. The closed Tabs sit behind the body,
+	 * a keyline shorter, the way the ones at the back of a real folder do. One drop shadow for
+	 * the whole silhouette, for the reason `.folder` gives. */
+	.song-folder {
+		/* The run of the slanted edge on the right of each Tab, and how far each Tab lies on
+		 * the next. */
+		--tab-slant: 1.25rem;
+		--tab-overlap: 0.75rem;
+		position: relative;
+		filter: drop-shadow(var(--folder-shadow) var(--folder-shadow) 0 var(--border));
+	}
+
+	/* The row scrolls sideways once there are more Tabs than fit, rather than wrapping into
+	 * a second row that would no longer touch the folder. Scrolling clips in both
+	 * directions, so the row keeps room above the Tabs for the lift on hover, and one pixel
+	 * below the body's top border: the open Tab runs that pixel into the body, onto the
+	 * same colour, so where the folder lands on a fractional pixel the clipped edge is
+	 * smoothed over fill and not over the black keyline. */
+	.song-tabs {
+		display: flex;
+		align-items: flex-end;
+		padding-block: 0.5rem 1px;
+		margin-block-end: calc(var(--border-brutal) * -1 - 1px);
+		overflow-x: auto;
+		overflow-y: hidden;
+		overscroll-behavior-x: contain;
+		scroll-snap-type: x proximity;
+		scrollbar-width: none;
+	}
+
+	/* The scrollbar is hidden, so an edge with Tabs past it fades into the ground instead: a
+	 * row cut off cleanly at a Tab boundary would look like the whole set. `Folder` draws
+	 * the fades from the scroll position. They cover the row down to the body's top edge
+	 * and no further, so the body's keyline runs on underneath. */
+	.song-folder-frame {
+		/* A closed Tab's height, 44 by 36 at the least, the size a thumb wants. Here and not
+		 * on the Folder, because the fades beside it are measured by it too. */
+		--tab-block: 2.375rem;
+		/* Set here for the same reason: the end fade reaches over the shadow as well. */
+		--folder-shadow: 8px;
+		position: relative;
+	}
+
+	@media (width < 40rem) {
+		.song-folder-frame {
+			--folder-shadow: 5px;
+		}
+	}
+
+	.song-tabs-fade {
+		position: absolute;
+		inset-block-start: 0;
+		/* The row's lift room and a closed Tab: where the body begins (see `.song-tabs`). */
+		block-size: calc(0.5rem + var(--tab-block) - 1px);
+		inline-size: 3rem;
+		pointer-events: none;
+		--fade-ground: var(--accent);
+	}
+
+	.song-tabs-fade[data-side="start"] {
+		inset-inline-start: 0;
+		background: linear-gradient(to left, transparent, var(--fade-ground) 85%);
+	}
+
+	.song-tabs-fade[data-side="end"] {
+		/* Over the drop shadow too, which would otherwise stand as a black bar past the fade. */
+		inset-inline-end: calc(var(--folder-shadow) * -1);
+		inline-size: calc(3rem + var(--folder-shadow));
+		background: linear-gradient(to right, transparent, var(--fade-ground) 85%);
+	}
+
+	.song-tab {
+		position: relative;
+		z-index: var(--tab-z, 1);
+		/* Shrinks, down to its number, before the row has to scroll: the titles give way
+		 * first, and only once every Tab is down to its number does the row overflow. */
+		flex: 0 1 auto;
+		display: inline-flex;
+		align-items: center;
+		gap: calc(var(--spacing) * 2);
+		/* 44 by 36 at the least, the size a thumb wants, on a closed Tab. The open one is a
+		 * keyline taller. */
+		min-inline-size: 4.75rem;
+		min-block-size: var(--tab-block);
+		padding-block: 0.6rem 0.5rem;
+		padding-inline: 1rem calc(var(--tab-slant) + 0.6rem);
+		margin-inline-start: calc(var(--tab-overlap) * -1);
+		color: var(--tab-ink);
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		letter-spacing: 0.08em;
+		line-height: 1.2;
+		text-transform: uppercase;
+		text-decoration: none;
+		white-space: nowrap;
+		scroll-snap-align: start;
+		cursor: pointer;
+		/* The Tab's own box is clipped to the slanted shape too, which the two layers below
+		 * draw: where one Tab lies on the next, a press lands on the Tab that is seen there,
+		 * not on the rectangle of the one in front. Nothing is lost by it, the keyline is
+		 * inside. */
+		clip-path: polygon(0 0, calc(100% - var(--tab-slant)) 0, 100% 100%, 0 100%);
+	}
+
+	.song-tab:first-child {
+		margin-inline-start: 0;
+	}
+
+	/* The slanted edge with its keyline intact. The Tab is ink, clipped to its shape, and its
+	 * colour is a second layer clipped the same way and set in by one keyline on every side
+	 * but the bottom: what shows of the ink is the keyline. A border would be cut off along
+	 * the slant, which is why `.folder` never clips. */
+	.song-tab {
+		/* Ink, but for the last pixel, which is the Tab's own colour: on the open Tab that
+		 * pixel lies on the body's fill (`.song-tabs`), and ink there would draw the stub of
+		 * a keyline into the body, and a dark hairline where the fill's edge is smoothed. */
+		background: linear-gradient(to top, var(--tab-fill) 1px, var(--border) 1px);
+	}
+
+	.song-tab::after {
+		content: "";
+		position: absolute;
+		z-index: -1;
+		/* A hair more on the slanted side: measured across a slope, one keyline of offset
+		 * draws a line thinner than the others. */
+		inset: var(--border-brutal) calc(var(--border-brutal) + 1px) 0 var(--border-brutal);
+		background-color: var(--tab-fill);
+		clip-path: polygon(0 0, calc(100% - var(--tab-slant)) 0, 100% 100%, 0 100%);
+	}
+
+	/* The open one: in front of the body, a keyline taller, its fill running down over the
+	 * body's top border, which is the weld. */
+	.song-tab[data-open="true"] {
+		z-index: 100;
+		/* Into the pixel of room the row keeps below the body's top border (see
+		 * `.song-tabs`). */
+		margin-block-end: -1px;
+		min-block-size: calc(var(--tab-block) + var(--border-brutal));
+		padding-block-start: calc(0.6rem + var(--border-brutal));
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.song-tab {
+			transition: translate 90ms cubic-bezier(0, 0, 0.58, 1);
+		}
+	}
+
+	/* A closed Tab is something to pull: it comes up a little under the pointer. */
+	@media (hover: hover) and (pointer: fine) {
+		.song-tab[data-open="false"]:hover {
+			translate: 0 -3px;
+		}
+	}
+
+	.song-tab-number {
+		flex: none;
+		font-weight: 600;
+	}
+
+	/* Round the number, in the Tab's own type colour. The site's blue ring sits outside a
+	 * control, where the Tab's clipped shape and the scrolling row would both cut it off, and
+	 * it would vanish against the blue Tab anyway. */
+	.song-tab:focus-visible {
+		outline: none;
+	}
+
+	.song-tab:focus-visible .song-tab-number {
+		outline: 2px solid var(--tab-ink);
+		outline-offset: 3px;
+	}
+
+	/* From tablet width the title is drawn beside the number, whole while the row has room
+	 * and cut short with an ellipsis once it has not. The cap only keeps one long title from
+	 * taking the row from the others. Below tablet width the number is the label and the
+	 * title is read but not drawn (`sr-only` in the markup). */
+	@media (width >= 48rem) {
+		.song-tab-title {
+			min-inline-size: 0;
+			max-inline-size: 40ch;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+	}
+
+	/* A record the size of a thumbnail on the Tab of the Song that is sounding, so a reader
+	 * who has moved on to another Tab still knows where the music is coming from, and where
+	 * to go back to pause it. The sheen is what makes the turn visible. */
+	.song-tab-disc {
+		display: none;
+		flex: none;
+		inline-size: 0.875rem;
+		block-size: 0.875rem;
+		border-radius: 50%;
+		background:
+			radial-gradient(circle, var(--tab-fill) 0 22%, transparent 24%),
+			conic-gradient(var(--ink) 0 62%, oklch(0.55 0 0) 68%, var(--ink) 74%);
+		box-shadow: 0 0 0 1.5px var(--tab-fill);
+	}
+
+	.song-tab[data-sounding="true"] .song-tab-disc {
+		display: inline-block;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.song-tab[data-sounding="true"] .song-tab-disc {
+			animation: disc-spin 1.8s linear infinite;
+		}
+	}
+
+	/* The body, in the open Tab's colour, as the blue folder of the reference is. */
+	.song-folder-body {
+		position: relative;
+		z-index: 50;
+		border: var(--border-brutal) solid var(--border);
+		background-color: var(--folder-fill, var(--blue));
+		padding: clamp(0.75rem, 2.5vw, 1.75rem);
+		/* A gap rather than a margin between sheets: it only shows when they are stacked,
+		 * without the script, and a hidden sheet leaves none behind. */
+		display: flex;
+		flex-direction: column;
+		gap: clamp(0.75rem, 2.5vw, 1.75rem);
+	}
+
+	/* With the script, one sheet at a time. Without it, nothing is hidden: the Tabs are
+	 * links to the sheets, stacked one under the other. The query is the whole guard, so a
+	 * browser that does not know it gets the stack too. */
+	@media (scripting: enabled) {
+		.song-panel[data-open="false"] {
+			display: none;
+		}
+	}
+
+	.song-panel:focus-visible {
+		outline-color: var(--folder-ink);
+		outline-offset: 4px;
+	}
+
+	/* Changing Song slides the new sheet in by a few pixels, the way paper settles. */
+	@media (prefers-reduced-motion: no-preference) and (scripting: enabled) {
+		.song-panel[data-open="true"] {
+			animation: sheet-in 160ms cubic-bezier(0, 0, 0.58, 1);
+		}
+	}
+
+	@keyframes sheet-in {
+		from {
+			translate: 0 6px;
+			opacity: 0.6;
+		}
+	}
+
+	/* The sheet of paper filed in the Folder. Paper, not the Folder's colour, so a blue play
+	 * control is never laid on a blue body and the story keeps the contrast it has
+	 * everywhere else on the page. */
+	.song-sheet {
+		border: var(--border-brutal) solid var(--border);
+		background-color: var(--card);
+		color: var(--foreground);
+		padding: calc(var(--spacing) * 5);
+	}
+
+	@media (width >= 40rem) {
+		.song-sheet {
+			padding: calc(var(--spacing) * 7);
+		}
+	}
+
+	/* The typed line at the head of the sheet, from the reference: its number in the set,
+	 * then a dotted rule to the edge. */
+	.sheet-header {
+		display: flex;
+		align-items: center;
+		gap: calc(var(--spacing) * 3);
+		/* Clear of the tape, which reaches two rem above the cover. */
+		margin-block-end: calc(var(--spacing) * 9);
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.sheet-rule {
+		flex: 1;
+		border-block-start: 2px dotted var(--border);
+	}
+
+	/* The cover on the left and the words on the right from tablet width, one column on a
+	 * phone. The gap is the record's runway when it slides out. */
+	.sheet-body {
+		display: grid;
+		gap: calc(var(--spacing) * 8);
+	}
+
+	@media (width >= 48rem) {
+		.sheet-body {
+			grid-template-columns: minmax(0, 16rem) minmax(0, 1fr);
+			column-gap: 2.5rem;
+			align-items: start;
+		}
+
+		/* A screen is wider than a sleeve: a 16:9 picture at 16rem is a postage stamp. Up to
+		 * 22rem, and never more than a little under half the sheet, so on a tablet the words
+		 * beside it keep a column worth reading. */
+		.song-sheet[data-kind="video"] .sheet-body {
+			grid-template-columns: minmax(0, min(22rem, 45%)) minmax(0, 1fr);
+		}
+	}
+
+	.folder-sleeve,
+	.folder-screen {
+		inline-size: 100%;
+		justify-self: center;
+	}
+
+	.folder-sleeve {
+		max-inline-size: 16rem;
+	}
+
+	.folder-screen {
+		max-inline-size: 22rem;
+		align-self: start;
 	}
 
 	/* ---- tape ---------------------------------------------------------
@@ -1055,9 +1318,6 @@
 	}
 
 	.folder-disc {
-		/* Below 128px the grooves merge and the spindle collapses; 62% of the 256px column
-		 * is 159px. */
-		--disc-size: 62%;
 		--disc-tuck: -2px;
 		/* The gap between the cover and the story is 2.5rem. In rem like the gap, so the
 		 * clearance holds at any root font size, and measured to leave paper between the rim
@@ -1065,17 +1325,19 @@
 		--disc-out: 1.5rem;
 		position: absolute;
 		/* Zero, not -1: the cover's parent creates no stacking context, so a negative index
-		 * would put the disc behind the Folder body's own background and out of sight. The
-		 * cover sits above it on z-10 instead. */
+		 * would put the disc behind the sheet's own background and out of sight. The cover
+		 * sits above it on z-10 instead. */
 		z-index: 0;
-		inline-size: var(--disc-size);
-		/* A MARGIN, not `inset-block-start`. A percentage inset resolves against the
-		 * containing block's HEIGHT in the block axis, and that box is a stretched grid row
-		 * whose height is set by the story beside it, so the disc sat 20px below the cover
-		 * on one Song and 38px below on another. A percentage margin resolves against the
-		 * WIDTH, which is the same 256px column for every Song. */
-		inset-block-start: 0;
-		margin-block-start: calc((100% - var(--disc-size)) / 2);
+		/* Sized from the cover's HEIGHT, and centred on it. It used to be 62% of the cover's
+		 * width, which assumes a square: on a 16:9 cover, a video thumbnail, the record was
+		 * taller than the picture and hung 60px down over the title (Anna, 5 November). A
+		 * square record inside the height of any cover cannot leave it. The sleeve hugs its
+		 * image (above), so its height IS the cover's. */
+		block-size: 90%;
+		inline-size: auto;
+		aspect-ratio: 1;
+		inset-block: 0;
+		margin-block: auto;
 		inset-inline-end: 0;
 		/* Tucked all the way in, and two pixels further, so the rim's antialiasing hides
 		 * under the cover's own keyline and no seam shows against the paper. */
@@ -1092,16 +1354,17 @@
 			transition: translate 180ms cubic-bezier(0.4, 0, 1, 1);
 		}
 
-		.folder:has([data-playing="true"]) .folder-disc,
-		.folder:has(.folder-sleeve:hover) .folder-disc {
+		.song-sheet:has([data-playing="true"]) .folder-disc,
+		.song-sheet:has(.folder-sleeve:hover) .folder-disc {
 			transition: translate 240ms cubic-bezier(0.16, 0.84, 0.44, 1);
 		}
 	}
 
 	/* Below the width at which the cover stops being capped at 16rem, the runway is the
-	 * card's own padding rather than a column gap. Measured at 320px with the full travel,
-	 * the rim came within 1.44px of the card's outer edge. */
-	@media (width < 23rem) {
+	 * sheet's own padding rather than a column gap. 25rem rather than the 23 it was before
+	 * the Folder: the sheet now sits inside the Folder's own border and padding, and at
+	 * 375px the full travel left the rim 2px from the sheet's edge. */
+	@media (width < 25rem) {
 		.folder-disc {
 			--disc-out: 0.75rem;
 		}
@@ -1110,20 +1373,18 @@
 	/* The record comes out when the music starts. Declared outside every media query: this is
 	 * the state, not the flourish, and a portfolio gets opened on a phone where there is no
 	 * pointer to hover with. */
-	.folder:has([data-playing="true"]) .folder-disc {
+	.song-sheet:has([data-playing="true"]) .folder-disc {
 		translate: var(--disc-out) 0;
 	}
 
 	/* And on a pointer device, when you rest on the artwork. The SAME end value, deliberately:
 	 * the client sent a hover component and asked for that gesture, and half a record reads as
-	 * a mistake rather than as a hint. Identical declarations also mean there is no third
-	 * state and no cascade race, "playing and hovered" is exactly "playing" because there is
-	 * nothing to resolve. What separates the two is that the sounding one TURNS.
+	 * a mistake rather than as a hint. What separates the two is that the sounding one TURNS.
 	 *
 	 * `(hover: hover) and (pointer: fine)` because a touch latches `:hover` on tap, which
 	 * would leave the record hanging out of a Song that is not playing. */
 	@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
-		.folder:has(.folder-sleeve:hover) .folder-disc {
+		.song-sheet:has(.folder-sleeve:hover) .folder-disc {
 			translate: var(--disc-out) 0;
 		}
 	}
@@ -1134,7 +1395,7 @@
 			animation-play-state: paused;
 		}
 
-		.folder:has([data-playing="true"]) .folder-disc {
+		.song-sheet:has([data-playing="true"]) .folder-disc {
 			animation-play-state: running;
 		}
 	}
@@ -1506,6 +1767,110 @@
 		inline-size: 100%;
 		block-size: 100%;
 		border: 0;
+	}
+
+	/* The cue: the triangle and the words. A box of its own so that on a cover it can sit on
+	 * the picture as a label, and on the plain ground it is simply the content. */
+	.song-video-cue {
+		display: inline-flex;
+		align-items: center;
+		gap: calc(var(--spacing) * 3);
+	}
+
+	/* A Song whose video is all there is: the cover is the screen (ADR-0014). Strip film
+	 * perforations along the top and the bottom are its counterpart to the record, the
+	 * picture's mark where the sleeve has the sound's. Drawn in CSS, nothing fetched. */
+	.song-video-screen {
+		/* The cue below is sized to the screen, not to the window. */
+		container-type: inline-size;
+		margin-block-start: 0;
+		max-inline-size: none;
+		padding-block: 0.85rem;
+		box-shadow: var(--shadow-md);
+	}
+
+	.song-video-screen::before,
+	.song-video-screen::after {
+		content: "";
+		position: absolute;
+		z-index: 2;
+		inset-inline: 0.4rem;
+		block-size: 0.35rem;
+		background: repeating-linear-gradient(90deg, var(--card) 0 0.55rem, transparent 0.55rem 1rem);
+		pointer-events: none;
+	}
+
+	.song-video-screen::before {
+		inset-block-start: 0.25rem;
+	}
+
+	.song-video-screen::after {
+		inset-block-end: 0.25rem;
+	}
+
+	/* The cue sits in a corner, as a label stuck on the print, so it hides as little of the
+	 * picture as it can. */
+	.song-video-screen .song-video-start {
+		position: relative;
+		overflow: hidden;
+		align-items: flex-end;
+		justify-content: flex-start;
+		padding: calc(var(--spacing) * 3);
+	}
+
+	.song-video-poster {
+		position: absolute;
+		inset: 0;
+		inline-size: 100%;
+		block-size: 100%;
+		object-fit: cover;
+	}
+
+	.song-video-screen .song-video-cue {
+		position: relative;
+		gap: calc(var(--spacing) * 2);
+		padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2.5);
+		font-size: 0.75rem;
+		border: 2px solid var(--card);
+		background-color: var(--foreground);
+		color: var(--card);
+	}
+
+	.song-video-screen .song-video-start:hover {
+		background-color: var(--foreground);
+	}
+
+	.song-video-screen .song-video-play {
+		inline-size: 1.5rem;
+		block-size: 1.5rem;
+	}
+
+	/* On a small screen, a phone's or a tablet's beside the words, a worded label would
+	 * cover the middle of the picture: the triangle alone says play. Measured on the screen
+	 * itself, since a tablet draws it smaller than a phone does. The button keeps its full
+	 * name in `aria-label`. */
+	@container (width < 20rem) {
+		.song-video-screen .song-video-cue {
+			padding: calc(var(--spacing) * 1.5);
+		}
+
+		.song-video-screen .song-video-cue-label {
+			display: none;
+		}
+	}
+
+	.song-video-screen .song-video-start:hover .song-video-cue {
+		border-color: var(--foreground);
+		background-color: var(--card);
+		color: var(--foreground);
+	}
+
+	/* Without the script the button does nothing, and the plain link to the video is laid
+	 * over it rather than under the box. */
+	.song-video-fallback {
+		position: absolute;
+		inset: 0;
+		z-index: 3;
 	}
 
 	.daw-playhead {

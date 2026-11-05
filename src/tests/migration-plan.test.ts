@@ -18,6 +18,39 @@ const names = [...readFileSync(path.join(MIGRATIONS, 'index.ts'), 'utf8').matchA
 /** Everything written after the baseline: the migrations that DO run on the live database. */
 const NEWER = names.slice(BASELINE.length)
 
+/**
+ * The only statements allowed to change a column, written out whole: relaxing a NOT NULL,
+ * on a column named here and nowhere else. ADR-0011, as amended on 2026-11-05.
+ *
+ * Relaxing a constraint rewrites no row, can be run twice, and the build still serving
+ * reads nothing it did not read before. Anything else that touches a column is still a
+ * decision rather than a file, which is why this is a list of exact statements and not a
+ * pattern: a new one is added here on purpose, by someone who has read the ADR.
+ */
+const RELAXED = new Set([
+	// A Song may carry no audio when its video carries the sound (ADR-0006).
+	'ALTER TABLE "songs" ALTER COLUMN "track_id" DROP NOT NULL',
+	'ALTER TABLE "songs" ALTER COLUMN "duration_seconds" DROP NOT NULL',
+])
+
+/**
+ * Whether one SQL statement of a later migration may run at deploy, unattended, while the
+ * previous build still serves from the database: it only adds, and it can run twice, or it
+ * is one of the `RELAXED` statements, whole. Whitespace is folded first, so the line breaks
+ * Payload writes do not matter. The loop over the migrations and the cases below both go
+ * through this, so a rewrite of the rule is tested by them both.
+ */
+function allowedAtDeploy(statement: string): boolean {
+	const folded = statement.replace(/\s+/g, ' ').trim()
+	if (RELAXED.has(folded)) {
+		return true
+	}
+	return (
+		!/\b(DROP|DELETE|TRUNCATE|UPDATE|INSERT|RENAME|ALTER COLUMN|SET DATA TYPE|NOT NULL|CREATE TYPE)\b/i.test(folded) &&
+		/\bIF NOT EXISTS\b/i.test(folded)
+	)
+}
+
 const live = (recorded: readonly string[]): DatabaseFacts => ({
 	migrations: names,
 	migrationsTable: true,
@@ -110,6 +143,28 @@ describe('what a deployment does with each migration', () => {
 	 * may only add, and it must be safe to run twice. A migration that has to remove or
 	 * rewrite something is a decision to take on purpose, with a backup, not a file to add.
 	 */
+	it('lets a NOT NULL be relaxed on the columns listed, and on no other', () => {
+		expect(allowedAtDeploy('ALTER TABLE "songs" ALTER COLUMN "track_id" DROP NOT NULL')).toBe(true)
+		expect(allowedAtDeploy('ALTER TABLE "songs"\n  ALTER COLUMN "duration_seconds" DROP NOT NULL')).toBe(true)
+		for (const statement of [
+			'ALTER TABLE "songs" ALTER COLUMN "track_id" SET NOT NULL',
+			'ALTER TABLE "songs" ALTER COLUMN "cover_id" DROP NOT NULL',
+			'ALTER TABLE "songs" ALTER COLUMN "track_id" DROP NOT NULL, DROP COLUMN "title"',
+			'ALTER TABLE "songs" ALTER COLUMN "track_id" SET DATA TYPE text',
+			'ALTER TABLE IF EXISTS "songs" ALTER COLUMN "track_id" DROP NOT NULL',
+		]) {
+			expect(allowedAtDeploy(statement), statement).toBe(false)
+		}
+	})
+
+	it('lets through what only adds and can run twice, and nothing that cannot', () => {
+		expect(allowedAtDeploy('CREATE TABLE IF NOT EXISTS "a" ("id" serial PRIMARY KEY)')).toBe(true)
+		expect(allowedAtDeploy('ALTER TABLE "a" ADD COLUMN IF NOT EXISTS "b" varchar')).toBe(true)
+		expect(allowedAtDeploy('ALTER TABLE "a" ADD COLUMN "b" varchar')).toBe(false)
+		expect(allowedAtDeploy('DROP TABLE IF EXISTS "a"')).toBe(false)
+		expect(allowedAtDeploy('ALTER TABLE "a" ADD COLUMN IF NOT EXISTS "b" varchar NOT NULL')).toBe(false)
+	})
+
 	it('only lets additive, replayable SQL run at deploy', () => {
 		for (const name of names.slice(BASELINE.length)) {
 			const source = readFileSync(path.join(MIGRATIONS, `${name}.ts`), 'utf8')
@@ -129,10 +184,7 @@ describe('what a deployment does with each migration', () => {
 
 			expect(statements.length, `${name} runs no SQL this test can read`).toBeGreaterThan(0)
 			for (const statement of statements) {
-				expect(statement, `${name} does more than add`).not.toMatch(
-					/\b(DROP|DELETE|TRUNCATE|UPDATE|INSERT|RENAME|ALTER COLUMN|SET DATA TYPE|NOT NULL|CREATE TYPE)\b/i
-				)
-				expect(statement, `${name} cannot be run twice`).toMatch(/\bIF NOT EXISTS\b/i)
+				expect(allowedAtDeploy(statement), `${name} does more than add, or cannot run twice: ${statement}`).toBe(true)
 			}
 		}
 	})

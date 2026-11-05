@@ -150,12 +150,12 @@ Careful with the two names here. This group on the Landing page is called **Work
 | **Play control label** | Read aloud, never shown. It is the name of the play triangle | No |
 | **Pause control label** | The same button's name while a track is playing | No |
 | **Seek control label** | The name of the coloured bar you drag to move through a track | No |
-| **Previous page control** | The name of the left arrow under the works | No |
-| **Next page control** | The name of the right arrow under the works | No |
 
-**Those last five never appear on the screen.** They exist so that a visitor who cannot see the page, and navigates with a program that reads it aloud, hears what each control is. Keep them plain and literal ("Play", "Pause"), never clever. Emptying one takes a name away from a control and shows you nothing in return, so there is no reason to touch them.
+**Those last three never appear on the screen.** They exist so that a visitor who cannot see the page, and navigates with a program that reads it aloud, hears what each control is. Keep them plain and literal ("Play", "Pause"), never clever. Emptying one takes a name away from a control and shows you nothing in return, so there is no reason to touch them.
 
-The works are shown three at a time, with numbered buttons underneath. Four works make a second page, seven make a third. You cannot change how many appear per page.
+All the works are filed in one folder, with a coloured tab per work along its top edge, 01, 02, 03 and so on from left to right. A visitor presses a tab and the folder shows that work. It opens on the first one.
+
+**Taking the audio off a work that has a video** (a short film, a sound logo): open the work, press the small X beside the file in the Audio field to unlink it, and save. The Duration in seconds field disappears on its own. The panel only refuses to save if the work is left with neither audio nor a valid video link. The MP3 is not deleted: it stays in Audio, and you can delete it there if you no longer need it.
 
 ### Timeline (Percorso)
 
@@ -211,10 +211,11 @@ Click a row to edit that work. Press **Create new** at the top right to add one.
 | **Title** | The heading beside the cover on the card. Per-language | Yes |
 | **Story** | The paragraph under that title. Your line breaks are kept. Per-language, and left empty in English the Italian shows instead | No |
 | **Cover image** | The square picture taped into the card. It also decides whether the black record is drawn behind it: no cover, no record. Shared by both languages | Yes |
-| **Audio** | The MP3 the play button plays, and the source of the coloured bars under it. Shared | Yes |
-| **Duration in seconds** | The second number in the little clock under the bars. See the warning below. Shared | Yes |
+| **Audio** | The MP3 the play button plays, and the source of the coloured bars under it. Shared | Yes, unless the work has a Video link: the video already carries the sound. Without audio there is no record and no play button, and the cover becomes the video's screen |
+| **Duration in seconds** | The second number in the little clock under the bars. See the warning below. Only shown when there is audio. Shared | With audio |
+| **Video link** | A YouTube or Vimeo link. The video loads only when a visitor presses play. Shared | No |
 | **Streaming link** | Nothing by itself. Its presence is what makes the white streaming button appear under the work. Empty means no button, never a broken one. Shared | No |
-| **Order** | Where the work sits in the stack, and therefore which page of three it lands on. **Lowest first: 1 appears above 2.** A new work arrives with 0 already in this box, and 0 is lower than every number your existing works use, so a new work goes to the top of the list on its own. Shared | Yes, and already filled in |
+| **Order** | Where the work's tab sits in the row, and so which one the folder opens on. **Lowest first: 1 appears above 2.** A new work arrives with 0 already in this box, and 0 is lower than every number your existing works use, so a new work goes to the top of the list on its own. Shared | Yes, and already filled in |
 | **Reference** | Hidden from you on purpose. It is an internal handle used by the setup script. Leave it alone | n/a |
 
 **The Duration in seconds is typed by hand.** Nothing measures it for you and nothing checks it against the file. It sets the printed running time, how fast the coloured bar fills, and how far you can drag. Type 24 for a four minute track and the bar fills after twenty-four seconds and then sits full while the music keeps playing, and dragging only reaches the first twenty-four seconds. The sound itself is fine, so nothing looks like an error.
@@ -425,7 +426,7 @@ Do it in this order and nothing can go wrong.
 
 **The file inside an existing Media entry, and the panel's crop tool.** Both change every place that entry is used, and neither can be undone.
 
-**The six screen-reader labels on the Landing page:** Previous page control, Next page control, Seek control label, Play control label, Pause control label, and Strip label under Timeline. They never appear on screen. Emptying one takes a name away from a control that visitors who cannot see the page rely on, and shows you nothing.
+**The four screen-reader labels on the Landing page:** Seek control label, Play control label, Pause control label, and Strip label under Timeline. They never appear on screen. Emptying one takes a name away from a control that visitors who cannot see the page rely on, and shows you nothing.
 
 **The setup script.** Your developer has a command that fills the site with the starter text. It was how the site was first built. **Once you have written your own words, that script must never be run again.** It puts the placeholder text back over the whole landing page, the whole contact page, the legal notice and Settings, in both languages, including your email address. It also puts the five starter works back to how they were, removes any streaming link you added to one of them, and replaces the portrait choice. Anything you added beyond what it knows about, an extra skill, an extra timeline step, an extra fact, is dropped. Works you created yourself and files you uploaded yourself are safe. If anyone ever proposes running "the seed" or "the reset", say that you have real content now and ask what it will overwrite.
 
@@ -438,7 +439,8 @@ Do it in this order and nothing can go wrong.
 | You saved, but the site looks the same | The page in your other tab is the old one | Reload that page. If it still looks old, hold Shift and reload |
 | The panel refuses to save, a field is red | A required field is empty **in the language you are currently editing**. Nothing at all was saved, including the changes on the same screen that were fine | Fill the red field and save again. If you cannot see the red one, open the folded groups and list rows, it is hiding in one |
 | "Locked by another user" | It is almost certainly your own other browser tab, still holding that page open | Close the other tab and wait five minutes: that is how long the lock lasts. The panel also offers to take the lock over, but do that only from the tab holding the words you want to keep, or the older values can be written back |
-| A technical database error when deleting an image or an MP3 | A work is still using that file | Point the work at another file, or delete the work, then delete the file |
+| A technical database error when deleting an image | A work is still using that image | Point the work at another image, or delete the work, then delete the image |
+| "This audio is still used by …" when deleting an MP3 | The work named in the message would be left with nothing to play | Open that work and remove the file from it (or give it another one), save, then delete the MP3. A work that has a Video link does not hold the MP3: deleting it simply leaves that work with its video |
 | The portrait vanished from the front page and nothing warned you | The portrait image was deleted from Media. That deletion is not blocked | Upload the photograph again and choose it again in the Portrait field on the Landing page |
 | The English page shows Italian text | Normal, on a field you have never filled in English. The Italian is standing in | Nothing to fix, unless you want to translate it |
 | You corrected a typo in Italian and the English page still shows it | Your site was set up with English text in every field, so that field is not empty and the fallback does not apply | Switch to English and correct the same field there |

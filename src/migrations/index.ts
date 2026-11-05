@@ -17,6 +17,7 @@ import * as migration_20260905_235525_drop_songs_intro from './20260905_235525_d
 import * as migration_20261013_185114_payload_3_90_columns from './20261013_185114_payload_3_90_columns';
 import * as migration_20261031_225148_timeline_entry_kind from './20261031_225148_timeline_entry_kind';
 import * as migration_20261102_171555_song_video_url from './20261102_171555_song_video_url';
+import * as migration_20261105_140035_song_audio_optional from './20261105_140035_song_audio_optional';
 
 export const migrations = [
   {
@@ -112,6 +113,11 @@ export const migrations = [
   {
     up: migration_20261102_171555_song_video_url.up,
     down: migration_20261102_171555_song_video_url.down,
-    name: '20261102_171555_song_video_url'
+    name: '20261102_171555_song_video_url',
+  },
+  {
+    up: migration_20261105_140035_song_audio_optional.up,
+    down: migration_20261105_140035_song_audio_optional.down,
+    name: '20261105_140035_song_audio_optional'
   },
 ];

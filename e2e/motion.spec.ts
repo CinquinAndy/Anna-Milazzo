@@ -31,7 +31,7 @@ test.describe('motion', () => {
 		}
 	})
 
-	test('the Folder does not lift on hover, its controls do', async ({ page }) => {
+	test('a sheet does not lift on hover, its controls do', async ({ page }) => {
 		await page.goto('/')
 
 		const folder = page.locator('[data-song="notturno-per-tram-vuoto"]')
@@ -44,7 +44,8 @@ test.describe('motion', () => {
 		// A Folder is not a control: there is nothing to press on the card itself, so
 		// lifting it promised an interaction that does not exist, and it compounded, since
 		// entering the card shifted every child by 2px and then landing on a button shifted
-		// that button another 2px. The reasoning is at globals.css, on `.folder` itself.
+		// that button another 2px. The reasoning is at globals.css, on `.folder`, and holds
+		// for the sheet a Song is shown on.
 		expect(await folder.evaluate(el => getComputedStyle(el).transform), 'the card lifted').toBe('none')
 
 		// The press gesture belongs to the things you can actually press.

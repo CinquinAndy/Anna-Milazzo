@@ -15,7 +15,8 @@ export type SeedSong = {
 	/** Stable handle. The seed upserts on it and the tests select by it. */
 	reference: string
 	order: number
-	durationSeconds: number
+	/** Absent for a Song with no audio, whose video carries the sound (ADR-0006). */
+	durationSeconds?: number
 	platformUrl?: string
 	/** A YouTube or Vimeo link, shown as a video that loads on click. */
 	videoUrl?: string
@@ -126,6 +127,27 @@ export const SEED_SONGS: readonly SeedSong[] = [
 				'The first thing I wrote to order: a title theme for an independent architecture podcast. ' +
 				'The brief was thirty-five seconds, recognisable inside the first three. Working to someone ' +
 				'else’s measurements taught me more than a semester of coursework.',
+		},
+	},
+	{
+		// A video and no audio: the short film case. Its cover is the video's screen and it has
+		// no record, no transport and no running time.
+		reference: 'luce-di-taglio',
+		order: 6,
+		videoUrl: 'https://youtu.be/aqz-KE-bpKQ',
+		it: {
+			title: 'Luce di taglio',
+			story:
+				'Il suono di un cortometraggio di quattro minuti, girato in una sola stanza. Non c’è musica: ' +
+				'c’è una porta, una finestra e un frigorifero, registrati e montati fotogramma per fotogramma. ' +
+				'Il suono sta nel video, quindi qui c’è solo il video.',
+		},
+		en: {
+			title: 'Raking Light',
+			story:
+				'The sound of a four-minute short, shot in a single room. There is no score: there is a door, ' +
+				'a window and a fridge, recorded and cut frame by frame. The sound lives in the video, so the ' +
+				'video is all there is here.',
 		},
 	},
 ]
