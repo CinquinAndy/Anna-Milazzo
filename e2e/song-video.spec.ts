@@ -161,6 +161,20 @@ test.describe('a video in the Folder', () => {
 		await expect.poll(paused).toBe(true)
 	})
 
+	test('is taken down when the track starts, the other way round', async ({ page }) => {
+		await page.goto('/')
+		await hydrated(page)
+
+		await song(page, VIMEO_SONG).locator('.song-video-start').click()
+		await expect(page.locator('iframe')).toHaveCount(1)
+
+		// The frame cannot be paused from outside, so it goes, as when its Tab is left.
+		await song(page, VIMEO_SONG).locator('[data-play]').click()
+		await expect.poll(async () => page.evaluate(() => document.querySelector('audio')?.paused ?? true)).toBe(false)
+		await expect(page.locator('iframe')).toHaveCount(0)
+		await expect(song(page, VIMEO_SONG).locator('.song-video-start')).toHaveCount(1)
+	})
+
 	test('on a work with no audio, the cover is the screen, and still asks nothing of the provider', async ({ page }) => {
 		const asked: string[] = []
 		page.on('request', request => {

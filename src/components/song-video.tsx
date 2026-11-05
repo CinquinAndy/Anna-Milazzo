@@ -23,7 +23,8 @@ import type { Media } from '@/payload-types'
  * Two things follow from the Folder (ADR-0014). Leaving the Tab takes the player down again:
  * a sandboxed provider frame cannot be paused from outside without its API, and one hidden
  * with `display: none` would go on playing with no control left to stop it. And starting a
- * video pauses the track, so two sounds are never laid over each other.
+ * video pauses the track, and starting the track takes the video down, so two sounds are
+ * never laid over each other.
  *
  * With a `poster`, the closed state is the Song's own cover drawn as a screen, for a Song
  * whose video is all there is to play. The cover is Anna's upload, served from this site,
@@ -55,6 +56,18 @@ export function SongVideo({
 			setPlaying(false)
 		}
 	}, [open])
+
+	// The other half: the track started while the video was up. The frame cannot be paused
+	// from here, so it is taken down, as when the Tab is left. Only on the change into
+	// playing, so a press on the video that pauses a track already sounding is not undone.
+	const wasPlaying = useRef(state.status === 'playing')
+	useEffect(() => {
+		const now = state.status === 'playing'
+		if (now && !wasPlaying.current) {
+			setPlaying(false)
+		}
+		wasPlaying.current = now
+	}, [state.status])
 
 	const start = () => {
 		if (state.status === 'playing') {
