@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { slugify, songSlugs } from '@/lib/folder/slug'
+import { PAGE_IDS, slugify, songSlugs, tabId } from '@/lib/folder/slug'
 import { contrast, tabColour } from '@/lib/folder/tab-colours'
 
 const CSS = readFileSync('src/app/(frontend)/globals.css', 'utf8')
@@ -80,5 +80,33 @@ describe('the fragment each Song answers to', () => {
 				{ id: 3, title: 'Study' },
 			])
 		).toEqual(['study', 'study-2', 'study-3'])
+	})
+
+	it('never takes an id the page already uses, so the menu still reaches its section', () => {
+		expect(songSlugs([{ id: 1, title: 'Percorso' }])).toEqual(['percorso-2'])
+		expect(
+			songSlugs([
+				{ id: 1, title: 'Ascolta' },
+				{ id: 2, title: 'Ascolta' },
+			])
+		).toEqual(['ascolta-2', 'ascolta-3'])
+	})
+
+	it('knows every fixed id the components write', () => {
+		const dir = 'src/components'
+		for (const file of readdirSync(dir).filter(name => name.endsWith('.tsx'))) {
+			for (const [, id] of readFileSync(`${dir}/${file}`, 'utf8').matchAll(/\bid="([^"]+)"/g)) {
+				expect(PAGE_IDS.has(id ?? ''), `${file} writes id="${id}", which PAGE_IDS does not list`).toBe(true)
+			}
+		}
+	})
+
+	it('gives a Tab an id no sheet can have', () => {
+		const [study, tabStudy] = songSlugs([
+			{ id: 1, title: 'Study' },
+			{ id: 2, title: 'Tab Study' },
+		])
+		expect(tabId(study ?? '')).not.toBe(tabStudy)
+		expect(slugify('Tab_Study')).not.toContain('_')
 	})
 })

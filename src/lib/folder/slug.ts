@@ -31,9 +31,33 @@ export function slugify(title: string): string {
 	return (lastBreak > MAX / 3 ? cut.slice(0, lastBreak) : slug.slice(0, MAX)).replace(/-+$/g, '')
 }
 
-/** One fragment per Song, in order, never two the same. */
+/**
+ * The ids the site's own markup already uses. A Song's fragment is also the id of its sheet,
+ * so a Song titled "Percorso" would otherwise give the page a second `#percorso`, and the
+ * menu's link to the timeline would open that Song instead. Such a Song is told apart by a
+ * counter, `#percorso-2`, as a second Song of the same title is. `folder-tabs.test.ts`
+ * fails when a component gains a fixed id that is not listed here.
+ */
+export const PAGE_IDS: ReadonlySet<string> = new Set([
+	'ascolta',
+	'percorso',
+	'contatti',
+	'scrivetemi',
+	'in-pratica',
+	'footer-pages',
+	'badge-ring',
+	'ribbon-spine',
+])
+
+/**
+ * The id of the Tab that opens the sheet `slug`. An underscore, which `slugify` never
+ * writes, so a Song titled "Tab Study" cannot take the id of the Tab of a Song titled "Study".
+ */
+export const tabId = (slug: string) => `tab_${slug}`
+
+/** One fragment per Song, in order, never two the same, and never one the page already uses. */
 export function songSlugs(songs: readonly { id: number | string; title: string | null | undefined }[]): string[] {
-	const taken = new Set<string>()
+	const taken = new Set<string>(PAGE_IDS)
 	return songs.map(song => {
 		const base = slugify(song.title ?? '') || `song-${song.id}`
 		let slug = base

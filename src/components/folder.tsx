@@ -13,6 +13,7 @@ import {
 	useState,
 } from 'react'
 import { useAudioEngine } from '@/components/audio-engine'
+import { tabId } from '@/lib/folder/slug'
 import { isPlaying } from '@/lib/player/controller'
 
 /** What the Folder needs to draw one Tab. Everything else is on the sheet it opens. */
@@ -150,7 +151,7 @@ export function Folder({ tabs, label, children }: { tabs: readonly FolderTab[]; 
 								tabRefs.current[index] = node
 							}}
 							href={`#${tab.slug}`}
-							id={`tab-${tab.slug}`}
+							id={tabId(tab.slug)}
 							className="song-tab"
 							role={live ? 'tab' : undefined}
 							aria-selected={live ? selected : undefined}
@@ -195,7 +196,7 @@ export function Folder({ tabs, label, children }: { tabs: readonly FolderTab[]; 
 							id={tab.slug}
 							className="song-panel"
 							role={live ? 'tabpanel' : undefined}
-							aria-labelledby={live ? `tab-${tab.slug}` : undefined}
+							aria-labelledby={live ? tabId(tab.slug) : undefined}
 							// Focusable so a keyboard reader can step from the Tab into the sheet.
 							tabIndex={live ? 0 : undefined}
 							data-open={selected ? 'true' : 'false'}

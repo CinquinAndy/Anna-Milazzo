@@ -31,7 +31,9 @@ those still look sound on their own.
   still not a page, has no metadata of its own and changes nothing for search engines. Not
   a query string, which would make the landing page dynamic for a value the server never
   needs. The server renders the first Tab open; the fragment is read after hydration, and
-  each press replaces it rather than pushing history.
+  each press replaces it rather than pushing history. The fragment is also the Sheet's id,
+  so it never takes an id the page already uses (`PAGE_IDS`): a Song titled "Percorso" is
+  `#percorso-2`, and the menu's `#percorso` still reaches the timeline.
 - **The audio keeps playing when another Tab is opened.** There is one audio element
   (ADR-0007) and the Sheets stay mounted, so the music does not stop because you looked at
   the next work. A small turning record on the sounding Song's Tab says where to go back to
