@@ -24,6 +24,14 @@ const FIXTURES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'fix
 const SIZE = 1200
 
 /**
+ * A video thumbnail's shape, 16:9 at YouTube's own `maxresdefault` size. Anna's videos use
+ * their thumbnail as the cover, and a square-only seed is how a record that hung over the
+ * title on every one of them went unseen by the tests.
+ */
+const WIDE = { width: 1280, height: 720 } as const
+const SQUARE = { width: SIZE, height: SIZE } as const
+
+/**
  * The palette, as literals.
  *
  * Written out rather than read from the stylesheet because this runs in Node with no
@@ -52,17 +60,33 @@ const SLEEVES = [
 	{ reference: 'notturno-per-tram-vuoto', ground: HUES.blue, arcs: [HUES.lemon, HUES.spring, SHEET], corner: 'br' },
 	{ reference: 'perche-il-temporale', ground: HUES.lemon, arcs: [HUES.blue, HUES.cantaloupe, INK], corner: 'bl' },
 	{ reference: 'citta-alle-quattro', ground: HUES.spring, arcs: [HUES.blue, SHEET, HUES.cantaloupe], corner: 'tr' },
-	{ reference: 'studio-per-due-mani', ground: HUES.cantaloupe, arcs: [SHEET, HUES.blue, HUES.lemon], corner: 'tl' },
+	{
+		reference: 'studio-per-due-mani',
+		ground: HUES.cantaloupe,
+		arcs: [SHEET, HUES.blue, HUES.lemon],
+		corner: 'tl',
+		shape: WIDE,
+	},
 	{ reference: 'piu-vicino-del-previsto', ground: SHEET, arcs: [HUES.magenta, HUES.grape, HUES.blue], corner: 'br' },
+	// A video and no audio: its cover is the video's screen.
+	{
+		reference: 'luce-di-taglio',
+		ground: HUES.grape,
+		arcs: [HUES.lemon, SHEET, HUES.spring],
+		corner: 'bl',
+		shape: WIDE,
+	},
 ] as const
 
 /** Where the arcs radiate from, and which way the quarter turns. */
 const CORNERS = {
 	tl: { x: 0, y: 0, sweep: 1 },
-	tr: { x: SIZE, y: 0, sweep: 0 },
-	bl: { x: 0, y: SIZE, sweep: 0 },
-	br: { x: SIZE, y: SIZE, sweep: 1 },
+	tr: { x: 1, y: 0, sweep: 0 },
+	bl: { x: 0, y: 1, sweep: 0 },
+	br: { x: 1, y: 1, sweep: 1 },
 } as const
+
+type Shape = { width: number; height: number }
 
 /**
  * A quarter-arc band, drawn the way this project draws every curve.
@@ -71,8 +95,10 @@ const CORNERS = {
  * arc gets eight units of keyline on both edges without a second path. It is the only way a
  * curve obeys a system where every edge is a black line.
  */
-function arcBand(corner: keyof typeof CORNERS, radius: number, tint: string, width: number) {
-	const { x, y, sweep } = CORNERS[corner]
+function arcBand(shape: Shape, corner: keyof typeof CORNERS, radius: number, tint: string, width: number) {
+	const { sweep } = CORNERS[corner]
+	const x = CORNERS[corner].x * shape.width
+	const y = CORNERS[corner].y * shape.height
 	const from = `${x === 0 ? radius : x - radius},${y}`
 	const to = `${x},${y === 0 ? radius : y - radius}`
 	const d = `M${from} A${radius} ${radius} 0 0 ${sweep} ${to}`
@@ -86,7 +112,7 @@ function arcBand(corner: keyof typeof CORNERS, radius: number, tint: string, wid
  * whole reason a viewer reads the sleeve as provisional rather than as finished art, so
  * they are drawn in ink at full strength and are not decoration to be tuned away.
  */
-function cropMarks() {
+function cropMarks(shape: Shape) {
 	const inset = 54
 	const length = 132
 	const width = 9
@@ -97,8 +123,8 @@ function cropMarks() {
 		[0, 1],
 		[1, 1],
 	] as const) {
-		const x = dx === 0 ? inset : SIZE - inset
-		const y = dy === 0 ? inset : SIZE - inset
+		const x = dx === 0 ? inset : shape.width - inset
+		const y = dy === 0 ? inset : shape.height - inset
 		const hx = dx === 0 ? x + length : x - length
 		const vy = dy === 0 ? y + length : y - length
 		marks.push(
@@ -109,14 +135,18 @@ function cropMarks() {
 }
 
 function sleeve(spec: (typeof SLEEVES)[number]) {
+	const shape: Shape = 'shape' in spec ? spec.shape : SQUARE
+	// Sized from the short side, so a wide cover keeps the same bands as a square one.
+	const side = Math.min(shape.width, shape.height)
 	const bands = spec.arcs
-		.map((tint, index) => arcBand(spec.corner, SIZE * (0.86 - index * 0.19), tint, SIZE * 0.11))
+		.map((tint, index) => arcBand(shape, spec.corner, side * (0.86 - index * 0.19), tint, side * 0.11))
 		.join('')
-	return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">
-	<rect width="${SIZE}" height="${SIZE}" fill="${spec.ground}"/>
+	const { width, height } = shape
+	return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+	<rect width="${width}" height="${height}" fill="${spec.ground}"/>
 	${bands}
-	${cropMarks()}
-	<rect x="0" y="0" width="${SIZE}" height="${SIZE}" fill="none" stroke="${INK}" stroke-width="28"/>
+	${cropMarks(shape)}
+	<rect x="0" y="0" width="${width}" height="${height}" fill="none" stroke="${INK}" stroke-width="28"/>
 </svg>`
 }
 

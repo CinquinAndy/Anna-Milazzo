@@ -1,21 +1,24 @@
 import { expect, type Page, test } from '@playwright/test'
+import { openSong, sheet } from './folder'
 import { hydrated } from './hydrated'
 
 /**
  * The videos on the works: a link Anna pastes, a player that exists only after a press
  * (ADR-0013).
  *
- * The seed gives two of its works a link, a Vimeo one and a YouTube one, both on the first page of
- * the pager, and leaves the rest without. The provider's hosts are
- * intercepted so nothing here depends on, or reaches, anybody's servers.
+ * The seed gives three of its works a link: a Vimeo one and a YouTube one beside their audio,
+ * and a YouTube one on a work with no audio at all, whose cover is the screen. The rest have
+ * none. The provider's hosts are intercepted so nothing here depends on, or reaches,
+ * anybody's servers.
  */
 const VIMEO_SONG = 'notturno-per-tram-vuoto'
 const YOUTUBE_SONG = 'studio-per-due-mani'
+const SCREEN_SONG = 'luce-di-taglio'
 const NO_VIDEO_SONG = 'perche-il-temporale'
 
 const PROVIDERS = /youtube|youtu\.be|ytimg|googlevideo|vimeo|vimeocdn|doubleclick/i
 
-const song = (page: Page, reference: string) => page.locator(`.folder[data-song="${reference}"]`)
+const song = (page: Page, reference: string) => sheet(page, reference)
 
 test.describe('a video on a work', () => {
 	test.beforeEach(async ({ page }) => {
@@ -47,9 +50,10 @@ test.describe('a video on a work', () => {
 	test('shows a play button for the works that have a video and for no other', async ({ page }) => {
 		await page.goto('/')
 
-		await expect(page.locator('[data-song-video]')).toHaveCount(2)
+		await expect(page.locator('[data-song-video]')).toHaveCount(3)
 		await expect(song(page, VIMEO_SONG).locator('[data-song-video]')).toHaveCount(1)
 		await expect(song(page, YOUTUBE_SONG).locator('[data-song-video]')).toHaveCount(1)
+		await expect(song(page, SCREEN_SONG).locator('[data-song-video]')).toHaveCount(1)
 		await expect(song(page, NO_VIDEO_SONG).locator('[data-song-video]')).toHaveCount(0)
 	})
 
@@ -81,6 +85,7 @@ test.describe('a video on a work', () => {
 		await page.goto('/')
 		await hydrated(page)
 
+		await openSong(page, YOUTUBE_SONG)
 		await song(page, YOUTUBE_SONG).locator('.song-video-start').click()
 
 		await expect(song(page, YOUTUBE_SONG).locator('iframe')).toHaveAttribute(
@@ -118,6 +123,70 @@ test.describe('a video on a work', () => {
 		const after = await box.boundingBox()
 
 		expect(after?.width).toBeCloseTo(before?.width ?? 0, 0)
+		expect(after?.height).toBeCloseTo(before?.height ?? 0, 0)
+	})
+})
+
+test.describe('a video in the Folder', () => {
+	test.beforeEach(async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: 'reduce' })
+		await page.route(PROVIDERS, route =>
+			route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>player</title>' })
+		)
+	})
+
+	test('is taken down when its Tab is left, so nothing plays out of sight', async ({ page }) => {
+		await page.goto('/')
+		await hydrated(page)
+
+		await song(page, VIMEO_SONG).locator('.song-video-start').click()
+		await expect(page.locator('iframe')).toHaveCount(1)
+
+		// A hidden provider frame would go on playing with no control left to stop it.
+		await openSong(page, NO_VIDEO_SONG)
+		await expect(page.locator('iframe')).toHaveCount(0)
+		await openSong(page, VIMEO_SONG)
+		await expect(song(page, VIMEO_SONG).locator('.song-video-start')).toHaveCount(1)
+	})
+
+	test('pauses the track when it starts, so two sounds are never laid over each other', async ({ page }) => {
+		await page.goto('/')
+		await hydrated(page)
+
+		const paused = async () => page.evaluate(() => document.querySelector('audio')?.paused ?? true)
+		await song(page, VIMEO_SONG).locator('[data-play]').click()
+		await expect.poll(paused).toBe(false)
+
+		await song(page, VIMEO_SONG).locator('.song-video-start').click()
+		await expect.poll(paused).toBe(true)
+	})
+
+	test('on a work with no audio, the cover is the screen, and still asks nothing of the provider', async ({ page }) => {
+		const asked: string[] = []
+		page.on('request', request => {
+			if (PROVIDERS.test(new URL(request.url()).host)) {
+				asked.push(request.url())
+			}
+		})
+		await page.goto('/')
+		await hydrated(page)
+		await openSong(page, SCREEN_SONG)
+		await page.waitForTimeout(500)
+
+		const screen = song(page, SCREEN_SONG).locator('.folder-screen [data-song-video]')
+		// Anna's own cover, served from this site: not a thumbnail from the provider.
+		const poster = screen.locator('img.song-video-poster')
+		await expect(poster).toBeVisible()
+		expect(new URL((await poster.getAttribute('src')) ?? '', page.url()).host).toBe(new URL(page.url()).host)
+		expect(asked, 'the screen fetched something from the provider before the press').toEqual([])
+
+		const before = await screen.boundingBox()
+		await screen.locator('.song-video-start').click()
+		await expect(screen.locator('iframe')).toHaveAttribute(
+			'src',
+			'https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ?autoplay=1&rel=0&playsinline=1'
+		)
+		const after = await screen.boundingBox()
 		expect(after?.height).toBeCloseTo(before?.height ?? 0, 0)
 	})
 })

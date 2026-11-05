@@ -1,18 +1,21 @@
 import { expect, type Page, test } from '@playwright/test'
+import { openSong } from './folder'
+
+/** A Song whose cover is 16:9, a video thumbnail, and which carries audio as well. */
+const WIDE = 'studio-per-due-mani'
 
 /** The record's painted box, and what it is measured against. */
-async function sleeveGeometry(page: Page, index = 0) {
-	return page.evaluate(nth => {
-		// Indexed over what is on the page, not over the whole document: the stack is
-		// paginated and a hidden Folder measures as a zero box.
-		const folder = document.querySelectorAll('[data-song-stack] li:not([hidden]) .folder')[nth]
-		if (folder === undefined) {
+async function sleeveGeometry(page: Page) {
+	return page.evaluate(() => {
+		// The open sheet: a closed one is `display: none` and measures as a zero box.
+		const folder = document.querySelector('.song-panel[data-open="true"] .song-sheet')
+		if (folder === null) {
 			return null
 		}
 		const disc = folder.querySelector('.folder-disc')
 		const cover = folder.querySelector('.folder-sleeve img')
 		const heading = folder.querySelector('h3')
-		const story = folder.querySelector('p')
+		const story = folder.querySelector('h3 + p')
 		if (disc === null || cover === null) {
 			return null
 		}
@@ -26,7 +29,7 @@ async function sleeveGeometry(page: Page, index = 0) {
 		const layoutWidth = Number.parseFloat(getComputedStyle(disc).width)
 		const centre = (discBox.left + discBox.right) / 2
 		const paintedRight = centre + (layoutWidth * 98) / 200
-		const body = folder.querySelector('.folder-body')
+		const body = folder.querySelector('.sheet-body')
 		const columns = body === null ? '' : getComputedStyle(body).gridTemplateColumns
 		const beside = columns.split(' ').length > 1
 		const textLeft = Math.min(
@@ -38,12 +41,18 @@ async function sleeveGeometry(page: Page, index = 0) {
 			// How far the record shows past the sleeve's right edge.
 			out: paintedRight - coverBox.right,
 			cardEdge: cardBox.right - paintedRight,
-			// Its top, relative to the cover, so every Song can be compared.
+			// Where it sits against the cover, top and bottom, painted circle not box.
 			top: discBox.top - coverBox.top,
+			above: (discBox.top + discBox.bottom) / 2 - (layoutWidth * 98) / 200 - coverBox.top,
+			below: coverBox.bottom - ((discBox.top + discBox.bottom) / 2 + (layoutWidth * 98) / 200),
+			// How far the centre is from the cover's own, vertically.
+			offCentre: (discBox.top + discBox.bottom) / 2 - (coverBox.top + coverBox.bottom) / 2,
+			headingTop: heading === null ? null : heading.getBoundingClientRect().top,
+			discBottom: (discBox.top + discBox.bottom) / 2 + (layoutWidth * 98) / 200,
 			// Null when the story is not beside the cover at all.
 			clearance: beside ? textLeft - paintedRight : null,
 		}
-	}, index)
+	})
 }
 
 test.describe('the record and its sleeve', () => {
@@ -51,7 +60,7 @@ test.describe('the record and its sleeve', () => {
 		await page.setViewportSize({ width: 1024, height: 900 })
 		await page.goto('/')
 		const dead = await page.evaluate(() => {
-			const sleeve = document.querySelector('[data-song-stack] .folder .folder-sleeve')
+			const sleeve = document.querySelector('.song-panel[data-open="true"] .folder-sleeve')
 			const cover = sleeve?.querySelector('img')
 			if (!sleeve || !cover) {
 				return 0
@@ -107,31 +116,40 @@ test.describe('the record and its sleeve', () => {
 		}
 	})
 
-	test('sits at the same height on every Song', async ({ page }) => {
-		await page.goto('/')
-		const tops: number[] = []
-		// Walked page by page: the works off the current page are `hidden`, and a hidden
-		// element measures as a zero box, which would report a difference in height that
-		// nobody can see.
-		const buttons = page.locator('.song-pager-page')
-		const pages = Math.max(1, await buttons.count())
-		for (let pageIndex = 0; pageIndex < pages; pageIndex++) {
-			if ((await buttons.count()) > 0) {
-				await buttons.nth(pageIndex).click()
-			}
-			const shown = await page.locator('[data-song-stack] li:not([hidden]) .folder').count()
-			for (let index = 0; index < shown; index++) {
-				const geometry = await sleeveGeometry(page, index)
-				if (geometry !== null) {
-					tops.push(Math.round(geometry.top))
-				}
+	test('stays inside the cover, centred on it, whatever its shape', async ({ page }) => {
+		for (const width of [360, 768, 1440]) {
+			await page.setViewportSize({ width, height: 900 })
+			await page.goto('/')
+			for (const reference of ['notturno-per-tram-vuoto', WIDE]) {
+				await openSong(page, reference)
+				const resting = await sleeveGeometry(page)
+				// Sized from the cover's width, the record assumed a square cover: on a 16:9 one
+				// it was taller than the picture and hung 60px down over the title (Anna, 5
+				// November). Sized from the height, it cannot leave the cover.
+				expect(resting?.above ?? -1, `the record rises above ${reference} at ${width}px`).toBeGreaterThanOrEqual(0)
+				expect(resting?.below ?? -1, `the record hangs below ${reference} at ${width}px`).toBeGreaterThanOrEqual(0)
+				expect(Math.abs(resting?.offCentre ?? 99), `the record is off centre on ${reference}`).toBeLessThan(3)
 			}
 		}
-		expect(tops.length, 'no Song was measured at all').toBeGreaterThan(0)
-		// A percentage `inset-block-start` resolves against the containing block's HEIGHT,
-		// which here is a grid row stretched by the story beside it, so the record hung at a
-		// different height on every Song. A percentage margin resolves against the width.
-		expect(Math.max(...tops) - Math.min(...tops), 'the record hangs at a different height per Song').toBeLessThan(3)
+	})
+
+	test('never reaches the title on a 16:9 cover, even while it plays', async ({ page }) => {
+		for (const width of [360, 390, 768, 1024, 1440]) {
+			await page.setViewportSize({ width, height: 900 })
+			await page.goto('/')
+			await openSong(page, WIDE)
+			await page.locator('.song-panel[data-open="true"] .transport-play').click()
+			await page.mouse.move(0, 0)
+			await page.waitForTimeout(700)
+			const playing = await sleeveGeometry(page)
+			if (playing?.clearance === null && playing.headingTop !== null) {
+				// Stacked: the title is under the cover, and the record must end above it.
+				expect(playing.discBottom, `the record reaches the title at ${width}px`).toBeLessThan(playing.headingTop)
+			}
+			if (playing?.clearance !== null && playing?.clearance !== undefined) {
+				expect(playing.clearance, `the record reaches the story at ${width}px`).toBeGreaterThan(0)
+			}
+		}
 	})
 
 	test('turns visibly while it plays, rather than turning invisibly', async ({ page }) => {
@@ -146,7 +164,7 @@ test.describe('the record and its sleeve', () => {
 		for (let sample = 0; sample < 4; sample++) {
 			angles.push(
 				await page.evaluate(() => {
-					const disc = document.querySelector('[data-song-stack] .folder-disc')
+					const disc = document.querySelector('.song-panel[data-open="true"] .folder-disc')
 					return disc === null ? '' : getComputedStyle(disc).rotate
 				})
 			)
@@ -155,7 +173,7 @@ test.describe('the record and its sleeve', () => {
 		expect(new Set(angles).size, 'the record is not turning').toBeGreaterThan(2)
 
 		const offAxis = await page.evaluate(() => {
-			const disc = document.querySelector('[data-song-stack] .folder-disc')
+			const disc = document.querySelector('.song-panel[data-open="true"] .folder-disc')
 			if (disc === null) {
 				return 0
 			}

@@ -98,13 +98,16 @@ async function upsertSong(payload: Payload, song: SeedSong): Promise<void> {
 		en: `Cover of “${song.en.title}”.`,
 	}
 	const cover = await upsertUpload(payload, 'media', `cover-${song.reference}.png`, coverAlt)
-	const track = await upsertUpload(payload, 'audio', `track-${song.reference}.mp3`)
+	// No file for a Song whose video carries the sound, and an explicit null, so a Song that
+	// had one before loses it.
+	const track =
+		song.durationSeconds === undefined ? null : await upsertUpload(payload, 'audio', `track-${song.reference}.mp3`)
 
 	const shared = {
 		cover,
 		track,
 		order: song.order,
-		durationSeconds: song.durationSeconds,
+		durationSeconds: song.durationSeconds ?? null,
 		// Explicitly null rather than omitted: an omitted key leaves whatever is stored,
 		// so a Song that is meant to have no link would keep an old one forever.
 		platformUrl: song.platformUrl ?? null,

@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test'
+import { openSong } from './folder'
 
 /**
  * The drawn height of every column of one Folder's rail, 0..1.
@@ -9,7 +10,10 @@ import { expect, type Page, test } from '@playwright/test'
  */
 async function shapeOf(page: Page, index: number) {
 	return page.evaluate(nth => {
-		const canvas = document.querySelectorAll<HTMLCanvasElement>('[data-song-stack] .playhead-canvas')[nth]
+		// The open sheet's: a closed one is `display: none`, and a canvas there has no size.
+		const canvas = document.querySelectorAll<HTMLCanvasElement>(
+			'[data-song-stack] .song-panel[data-open="true"] .playhead-canvas'
+		)[nth]
 		if (canvas === undefined) {
 			return []
 		}
@@ -61,7 +65,9 @@ async function shapeOf(page: Page, index: number) {
  */
 async function railPainted(page: Page) {
 	await page.waitForFunction(() => {
-		const canvas = document.querySelector<HTMLCanvasElement>('[data-song-stack] .playhead-canvas')
+		const canvas = document.querySelector<HTMLCanvasElement>(
+			'[data-song-stack] .song-panel[data-open="true"] .playhead-canvas'
+		)
 		const context = canvas?.getContext('2d')
 		if (canvas === null || canvas === undefined || context === null || context === undefined) {
 			return false
@@ -85,9 +91,15 @@ test.describe('the rail visualiser', () => {
 		await page.goto('/')
 		await railPainted(page)
 
+		// Each one drawn after its Tab is opened, which is also the proof that a rail mounted
+		// on a hidden sheet draws itself once the sheet is shown.
 		const first = await shapeOf(page, 0)
-		const second = await shapeOf(page, 1)
-		const third = await shapeOf(page, 2)
+		await openSong(page, 'perche-il-temporale')
+		await railPainted(page)
+		const second = await shapeOf(page, 0)
+		await openSong(page, 'citta-alle-quattro')
+		await railPainted(page)
+		const third = await shapeOf(page, 0)
 
 		expect(first.length, 'the rail drew nothing at all').toBeGreaterThan(20)
 		// The whole point of measuring the file: two Songs cannot share a shape. An authored
@@ -164,7 +176,7 @@ test.describe('the rail visualiser', () => {
 		}
 	})
 
-	test('leaves the focus ring on the controls and not around the whole Folder', async ({ page }) => {
+	test('leaves the focus ring on the controls and not around the whole sheet', async ({ page }) => {
 		await page.goto('/')
 		await railPainted(page)
 
@@ -174,16 +186,16 @@ test.describe('the rail visualiser', () => {
 				return node === null ? '' : getComputedStyle(node).outlineStyle
 			}, selector)
 
-		await page.locator('[data-song-stack] .folder .transport-play').first().focus()
+		await page.locator('[data-song-stack] .song-sheet .transport-play').first().focus()
 		// The card-wide ring was the ugly one. The control's own ring is the accessible one,
 		// and it is the reason removing the card's is safe.
-		expect(await outlineOf('[data-song-stack] .folder')).toBe('none')
-		expect(await outlineOf('[data-song-stack] .folder .transport-play')).not.toBe('none')
+		expect(await outlineOf('[data-song-stack] .song-sheet')).toBe('none')
+		expect(await outlineOf('[data-song-stack] .song-sheet .transport-play')).not.toBe('none')
 
 		// The seek input is deliberately transparent over the canvas, so the rail carries its
 		// indicator, it is the only one that control has.
-		await page.locator('[data-song-stack] .folder .playhead-seek').first().focus()
-		expect(await outlineOf('[data-song-stack] .folder .transport-rail')).not.toBe('none')
+		await page.locator('[data-song-stack] .song-sheet .playhead-seek').first().focus()
+		expect(await outlineOf('[data-song-stack] .song-sheet .transport-rail')).not.toBe('none')
 	})
 
 	test('is still a canvas the seek control sits on top of, not in place of', async ({ page }) => {
