@@ -16,7 +16,7 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 # 2. Build, on the Node version that runs the server.
-FROM node:24.22.2-bookworm-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS build
+FROM node:24.22.3-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54 AS build
 WORKDIR /app
 COPY --from=deps /usr/local/bin/bun /usr/local/bin/bun
 COPY --from=deps /app/node_modules ./node_modules
@@ -43,7 +43,7 @@ RUN bun run build
 
 # 3. What runs. The app is copied whole: `next start` needs .next, node_modules and the sources
 #    that next.config.ts and the Payload config import.
-FROM node:24.22.2-bookworm-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS run
+FROM node:24.22.3-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54 AS run
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS=--no-deprecation PORT=3000 HOSTNAME=0.0.0.0
 COPY --from=build --chown=node:node /app ./
