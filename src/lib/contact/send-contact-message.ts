@@ -10,12 +10,16 @@
  * privacy notice, for a form that will see a few messages a month.
  */
 
+import { isTrapFilled, looksLikeRobotText } from './spam'
+
 export type ContactMessage = {
 	name: string
 	email: string
 	message: string
 	/** The token Turnstile put in the form. Absent when the widget never ran. */
 	token: string
+	/** The hidden trap field (`TRAP_FIELD`). Empty for a person. */
+	trap?: string
 }
 
 export type ContactField = 'name' | 'email' | 'message' | 'token'
@@ -63,6 +67,15 @@ export async function sendContactMessage(
 	if (invalid.length > 0) {
 		// Nothing is verified and nothing is sent for a message that cannot be answered.
 		return { outcome: 'invalid', fields: invalid }
+	}
+
+	// A robot that fills the trap, or types random letters in both the name and the message,
+	// is told "sent" and nothing leaves: an error would only teach it to adapt. This runs
+	// before Turnstile because the action can be called without the page, and costs nothing.
+	if (isTrapFilled(message.trap) || looksLikeRobotText(message)) {
+		// biome-ignore lint/suspicious/noConsole: one line per robot, nothing it typed.
+		console.info('[contact] robot submission dropped')
+		return { outcome: 'sent' }
 	}
 
 	// Verification first, always: a bot that never has to solve anything is not blocked

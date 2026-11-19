@@ -1,4 +1,5 @@
 import type { ContactCollaborators, ContactMessage } from './send-contact-message'
+import { containsLink } from './spam'
 
 const TURNSTILE_VERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
 const RESEND_SEND = 'https://api.resend.com/emails'
@@ -16,6 +17,7 @@ async function verifyTurnstile(token: string): Promise<boolean> {
 		method: 'POST',
 		headers: { 'content-type': 'application/x-www-form-urlencoded' },
 		body: new URLSearchParams({ secret, response: token }),
+		signal: AbortSignal.timeout(10_000),
 	})
 	if (!response.ok) {
 		return false
@@ -48,7 +50,8 @@ async function deliverByEmail(message: ContactMessage): Promise<boolean> {
 			from,
 			to: [to],
 			reply_to: message.email,
-			subject: `Portfolio, messaggio da ${message.name}`,
+			// Scams arrive with a link: the subject says so before the message is opened.
+			subject: `${containsLink(message.message) ? '[Link nel messaggio] ' : ''}Portfolio, messaggio da ${message.name}`,
 			html,
 			// Both parts, always. A message with no text alternative scores worse with spam
 			// filters, and a portfolio whose contact form lands in junk has no contact form.

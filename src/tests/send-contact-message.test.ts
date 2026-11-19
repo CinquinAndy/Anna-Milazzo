@@ -120,3 +120,41 @@ describe('a message that cannot be answered', () => {
 		expect(result).toEqual({ outcome: 'invalid', fields: ['token'] })
 	})
 })
+
+describe('a robot submission', () => {
+	it('is told "sent" and nothing is verified or delivered when the trap is filled', async () => {
+		const fakes = collaborators()
+
+		await expect(sendContactMessage({ ...MESSAGE, trap: 'https://spam.example' }, fakes)).resolves.toEqual({
+			outcome: 'sent',
+		})
+		expect(fakes.verifyToken).not.toHaveBeenCalled()
+		expect(fakes.deliver).not.toHaveBeenCalled()
+	})
+
+	it('is told "sent" and nothing is delivered when the name and the message are random letters', async () => {
+		const fakes = collaborators()
+
+		await expect(
+			sendContactMessage({ ...MESSAGE, name: 'FzEwOOmxoOoDAyMmIDdgBtPG', message: 'oKcQzvnDkccQlIuC' }, fakes)
+		).resolves.toEqual({ outcome: 'sent' })
+		expect(fakes.deliver).not.toHaveBeenCalled()
+	})
+
+	it('still reaches the inbox when only the name looks random', async () => {
+		const fakes = collaborators()
+
+		await expect(sendContactMessage({ ...MESSAGE, name: 'GiuliaFERRARIRossi' }, fakes)).resolves.toEqual({
+			outcome: 'sent',
+		})
+		expect(fakes.deliver).toHaveBeenCalledTimes(1)
+	})
+
+	it('reaches the inbox with an empty trap', async () => {
+		const fakes = collaborators()
+
+		await sendContactMessage({ ...MESSAGE, trap: '   ' }, fakes)
+
+		expect(fakes.deliver).toHaveBeenCalledTimes(1)
+	})
+})
