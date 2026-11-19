@@ -2,6 +2,7 @@
 
 import { contactCollaborators } from '@/lib/contact/collaborators'
 import { type ContactResult, sendContactMessage } from '@/lib/contact/send-contact-message'
+import { TRAP_FIELD } from '@/lib/contact/spam'
 
 /**
  * The form's submit handler. All it does is read the fields and hand them to the boundary
@@ -14,6 +15,7 @@ export async function submitContactMessage(_previous: ContactResult | null, form
 			email: String(form.get('email') ?? ''),
 			message: String(form.get('message') ?? ''),
 			token: String(form.get('cf-turnstile-response') ?? ''),
+			trap: String(form.get(TRAP_FIELD) ?? ''),
 		},
 		contactCollaborators()
 	)

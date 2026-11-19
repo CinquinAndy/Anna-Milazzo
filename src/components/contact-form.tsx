@@ -4,9 +4,19 @@ import Script from 'next/script'
 import { useActionState, useEffect, useId, useRef, useState } from 'react'
 import { submitContactMessage } from '@/app/(frontend)/[lang]/contact/actions'
 import type { ContactField, ContactResult } from '@/lib/contact/send-contact-message'
+import { TRAP_FIELD } from '@/lib/contact/spam'
 import type { Contact } from '@/payload-types'
 
 const TURNSTILE_SCRIPT = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
+
+/**
+ * The public key of the site's own widget, "anna-milazzo.com contact" (Andy's Cloudflare account),
+ * in code so only the secret has to live in the environment. The variable still wins, which is how
+ * development and the end-to-end tests swap in Cloudflare's always-pass test key.
+ */
+const TURNSTILE_SITE_KEY =
+	process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ||
+	(process.env.NODE_ENV === 'production' ? '0x4AAAAAAGJAJPluWsr7FsB_' : '1x00000000000000000000AA')
 
 function fieldInvalid(result: ContactResult | null, field: ContactField): boolean {
 	return result?.outcome === 'invalid' && result.fields.includes(field)
@@ -59,7 +69,7 @@ export function ContactForm({
 	const bodyRef = useRef<HTMLTextAreaElement | null>(null)
 	const checkRef = useRef<HTMLDivElement | null>(null)
 	const ids = useId()
-	const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''
+	const siteKey = TURNSTILE_SITE_KEY
 
 	const form = copy.form
 	const outcome = copy.outcome
@@ -256,6 +266,16 @@ export function ContactForm({
 								{form?.checkNote}
 							</p>
 						) : null}
+					</div>
+
+					{/* The trap: off screen and hidden from assistive technology, so a person never
+					    fills it. Robots that fill every field do, and are told "sent" for nothing. */}
+					<div
+						aria-hidden="true"
+						style={{ position: 'absolute', left: '-10000px', width: '1px', height: '1px', overflow: 'hidden' }}
+					>
+						<label htmlFor={`${ids}-${TRAP_FIELD}`}>Non compilare questo campo</label>
+						<input id={`${ids}-${TRAP_FIELD}`} name={TRAP_FIELD} type="text" tabIndex={-1} autoComplete="off" />
 					</div>
 
 					<div className="form-foot">
