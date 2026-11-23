@@ -38,7 +38,7 @@
 		"@payloadcms/ui": "3.92.1",
 		"@react-email/components": "1.0.12",
 		"@react-email/render": "2.3.1",
-		"graphql": "16.14.2",
+		"graphql": "16.15.0",
 		"mpg123-decoder": "1.0.3",
 		"next": "16.4.6",
 		"payload": "3.92.1",

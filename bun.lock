@@ -12,7 +12,7 @@
         "@payloadcms/ui": "3.92.1",
         "@react-email/components": "1.0.12",
         "@react-email/render": "2.3.1",
-        "graphql": "16.14.2",
+        "graphql": "16.15.0",
         "mpg123-decoder": "1.0.3",
         "next": "16.4.6",
         "payload": "3.92.1",
@@ -769,7 +769,7 @@
 
     "graceful-fs": ["graceful-fs@4.2.11", "", {}, "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ=="],
 
-    "graphql": ["graphql@16.14.2", "", {}, "sha512-Chq1s4CY7jmh8gO2qvLIJyfCDIN+EHLFW/9iShnp1z8FjBQMoodWP1kDC36VAMXXIvAjj4ARa7ntfAV2BrjsbA=="],
+    "graphql": ["graphql@16.15.0", "", {}, "sha512-32kz9FecohDiC/tgcViwnRXM7HFBVTPiW7pHO+DikKOI5KjhU/jNULOReXsrFqt2WAYbE9xFXsTffJw6iTO8qw=="],
 
     "graphql-http": ["graphql-http@1.23.1", "", { "peerDependencies": { "graphql": ">=0.11 <=17" } }, "sha512-h6AcykL7+xp22QvOnK0fu1eHk9AZG1ngF71rk0ZGuGupnjm1yqXRFrZ/eMv4Q1FTCWILJ5o6hVAxzt3S8/wPHQ=="],
 
